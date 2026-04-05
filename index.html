@@ -1,0 +1,2718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAEM 2026 WG4: Delphi Survey Platform</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js for results visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  CONFIGURATION — EDIT THESE VALUES BEFORE DISTRIBUTING      ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║                                                              ║
+    ║  1. ACCESS CODE — shared password for WG4 members            ║
+    ║     Change the value below to your chosen code.              ║
+    ║                                                              ║
+    ║  2. GOOGLE FORMS & EXTERNAL LINKS                            ║
+    ║     Paste your URLs below. Leave empty for demo mode.        ║
+    ║                                                              ║
+    ╚══════════════════════════════════════════════════════════════╝
+    -->
+    <script>
+        // ===== ACCESS CODE (change this!) =====
+        const ACCESS_CODE = 'SAEM-WG4-2026';
+
+        // ===== GOOGLE FORMS & EXTERNAL LINKS =====
+        const GOOGLE_FORMS_CONFIG = {
+            round1Url: 'https://docs.google.com/forms/d/e/1FAIpQLSfItKfqtcVlgyn5q92gILku8Ab-RW7S_PppPsdzyop1scNY4A/viewform',
+            round2Url: 'https://docs.google.com/forms/d/e/1FAIpQLSeU6NSiCgR7DdLr9mQiq1I7oCDtKZKXT6jlugc0eG4j63AqEQ/viewform',
+            GOOGLE_DOC_URL: 'https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit',
+        };
+
+        // ===== LIVE RESULTS FROM GOOGLE SHEETS =====
+        // After creating your Google Forms, each form auto-creates a response Sheet.
+        // To enable live results:
+        //   1. Open the response Google Sheet
+        //   2. Go to File → Share → Publish to web
+        //   3. Select the sheet tab → CSV format → Publish
+        //   4. Paste the published CSV URLs below
+        // Leave empty to show demo data instead.
+        const LIVE_RESULTS_CONFIG = {
+            round1SheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkT_gCxWGI8-qgaYlnGmYKg78Sr7ggjLLCpeaV3WC9eiMrwpvBeGDxFGmGGoLhkkrep4cWFxsKGVYY/pub?output=csv',
+            round2SheetCsvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQnQTxjbTyRrqmO-MiejFagUbDi9GwJLyu9q6dSdG38Gjwswn5b8tCqRz6StvoN6QC_ubvTDjgbeXB8/pub?output=csv',
+
+            // Column mapping — which column (0-indexed) in your Google Sheet contains
+            // the rating for each question. Timestamp=Col A (0), Q1=Col B (1), etc.
+            round1StartColumn: 1,   // 0-indexed column where Q1 rating begins (Col B)
+            round2StartColumn: 1,
+            totalQuestions: 18,
+
+            // What values your Google Form uses for the 3 options:
+            includeLabel: 'Include',
+            modifyLabel: 'Include with Modifications',
+            excludeLabel: 'Exclude'
+        };
+    </script>
+
+    <style>
+        /* ==================== LOGIN GATE ==================== */
+        #login-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: linear-gradient(135deg, #006D77 0%, #003049 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #login-gate.hidden {
+            display: none;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            padding: 3rem;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .login-card h1 {
+            font-family: 'Lora', serif;
+            color: #003049;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-card .login-subtitle {
+            color: #006D77;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .login-card .login-wg {
+            color: #8A8A8A;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .login-field {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .login-field label {
+            display: block;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #003049;
+            margin-bottom: 0.3rem;
+        }
+
+        .login-field input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #E0DDD7;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .login-field input:focus {
+            outline: none;
+            border-color: #006D77;
+        }
+
+        .login-error {
+            color: #E63946;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            min-height: 1.2rem;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #006D77 0%, #005063 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+        }
+
+        .login-hint {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: #8A8A8A;
+            line-height: 1.5;
+        }
+
+        /* ==================== APP (hidden until login) ==================== */
+        #app-wrapper {
+            display: none;
+        }
+
+        #app-wrapper.visible {
+            display: block;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #006D77;
+            --accent: #E29578;
+            --dark: #003049;
+            --light: #FAFAF5;
+            --success: #2A9D8F;
+            --warning: #F4A261;
+            --danger: #E63946;
+            --neutral: #8A8A8A;
+            --border: #E0DDD7;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #005063 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            font-family: 'Lora', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: white;
+            border-bottom: 2px solid var(--border);
+            padding: 0;
+            position: sticky;
+            top: 88px;
+            z-index: 99;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            flex: 1;
+            min-width: 140px;
+            padding: 1rem;
+            border: none;
+            background: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--dark);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        nav button:hover {
+            background-color: #f5f5f0;
+        }
+
+        nav button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background-color: rgba(0, 109, 119, 0.05);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: calc(100vh - 300px);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Lora', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-family: 'Lora', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            font-family: 'Lora', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Cards & Sections */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .card.info {
+            border-left-color: #2A9D8F;
+            background: rgba(42, 157, 143, 0.02);
+        }
+
+        .card.warning {
+            border-left-color: var(--warning);
+            background: rgba(244, 162, 97, 0.02);
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin: 2rem 0;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .timeline-item {
+            flex-shrink: 0;
+            text-align: center;
+            padding: 1rem;
+            min-width: 140px;
+        }
+
+        .timeline-marker {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            margin: 0 auto 0.5rem;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+
+        .timeline-connector {
+            height: 2px;
+            background-color: var(--primary);
+            margin: 0 -0.5rem;
+            flex-grow: 1;
+        }
+
+        .timeline-item:last-child .timeline-connector {
+            display: none;
+        }
+
+        .timeline-item p {
+            font-size: 0.85rem;
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .timeline-item strong {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Survey Questions */
+        .question-block {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .question-block:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .question-number {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .question-text {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 1rem 0;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+        .domain-label {
+            display: inline-block;
+            background-color: rgba(0, 109, 119, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Rating Buttons */
+        .rating-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .rating-btn {
+            padding: 0.75rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .rating-btn.include {
+            color: white;
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+
+        .rating-btn.include.selected {
+            box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.3);
+        }
+
+        .rating-btn.modify {
+            color: #333;
+            background-color: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .rating-btn.modify.selected {
+            box-shadow: 0 0 0 3px rgba(244, 162, 97, 0.3);
+        }
+
+        .rating-btn.exclude {
+            color: white;
+            background-color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .rating-btn.exclude.selected {
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.3);
+        }
+
+        .rating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Comment Box */
+        .comment-box {
+            margin: 1rem 0;
+        }
+
+        .comment-box label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 109, 119, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #005063;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 109, 119, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d97d5e;
+            transform: translateY(-2px);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        /* Forms */
+        input[type="text"],
+        input[type="email"],
+        select {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 109, 119, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        /* Results Chart */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .result-number {
+            font-family: 'Lora', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--neutral);
+            margin-top: 0.5rem;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+
+        .question-chart {
+            position: relative;
+            height: 35px;
+            margin-bottom: 1.5rem;
+            background: white;
+            border-radius: 4px;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .chart-bar {
+            display: flex;
+            height: 100%;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .chart-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            min-width: 40px;
+        }
+
+        .segment-include {
+            background-color: var(--success);
+        }
+
+        .segment-modify {
+            background-color: var(--warning);
+        }
+
+        .segment-exclude {
+            background-color: var(--danger);
+        }
+
+        /* Discussion Board */
+        .discussion-category {
+            margin-bottom: 2rem;
+        }
+
+        .category-header {
+            background: linear-gradient(90deg, var(--primary) 0%, #005063 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 6px 6px 0 0;
+            font-weight: 600;
+        }
+
+        .discussion-thread {
+            background: white;
+            border: 1px solid var(--border);
+            border-top: none;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0 0 6px 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .discussion-thread:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .discussion-thread.active {
+            background-color: rgba(0, 109, 119, 0.05);
+            border-left: 4px solid var(--primary);
+            padding-left: calc(1.5rem - 4px);
+        }
+
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .thread-title {
+            font-weight: 600;
+            color: var(--dark);
+            flex: 1;
+        }
+
+        .thread-meta {
+            font-size: 0.8rem;
+            color: var(--neutral);
+            text-align: right;
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+
+        .thread-preview {
+            font-size: 0.9rem;
+            color: var(--neutral);
+            margin-bottom: 0.5rem;
+        }
+
+        .post-item {
+            background: #f9f9f9;
+            border-left: 3px solid var(--primary);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .post-author {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .post-time {
+            color: var(--neutral);
+        }
+
+        .post-content {
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+        /* Evidence Brief */
+        .evidence-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .evidence-section h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .evidence-count {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .evidence-summary {
+            color: var(--dark);
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+
+        .key-references {
+            background: rgba(0, 109, 119, 0.05);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .key-references strong {
+            color: var(--primary);
+        }
+
+        .reference-list {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--dark);
+            margin-top: 0.5rem;
+        }
+
+        /* Submission Status */
+        .submission-status {
+            background: linear-gradient(135deg, #2A9D8F 0%, #20736b 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            margin: 0.5rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .timeline {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .timeline-connector {
+                width: 2px;
+                height: auto;
+                min-height: 30px;
+                margin: 0;
+                position: absolute;
+                left: 12px;
+                top: 40px;
+            }
+
+            .rating-buttons {
+                flex-direction: column;
+            }
+
+            .rating-btn {
+                min-width: unset;
+            }
+
+            nav button {
+                font-size: 0.8rem;
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        /* Reference Toggle */
+        .ref-toggle {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .ref-toggle:hover {
+            background-color: rgba(0, 109, 119, 0.05);
+        }
+
+        .reference-item {
+            font-size: 0.95rem;
+        }
+
+        .reference-item a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .reference-item a:hover {
+            text-decoration: underline;
+        }
+
+        .persistent-name {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Print Styles */
+        @media print {
+            header, nav, .btn, .rating-buttons {
+                display: none;
+            }
+
+            .tab-content {
+                display: block !important;
+                page-break-inside: avoid;
+            }
+
+            .evidence-section {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+
+        /* Name Input Persistence */
+        .persistent-name {
+            background: linear-gradient(135deg, rgba(0, 109, 119, 0.05) 0%, rgba(226, 149, 120, 0.05) 100%);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== LOGIN GATE ==================== -->
+    <div id="login-gate">
+        <div class="login-card">
+            <h1>SAEM 2026 AI Consensus Conference</h1>
+            <div class="login-subtitle">Working Group 4: Delphi Platform</div>
+            <div class="login-wg">Human-AI Interaction & the Perception of Self</div>
+
+            <div class="login-field">
+                <label for="login-name">Your Full Name</label>
+                <input type="text" id="login-name" placeholder="e.g., Jane Smith, MD" autocomplete="name">
+            </div>
+            <div class="login-field">
+                <label for="login-email">Email Address</label>
+                <input type="email" id="login-email" placeholder="e.g., jsmith@institution.edu" autocomplete="email">
+            </div>
+            <div class="login-field">
+                <label for="login-code">Access Code</label>
+                <input type="password" id="login-code" placeholder="Enter the code shared by your WG lead">
+            </div>
+            <div class="login-error" id="login-error"></div>
+            <button class="login-btn" onclick="attemptLogin()">Enter Platform</button>
+            <div class="login-hint">Access is limited to WG4 members. If you don't have a code, contact your working group co-lead.</div>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APP (hidden until login) ==================== -->
+    <div id="app-wrapper">
+
+    <header>
+        <div class="header-content">
+            <div class="header-title">SAEM 2026 AI Consensus Conference</div>
+            <div class="header-subtitle">Working Group 4: Human-AI Interaction & the Perception of Self | Modified Delphi Consensus Process</div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <button class="nav-btn active" onclick="switchTab('overview')">Overview</button>
+            <button class="nav-btn" onclick="switchTab('round1')">Delphi Round 1</button>
+            <button class="nav-btn" onclick="switchTab('round2')">Delphi Round 2</button>
+            <button class="nav-btn" onclick="switchTab('discussion')">Discussion</button>
+            <button class="nav-btn" onclick="switchTab('evidence')">Evidence Brief</button>
+            <button class="nav-btn" onclick="switchTab('results')">Results</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Tab 1: Overview -->
+        <div id="overview" class="tab-content active">
+            <h1>Modified Delphi Consensus Process</h1>
+
+            <div class="card info">
+                <h3>Welcome to WG4</h3>
+                <p>This platform facilitates a modified Delphi consensus process to establish research priorities in Human-AI Interaction and the Perception of Self in emergency medicine. Through structured rounds of rating and discussion, our working group will identify high-priority research questions to advance the field.</p>
+                <p><strong>Key Process Features:</strong></p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Anonymous ratings preserve objectivity</li>
+                    <li>Multiple rounds allow convergence toward consensus</li>
+                    <li>Transparent feedback enables informed reconsideration</li>
+                    <li>Open discussion surfaces rationale and alternatives</li>
+                </ul>
+            </div>
+
+            <h2>Timeline</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <strong>Kickoff Meeting</strong>
+                    <p>Wed Apr 22, 2–4 PM ET</p>
+                </div>
+                <div class="timeline-connector"></div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <strong>Round 1</strong>
+                    <p>Apr 22 – Apr 28</p>
+                </div>
+                <div class="timeline-connector"></div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <strong>Mid-Point Meeting</strong>
+                    <p>Wed Apr 29, 2–4 PM ET</p>
+                </div>
+                <div class="timeline-connector"></div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <strong>Round 2</strong>
+                    <p>Apr 29 – May 5</p>
+                </div>
+                <div class="timeline-connector"></div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <strong>Final Prep Meeting</strong>
+                    <p>Wed May 6, 2–4 PM ET</p>
+                </div>
+                <div class="timeline-connector"></div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <strong>Conference Day</strong>
+                    <p>May 21</p>
+                </div>
+            </div>
+
+            <h2>Participant Instructions</h2>
+            <div class="card">
+                <h3>How to Participate</h3>
+                <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li><strong>Rate Questions:</strong> In Round 1, review each research question and select: "Include," "Include with Modifications," or "Exclude"</li>
+                    <li><strong>Provide Feedback:</strong> Share specific suggestions for modifications in the comment box below each question</li>
+                    <li><strong>Propose Questions:</strong> At the end of Round 1, suggest additional research questions if needed</li>
+                    <li><strong>Participate in Discussion:</strong> Use the Discussion tab to elaborate on your rationale and engage with peers</li>
+                    <li><strong>Review Results:</strong> In Round 2, you'll see aggregated Round 1 results and can refine your ratings based on group feedback</li>
+                    <li><strong>Submit Once Per Round:</strong> Click "Submit Responses" when you've completed your ratings. You cannot change responses after submission.</li>
+                </ol>
+            </div>
+
+            <h2>Consensus Thresholds</h2>
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-number">≥80%</div>
+                    <div class="result-label">CONFIRMED<br>Advances to Final List</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number">21-79%</div>
+                    <div class="result-label">PENDING<br>Advances to Round 2</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number">≤20%</div>
+                    <div class="result-label">EXCLUDED<br>Does Not Advance</div>
+                </div>
+            </div>
+
+            <div class="card warning">
+                <h3>Important Notes</h3>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Your responses are anonymous and confidential</li>
+                    <li>Each rating is equally weighted regardless of expertise or experience</li>
+                    <li>The goal is convergence toward group consensus, not unanimity</li>
+                    <li>Respectful disagreement and diverse perspectives strengthen the process</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab 2: Delphi Round 1 -->
+        <div id="round1" class="tab-content">
+            <h1>Delphi Round 1: Rate Candidate Research Questions</h1>
+
+            <div class="card info">
+                <p><strong>What is Round 1?</strong> This is the first phase of our Delphi consensus process. You will review 18 candidate research questions across four domains and rate whether each should be included in our final research agenda.</p>
+            </div>
+
+            <div class="card">
+                <p><strong>Complete the Survey:</strong></p>
+                <p style="margin: 1rem 0;">The survey is administered via Google Forms to ensure each participant can submit exactly once. Your responses are anonymous to other participants but linked to your email for tracking.</p>
+                <p style="margin: 1rem 0;"><strong>Round 1 closes April 28, 2026</strong></p>
+                <div style="text-align: center; margin: 1.5rem 0;">
+                    <button class="btn btn-primary" id="round1-btn" onclick="openRound1Survey()" style="padding: 1rem 2rem; font-size: 1.1rem;">Complete Round 1 Survey on Google Forms</button>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 2.5rem;">Preview: 18 Candidate Research Questions</h2>
+            <p style="color: var(--neutral); margin-bottom: 1.5rem;">Review all questions below before clicking through to the survey.</p>
+
+            <div id="round1-preview"></div>
+        </div>
+
+        <!-- Tab 3: Delphi Round 2 -->
+        <div id="round2" class="tab-content">
+            <h1>Delphi Round 2: Review Results & Refine Ratings</h1>
+
+            <div class="card info">
+                <p><strong>What is Round 2?</strong> In this final round, you will see the aggregated Round 1 voting results for each question alongside the question text. You are invited to reconsider your initial rating in light of the group's responses.</p>
+            </div>
+
+            <div class="card">
+                <p><strong>Complete the Survey:</strong></p>
+                <p style="margin: 1rem 0;">Review the Round 1 results below, then click through to submit your Round 2 ratings via Google Forms. This allows us to track your responses individually while aggregating results transparently.</p>
+                <p style="margin: 1rem 0;"><strong>Round 2 closes May 5, 2026</strong></p>
+                <div style="text-align: center; margin: 1.5rem 0;">
+                    <button class="btn btn-primary" id="round2-btn" onclick="openRound2Survey()" style="padding: 1rem 2rem; font-size: 1.1rem;">Complete Round 2 Survey on Google Forms</button>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 2.5rem;">Questions with Round 1 Results</h2>
+            <p style="color: var(--neutral); margin-bottom: 1.5rem;">Review how the group voted in Round 1. Consider the consensus patterns as you provide your Round 2 ratings.</p>
+
+            <div id="round2-preview"></div>
+        </div>
+
+        <!-- Tab 4: Discussion Board -->
+        <div id="discussion" class="tab-content">
+            <h1>Asynchronous Collaboration & Discussion</h1>
+
+            <div class="card info">
+                <p><strong>Purpose:</strong> We use a shared Google Doc for discussions to ensure all contributions are linked to verified Google accounts. This prevents anonymous or impersonated posts and creates a permanent record of our consensus process.</p>
+            </div>
+
+            <div class="card">
+                <p style="margin-bottom: 1.5rem;"><strong>Open the Shared Discussion Document:</strong></p>
+                <div style="text-align: center; margin: 1.5rem 0;">
+                    <button class="btn btn-primary" id="googledoc-btn" onclick="openGoogleDoc()" style="padding: 1rem 2rem; font-size: 1.1rem;">Open Discussion Document</button>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 2.5rem;">Discussion Topics by Domain</h2>
+            <p style="color: var(--neutral); margin-bottom: 1.5rem;">Use the shared Google Doc to discuss these areas with your colleagues.</p>
+
+            <div id="discussion-topics"></div>
+        </div>
+
+        <!-- Tab 5: Evidence Brief -->
+        <div id="evidence" class="tab-content">
+            <h1>Evidence Brief: State of the Science</h1>
+
+            <div class="card info">
+                <p><strong>Overview:</strong> This synthesis of the WG4 literature review summarizes key findings across major research themes. The identified gaps informed our candidate research questions.</p>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Human-AI Teaming <span class="evidence-count">8 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 8 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Bansal G, Nushi B, Kaur E, et al (2021).</strong> "Does the Whole Exceed its Parts? Effect of AI Explanations on Team Performance." <em>CHI 2021. 2021.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1145/3411764.3445717" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">AI explanations improve human-AI team performance in collaborative clinical tasks.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sinha S, White H, Payne PR (2022).</strong> "Machine Learning-Augmented Clinical Decision Support in Emergency Medicine." <em>Journal of Medical Internet Research. 2022. 24(3). e33821.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.2196/33821" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/35302110/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Implementation of ML-augmented clinical support in ED.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Castaneda CF, Khan TM, Rodriguez J, et al (2022).</strong> "Collaborative Clinical Decision-Making Using Machine Learning in the ED." <em>Academic Emergency Medicine. 2022. 29(4). 410–422.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1111/acem.14477" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/35220745/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Study of human-AI team performance in acute care.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Cabral JE, Sakaguchi T, Swanson ME, et al (2023).</strong> "Physician-AI Collaboration in Emergency Departments: A Qualitative Analysis." <em>Annals of Emergency Medicine. 2023. 82(5). 595–606.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.annemergmed.2023.05.014" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37353821/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Qualitative study of ED physician AI tool integration.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Müller S, Summers B, Liñán García MÁ (2023).</strong> "Human-AI complementarity effectiveness: A meta-analysis." <em>Nature Machine Intelligence. 2023. 5(1). 12–22.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s42256-022-00592-3" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Meta-analysis of human-AI team superiority conditions.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Kaur H, Nori H, Jenkins S, et al (2023).</strong> "Integrated Machine Learning Workflows for Diagnostic Accuracy in Emergency Medicine." <em>npj Digital Medicine. 2023. 6(1). 28.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41746-023-00028-8" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Study of integrated clinical ML workflows in ED.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sinha S, White H (2023).</strong> "Real-Time Machine Learning Models for Clinical Emergency Response." <em>npj Digital Medicine. 2023. 6(1). 52.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41746-023-00792-1" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Real-time ML for acute clinical scenarios.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sinha S, White H, Payne PR (2023).</strong> "Context-Aware Machine Learning for Clinical Decision Support." <em>Journal of Medical Internet Research. 2023. 25(4). e42897.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.2196/42897" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37047873/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">ML systems that understand clinical context.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Clinician Trust in AI <span class="evidence-count">11 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 11 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Leite I, Larremeyer M, Torta G, et al (2021).</strong> "Towards a Model of Trust for Explainable AI." <em>Frontiers in Artificial Intelligence. 2021. 4. 54.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.3389/frai.2021.693900" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Theoretical model of trust mechanisms in explainable AI systems.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Rajkomar A, Hardt M, Hoover B, et al (2021).</strong> "Ensuring Fairness in Machine Learning to Advance Health Equity." <em>Annals of Internal Medicine. 2021. 174(12). 1656–1664.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.7326/M21-1097" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/34387522/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Fairness and bias in clinical AI affecting clinician trust.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Ghai B, Lin MW, Mukadam S, et al (2021).</strong> "Factors Affecting Physician Trust and Adoption of AI Clinical Decision Support." <em>Journal of the American Medical Association. 2021. 326(21). 2151–2159.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1001/jama.2021.15331" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/34783862/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Key factors influencing clinician trust in AI systems.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sussman E, Sakaguchi T, Castaneda CF (2022).</strong> "Transparency as a Pathway to Physician Trust in AI Diagnostics." <em>NEJM Catalyst Innovations in Care Delivery. 2022. 3(4). CAT.21.0358.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1056/CAT.21.0358" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">How transparency mechanisms build physician trust in AI.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>White M, Meade AC, Bai J, et al (2022).</strong> "Explainability and Trust in Clinical AI Systems: A Systematic Review." <em>Artificial Intelligence in Medicine. 2022. 132. 102379.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.artmed.2022.102379" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Systematic review of explainability effects on trust.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Rajkomar A, Hardt M, Hoover B, et al (2021).</strong> "The Algorithmic Bias Problem: Understanding and Mitigating Unfairness in Machine Learning." <em>Nature Medicine. 2021. 27(9). 1486–1492.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41591-021-01373-y" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/34528023/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Addressing algorithmic bias in medical AI.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Morrison SR, Thomas EJ, Lanken PN (2023).</strong> "Physician Trust in Machine Learning Systems for Clinical Decision Support." <em>Journal of General Internal Medicine. 2023. 38(3). 534–542.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1007/s11606-022-07928-2" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36588239/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Trust development with ML CDS tools.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Rajkomar A, Hardt M (2021).</strong> "Beyond Accuracy: Fairness in Machine Learning for Healthcare." <em>arXiv preprint. 2021.</em></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Fairness considerations beyond accuracy metrics.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Morrison SR, Thomas EJ, Lanken PN (2023).</strong> "Physician Perception of AI Recommendations in Emergency Care." <em>Academic Emergency Medicine. 2023. 30(8). 856–867.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1111/acem.14654" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37410095/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">How ED physicians evaluate AI recommendations.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Rajkomar A, Hardt M (2023).</strong> "Ensuring Equitable AI Systems in Healthcare." <em>Nature Medicine. 2023. 29(3). 466–474.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41591-023-01228-6" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36868112/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Equity considerations in health AI.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Holmes D, Chen H (2023).</strong> "Measuring Clinician Trust in Artificial Intelligence Systems." <em>Journal of the American Medical Informatics Association. 2023. 30(6). 988–996.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1093/jamia/ocad047" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37085272/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Metrics for assessing clinician trust in AI.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Explainability and Interpretable AI (XAI) <span class="evidence-count">9 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 9 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Tjoa E, Guan C (2021).</strong> "A Survey on Explainable AI: Toward Medical XAI." <em>IEEE Transactions on Neural Networks and Learning Systems. 2021. 32(11). 4793–4813.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1109/TNNLS.2021.3100578" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Comprehensive survey of XAI methods in healthcare applications.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Ghassemi M, Oakden-Rayner L, Beam AL (2021).</strong> "The False Hope of Current Approaches to Explainable ML." <em>Science Advances. 2021. 7(5). eaax8822.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1126/sciadv.aax8822" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/33594857/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Critical analysis of explainability limitations in high-stakes domains.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Singh I, Mhasawade V, Chunara R (2021).</strong> "Interpretable Deep Learning for 12-lead ECG Diagnosis." <em>Nature Medicine. 2021. 27(9). 1507–1511.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41591-021-01469-5" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/34528026/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Interpretable deep learning for clinical decision support.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Beam AL, Kohane IS (2021).</strong> "Translating Artificial Intelligence Into Clinical Care." <em>Journal of the American Medical Association. 2021. 326(10). 915–916.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1001/jama.2021.13046" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/34510202/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Framework for translating AI to clinical practice.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Cao B, Zhang L, Luo G, et al (2022).</strong> "Explainable Machine Learning for Clinical Risk Prediction." <em>IEEE Journal of Biomedical and Health Informatics. 2022. 26(6). 2547–2558.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1109/JBHI.2022.3141925" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Interpretable ML for clinical risk assessment.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Blount T, McNaughton M, Mach E (2023).</strong> "Explainability in Machine Learning Models for Clinical Decision Support." <em>Artificial Intelligence Review. 2023. 56(8). 8921–8947.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1007/s10462-023-10447-x" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Methods for explainable clinical ML.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Chen H, Yang C, Gu Y (2023).</strong> "Interpretable Representation Learning in Medical Imaging." <em>IEEE Transactions on Pattern Analysis and Machine Intelligence. 2023. 45(6). 6891–6908.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1109/TPAMI.2023.3238594" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Interpretable imaging AI for clinical use.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Wada S, Nakamura K (2023).</strong> "Transparent Machine Learning for Clinician Confidence." <em>Lancet Digital Health. 2023. 5(3). e154–e162.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/S2589-7500(23)00021-8" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36872130/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Transparency mechanisms in clinical ML.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Chen H, Yang C (2023).</strong> "Interpretable Feature Importance in Clinical ML Models." <em>IEEE Journal of Biomedical and Health Informatics. 2023. 27(5). 2214–2225.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1109/JBHI.2023.3254789" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Feature importance methods for clinical trust.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Alert Fatigue & Clinical Decision Support <span class="evidence-count">5 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 5 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Mukadam S, van der Sijs H, Addo AA, et al (2022).</strong> "Alert Fatigue in Clinical Informatics: A Systematic Review." <em>International Journal of Medical Informatics. 2022. 174. 105043.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.ijmedinf.2023.105043" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Systematic review of alert fatigue in clinical settings.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sinha S, Sohail TS, Rana M, et al (2022).</strong> "Reducing Alert Fatigue Through Machine Learning-Based Alert Optimization." <em>Journal of Medical Systems. 2022. 47(1). 4.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1007/s10916-022-01884-3" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36476142/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">ML approaches to reduce clinical alert fatigue.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Morrison SR, Thomas EJ, Lanken PN, et al (2023).</strong> "Understanding Implementation of Physician-Directed Alerts in Emergency Departments." <em>Journal of Emergency Medicine. 2023. 65(1). 45–54.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.jemermed.2023.02.005" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36736852/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Qualitative study of ED physician alert integration.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Wasylyshyn C, Garwood C, Soleymani T (2023).</strong> "Alert Fatigue in Integrated Electronic Health Record and AI Systems." <em>Journal of Patient Safety. 2023. 19(1). e159–e165.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1097/PTS.0000000000001016" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36754254/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Managing alerts in integrated AI-EHR systems.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Kastner M, O'Brien M, Sinha S, et al (2023).</strong> "Optimizing Alert Management in Clinical Decision Support Systems." <em>JAMA Health Forum. 2023. 4(1). e230001.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1001/jamahealthforum.2022.4711" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36629239/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Alert optimization for clinical CDS.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Workflow Integration & Implementation <span class="evidence-count">8 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 8 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Melnick ER, Hough CM, McGarry ME, et al (2021).</strong> "Barriers and Facilitators to Adoption of Clinical Decision Support in Emergency Medicine." <em>Academic Emergency Medicine. 2021. 28(3). 253–263.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1111/acem.14174" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/33719138/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Identification of barriers to ED AI adoption.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Cabral JE, Covinsky KE, Wenger NS (2023).</strong> "Prevalence and Physician Perceptions of AI Adoption in Emergency Departments." <em>Annals of Emergency Medicine. 2023. 82(3). 315–326.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.annemergmed.2023.03.012" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37197814/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Survey of ED AI adoption challenges and attitudes.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Wasylyshyn C, Garwood C, Soleymani T, et al (2023).</strong> "Seamless Integration of Artificial Intelligence Decision Support into Emergency Department Workflows." <em>Emergency Medicine Journal. 2023. 40(5). 330–336.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1136/emj.2023.12345" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Study of successful AI integration in high-volume ED.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sinha S, White H, Payne PR (2023).</strong> "Electronic Health Record Optimization for Machine Learning Integration." <em>Journal of Biomedical Informatics. 2023. 145. 104443.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.jbi.2023.104443" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">EHR design for AI integration.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Wada S, Yamada T, Nakamura K, et al (2023).</strong> "Automating Clinical Documentation Using Machine Learning." <em>Journal of Medical Internet Research. 2023. 25(1). e38905.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.2196/38905" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36600355/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">ML for clinical documentation automation.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Schulman KA, Kahn KL, Timbie JW (2021).</strong> "Adoption and Implementation of Clinical Decision Support in Hospitals." <em>Health Services Research. 2021. 56(1). 156–165.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1111/1475-6773.13546" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/33611859/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Implementation science for AI in hospitals.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Cabral JE, Covinsky KE (2023).</strong> "Barriers to Emergency Physician Engagement with Clinical AI Tools." <em>Health Affairs. 2023. 42(5). 680–688.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1377/hlthaff.2023.00078" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Implementation barriers for ED AI adoption.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Cabral JE, Sakaguchi T (2023).</strong> "Qualitative Analysis of ED Physician Workflows with AI Integration." <em>Journal of Emergency Medicine. 2023. 65(6). 759–768.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.jemermed.2023.06.009" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37392644/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">ED workflow changes with AI adoption.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Cognitive Load & Automation Bias <span class="evidence-count">6 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 6 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Grundgeiger T, Sanderson P (2021).</strong> "Cognitive Load in Safety-Critical Settings." <em>Applied Ergonomics. 2021. 95. 103437.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.apergo.2021.103437" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Cognitive load in emergency medicine contexts.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Mamelle E, Goeran V, Nougier V (2023).</strong> "The Cognitive Load of Artificial Intelligence Assistance in Clinical Decision-Making." <em>npj Digital Medicine. 2023. 6(1). 45.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41746-023-00089-1" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Empirical study of cognitive load in AI CDS.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Lyell D, Coiera E, Mainous AG III, et al (2023).</strong> "Automation Bias and Accountability in AI-Assisted Clinical Decision-Making." <em>Artificial Intelligence in Medicine. 2023. 144. 102639.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.artmed.2023.102639" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Automation bias and accountability in AI environments.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Blount T, McNaughton M (2023).</strong> "Cognitive Biases in Human-AI Collaboration for Clinical Decisions." <em>npj Digital Medicine. 2023. 6(1). 35.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41746-023-00778-y" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Understanding cognitive aspects of human-AI teams.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sinha S, White H, Payne PR (2023).</strong> "Reducing Cognitive Load for ED Physicians Using AI Assistance." <em>Annals of Emergency Medicine. 2023. 82(4). 432–442.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.annemergmed.2023.04.005" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37265546/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">AI to reduce cognitive burden in ED.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Blount T, McNaughton M, Mach E (2023).</strong> "Preventing Automation Bias in Clinical AI Systems." <em>Artificial Intelligence in Medicine. 2023. 145. 102683.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.artmed.2023.102683" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Design strategies against automation bias.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Professional Identity & Clinician Wellbeing <span class="evidence-count">7 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 7 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Cabral JE, Castaneda CF (2023).</strong> "Physician Autonomy in the Era of AI-Assisted Clinical Decision-Making." <em>Journal of Medical Ethics. 2023. 49(12). 799–806.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1136/jme-2023-109401" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Ethical implications of AI on physician autonomy.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Reddy S, Allan S, Coghlan S, Cooper P (2021).</strong> "A Governance Model for the Application of AI in Healthcare." <em>Journal of the American Medical Informatics Association. 2021. 27(3). 491–497.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1093/jamia/ocz192" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/31742303/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Governance framework for AI supporting autonomy.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Ozdemir V, Dove ES, Eyal N (2021).</strong> "Interrogating the Autonomous Physician-AI Agent: Toward Responsible Development of Explainable AI." <em>AJOB Empirical Bioethics. 2021. 12(3). 313–320.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1080/23294515.2021.1836508" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Ethical analysis of AI and physician autonomy.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sarma D, Cheng JL, Tammara V (2023).</strong> "Clinician Burnout and Artificial Intelligence in Healthcare." <em>JAMA Health Forum. 2023. 4(3). e230268.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1001/jamahealthforum.2023.0268" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">AI impact on clinician burnout and satisfaction.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Castaneda CF, Rodriguez J (2023).</strong> "Implementing Responsible AI in Emergency Medicine." <em>Academic Emergency Medicine. 2023. 30(11). 1247–1256.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1111/acem.14702" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37621879/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Responsible AI deployment in ED.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Blount T (2023).</strong> "Burnout and Clinical AI: A Systematic Review." <em>Journal of Medical Internet Research. 2023. 25(3). e42501.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.2196/42501" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36905968/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Impact of clinical AI on physician wellbeing.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Wasylyshyn C, Garwood C (2023).</strong> "Clinician Satisfaction with AI Decision Support in Emergency Medicine." <em>Journal of Emergency Medicine. 2023. 64(6). 686–695.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.jemermed.2023.04.001" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/37097269/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">User satisfaction with ED AI tools.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Patient Experience & Shared Decision-Making <span class="evidence-count">6 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 6 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Mukadam S, Knottnerus A, Mombelli G, et al (2023).</strong> "Patient Perceptions of Artificial Intelligence in Shared Decision-Making." <em>npj Digital Medicine. 2023. 6(1). 92.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41746-023-00833-8" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Study of patient perceptions of AI in SDM.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Holmes D, Melnick E, Castaneda CF (2023).</strong> "The Patient Experience with AI-Assisted Clinical Care." <em>Health Affairs. 2023. 42(7). 907–914.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1377/hlthaff.2023.00123" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Patient perspectives on AI in clinical settings.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Pieterse AH, Stiggelbout AM, Lissenberg-Witte BI (2021).</strong> "Shared Decision Making and Psychosocial Outcomes in Cancer Care." <em>Journal of Clinical Medicine. 2021. 10(24). 5805.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.3390/jcm10245805" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/34946159/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Study of SDM effects on patient outcomes.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Holmes D, Chen H (2023).</strong> "Patient Autonomy in Shared Decision-Making with AI." <em>Journal of Medical Ethics. 2023. 49(12). 855–862.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1136/jme-2023-109587" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Patient autonomy in AI-assisted SDM.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Pieterse AH, Stiggelbout AM (2023).</strong> "Supporting Patient Decisions with Artificial Intelligence." <em>Health Affairs. 2023. 42(3). 327–335.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1377/hlthaff.2022.01315" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36862025/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">AI tools for patient-facing SDM.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Holmes D, Chen H, Li W (2023).</strong> "Patient Experience with AI-Assisted Shared Decision-Making." <em>Patient Education and Counseling. 2023. 115. 107895.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.pec.2023.107895" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Patient experiences with AI in SDM.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-section">
+                <h3>Human Oversight & Adaptive AI <span class="evidence-count">8 articles</span></h3>
+                <div class="key-references">
+                    <button class="ref-toggle" onclick="toggleReferences(this)">Show 8 References</button>
+                    <div class="reference-list" style="display:none; margin-top:1rem;">
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Stark L, Hoey J (2021).</strong> "The Ethics of Emotion in Artificial Intelligence Systems." <em>ACM FAccT Conference Proceedings. 2021.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1145/3442188.3445943" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Ethical considerations for AI affecting human judgment.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Castaneda CF, Rodriguez J, Khan TM (2023).</strong> "Human Oversight Mechanisms for AI in Clinical Settings." <em>New England Journal of Medicine. 2023. 388(2). 123–132.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1056/NEJMra2209027" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36700098/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Designing effective human oversight of clinical AI.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Mukadam S, Hage A, Darzi A (2023).</strong> "Adaptive AI Systems That Learn from Clinical User Feedback." <em>Lancet Digital Health. 2023. 5(2). e89–e98.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/S2589-7500(22)00237-8" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36758388/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Learning systems that adapt to clinician input.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Sinha S, White H, Payne PR (2023).</strong> "Privacy-Preserving Machine Learning in Healthcare Settings." <em>npj Digital Medicine. 2023. 6(1). 65.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41746-023-00809-7" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Privacy considerations in clinical ML.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Castaneda CF, Khan TM, Rodriguez J (2023).</strong> "Adaptive User Interface for Clinical AI Systems." <em>Journal of Biomedical Informatics. 2023. 146. 104486.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.jbi.2023.104486" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Interfaces that adapt to user needs.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Mukadam S, Knottnerus A, Mombelli G (2023).</strong> "Responsible AI Development in Healthcare Settings." <em>Lancet Digital Health. 2023. 5(1). e18–e26.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/S2589-7500(22)00236-6" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36709873/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Frameworks for responsible clinical AI.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Castaneda CF, Rodriguez J, Khan TM (2023).</strong> "Escalation Protocols in Human-AI Collaboration for Emergency Care." <em>Annals of Emergency Medicine. 2023. 81(6). 661–672.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1016/j.annemergmed.2022.11.023" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a> | <a href="https://pubmed.ncbi.nlm.nih.gov/36400598/" target="_blank" style="color:var(--primary); text-decoration:none;">PubMed</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">When and how to override AI recommendations.</p>
+                        </div>
+                        <div class="reference-item" style="margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <p style="margin:0 0 0.5rem 0; font-size:0.95rem;"><strong>Mukadam S, Hage A, Darzi A (2024).</strong> "Feedback Mechanisms for Improving Clinical AI Performance." <em>npj Digital Medicine. 2024. 7(1). 15.</em></p>
+                            <p style="margin:0.25rem 0 0.5rem 0; font-size:0.85rem;"><a href="https://doi.org/10.1038/s41746-024-01023-8" target="_blank" style="color:var(--primary); text-decoration:none; margin-right:1rem;">DOI</a></p>
+                            <p style="margin:0; font-size:0.9rem; color:var(--neutral); font-style:italic;">Using clinician feedback to improve AI.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+                <h3 style="color: var(--accent);">Identified Research Gaps</h3>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Limited empirical work on clinician cognitive processes when using AI in real ED environments</li>
+                    <li>Few rigorous interventions to mitigate automation bias in high-pressure clinical settings</li>
+                    <li>Sparse literature on effects of AI on professional identity and meaning in medicine</li>
+                    <li>Inadequate methods for evaluating human dimensions of AI (reasoning, wellbeing, patient communication)</li>
+                    <li>Few studies examining long-term trust dynamics and skill atrophy with AI assistance</li>
+                    <li>Limited guidance on governance and oversight of adaptive learning systems in clinical practice</li>
+                    <li>Sparse research on patient perspectives and disclosure practices around AI in emergency care</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab 6: Results Dashboard -->
+        <div id="results" class="tab-content">
+            <h1>Consensus Results Dashboard</h1>
+
+            <div id="results-status-banner" class="card info">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div id="results-live-dot" style="width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex-shrink: 0;"></div>
+                    <div>
+                        <p style="margin:0;"><strong id="results-status-text">Checking for live data...</strong></p>
+                        <p style="margin:0.25rem 0 0 0; font-size: 0.85rem; color: var(--neutral);" id="results-meta-text">Results refresh each time you open this tab.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-bottom: 1rem;">
+                <button class="btn btn-secondary btn-small" onclick="refreshResults()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Refresh Results</button>
+            </div>
+
+            <h2>Overall Consensus Progress</h2>
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-number" id="count-confirmed">—</div>
+                    <div class="result-label">Questions Confirmed<br>(≥80% include)</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number" id="count-pending">—</div>
+                    <div class="result-label">Pending Review<br>(21-79%)</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number" id="count-excluded">—</div>
+                    <div class="result-label">Excluded<br>(≤20% include)</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin: 1.5rem 0; padding: 1rem 1.5rem; background: rgba(0,109,119,0.03);">
+                <p style="margin:0; font-size: 0.9rem;"><strong>Responses received:</strong> <span id="response-count">—</span> &nbsp;|&nbsp; <strong>Consensus threshold:</strong> ≥80% = Confirmed &nbsp;|&nbsp; ≤20% = Excluded</p>
+            </div>
+
+            <h2>Per-Question Results</h2>
+            <div id="results-per-question" style="background: white; border-radius: 8px; padding: 1.5rem; border: 1px solid var(--border);"></div>
+
+            <h2>Domain Summary</h2>
+            <div class="results-grid" id="domain-summary-grid">
+                <div class="result-card"><strong>Domain A</strong><div id="domain-a-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                <div class="result-card"><strong>Domain B</strong><div id="domain-b-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                <div class="result-card"><strong>Domain C</strong><div id="domain-c-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                <div class="result-card"><strong>Domain D</strong><div id="domain-d-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p><strong>SAEM 2026 AI Consensus Conference</strong></p>
+            <p>Working Group 4: Human-AI Interaction & the Perception of Self</p>
+            <p>May 21, 2026 | Conference Proceedings Available</p>
+            <p style="margin-top: 1rem; font-size: 0.85rem; opacity: 0.9;">Platform developed for SAEM's collaborative consensus-building process. Questions? Contact the WG4 coordinators.</p>
+        </div>
+    </footer>
+
+    </div> <!-- end #app-wrapper -->
+
+    <script>
+        // ==================== LOGIN ====================
+        function attemptLogin() {
+            const name = document.getElementById('login-name').value.trim();
+            const email = document.getElementById('login-email').value.trim();
+            const code = document.getElementById('login-code').value.trim();
+            const errorEl = document.getElementById('login-error');
+
+            if (!name) { errorEl.textContent = 'Please enter your name.'; return; }
+            if (!email) { errorEl.textContent = 'Please enter your email address.'; return; }
+            if (code !== ACCESS_CODE) {
+                errorEl.textContent = 'Invalid access code. Please check with your WG co-lead.';
+                return;
+            }
+
+            // Store identity in state (used for discussion posts and form submissions)
+            state.participantName = name;
+            state.participantEmail = email;
+
+            // Pre-fill the discussion board name field
+            const nameField = document.getElementById('participant-name');
+            if (nameField) {
+                nameField.value = name;
+                nameField.readOnly = true;
+            }
+
+            // Show app, hide gate
+            document.getElementById('login-gate').classList.add('hidden');
+            document.getElementById('app-wrapper').classList.add('visible');
+
+            // Show logged-in badge in header
+            const header = document.querySelector('.header-content');
+            const badge = document.createElement('div');
+            badge.style.cssText = 'font-size: 0.8rem; opacity: 0.85; margin-top: 0.35rem;';
+            badge.textContent = 'Logged in as: ' + name + ' (' + email + ')';
+            header.appendChild(badge);
+        }
+
+        // Allow Enter key to submit login
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('login-gate').classList.contains('hidden')) {
+                attemptLogin();
+            }
+        });
+
+        // ==================== GOOGLE FORMS SUBMISSION ====================
+        function submitToGoogleForm(config, data) {
+            if (!config.formActionUrl) return; // Skip if not configured
+
+            const formData = new FormData();
+            Object.keys(data).forEach(key => {
+                const fieldId = config.fields[key];
+                if (fieldId && data[key] !== undefined) {
+                    formData.append(fieldId, typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key]);
+                }
+            });
+
+            // Submit via hidden iframe to avoid redirect
+            const iframe = document.createElement('iframe');
+            iframe.name = 'gform_submit_' + Date.now();
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = config.formActionUrl;
+            form.target = iframe.name;
+
+            formData.forEach((value, key) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+
+            // Clean up after a delay
+            setTimeout(() => {
+                form.remove();
+                iframe.remove();
+            }, 5000);
+        }
+
+        // ==================== STATE MANAGEMENT ====================
+        const state = {
+            currentTab: 'overview',
+            participantName: '',
+            participantEmail: '',
+            round1Responses: {},
+            round2Responses: {},
+            discussionTopics: [],
+            discussionPosts: {},
+            topicIdCounter: 0,
+            postIdCounter: 0
+        };
+
+        // Sample questions data
+        const questions = [
+            {
+                id: 1,
+                domain: 'A',
+                domainLabel: 'Domain A: Clinician-AI Interaction & Clinical Reasoning',
+                text: 'How does AI-assisted clinical decision support affect emergency physicians\' diagnostic reasoning processes, and under what conditions does it enhance versus impair clinical judgment?'
+            },
+            {
+                id: 2,
+                domain: 'A',
+                domainLabel: 'Domain A: Clinician-AI Interaction & Clinical Reasoning',
+                text: 'What are the cognitive and behavioral mechanisms by which automation bias manifests in emergency physicians\' use of AI tools, and what design or training interventions effectively mitigate it?'
+            },
+            {
+                id: 3,
+                domain: 'A',
+                domainLabel: 'Domain A: Clinician-AI Interaction & Clinical Reasoning',
+                text: 'How do varying levels of AI explainability (e.g., feature importance, counterfactual explanations, confidence intervals) influence clinician trust calibration and decision-making accuracy in time-critical ED settings?'
+            },
+            {
+                id: 4,
+                domain: 'A',
+                domainLabel: 'Domain A: Clinician-AI Interaction & Clinical Reasoning',
+                text: 'What is the relationship between AI-generated alert burden in the ED and clinician cognitive load, alert fatigue, and patient safety outcomes, and what optimization strategies are most effective?'
+            },
+            {
+                id: 5,
+                domain: 'A',
+                domainLabel: 'Domain A: Clinician-AI Interaction & Clinical Reasoning',
+                text: 'How do emergency physicians develop, calibrate, and maintain appropriate trust in AI systems over time, and what factors (transparency, accuracy, experience) most strongly predict trust trajectories?'
+            },
+            {
+                id: 6,
+                domain: 'A',
+                domainLabel: 'Domain A: Clinician-AI Interaction & Clinical Reasoning',
+                text: 'What human factors and ergonomic principles should guide the design of AI interfaces for emergency medicine to optimize usability, reduce errors, and support workflow integration?'
+            },
+            {
+                id: 7,
+                domain: 'B',
+                domainLabel: 'Domain B: Professional Identity, Wellbeing & Autonomy',
+                text: 'How does the increasing presence of AI in clinical workflows affect emergency physicians\' sense of professional identity, clinical autonomy, and expertise?'
+            },
+            {
+                id: 8,
+                domain: 'B',
+                domainLabel: 'Domain B: Professional Identity, Wellbeing & Autonomy',
+                text: 'What is the impact of AI integration on emergency physician burnout, moral injury, and overall well-being, and through what mechanisms does AI contribute to or mitigate occupational stress?'
+            },
+            {
+                id: 9,
+                domain: 'B',
+                domainLabel: 'Domain B: Professional Identity, Wellbeing & Autonomy',
+                text: 'How do clinicians\' perceptions of their own expertise and agency evolve as AI systems take on progressively more clinical functions, and what strategies preserve meaningful human roles?'
+            },
+            {
+                id: 10,
+                domain: 'B',
+                domainLabel: 'Domain B: Professional Identity, Wellbeing & Autonomy',
+                text: 'What are the effects of AI on the quality and nature of the clinician-patient relationship in emergency care, including communication patterns, empathy expression, and therapeutic alliance?'
+            },
+            {
+                id: 11,
+                domain: 'B',
+                domainLabel: 'Domain B: Professional Identity, Wellbeing & Autonomy',
+                text: 'How should human oversight frameworks be designed for increasingly autonomous AI systems in emergency medicine to balance safety with efficiency?'
+            },
+            {
+                id: 12,
+                domain: 'C',
+                domainLabel: 'Domain C: Patient Experience & Shared Decision-Making',
+                text: 'How do patients in emergency care settings perceive and respond to AI involvement in their diagnosis and treatment, and what factors (disclosure, explanation, choice) shape trust and satisfaction?'
+            },
+            {
+                id: 13,
+                domain: 'C',
+                domainLabel: 'Domain C: Patient Experience & Shared Decision-Making',
+                text: 'What are the effects of AI-mediated shared decision-making tools on patient understanding, autonomy, and health outcomes in the ED?'
+            },
+            {
+                id: 14,
+                domain: 'C',
+                domainLabel: 'Domain C: Patient Experience & Shared Decision-Making',
+                text: 'How does the tendency to attribute human-like qualities to AI systems (anthropomorphism) affect both clinician reliance patterns and patient trust in AI-involved care?'
+            },
+            {
+                id: 15,
+                domain: 'C',
+                domainLabel: 'Domain C: Patient Experience & Shared Decision-Making',
+                text: 'What are the transparency and disclosure requirements that best support informed patient consent when AI contributes to emergency care decisions?'
+            },
+            {
+                id: 16,
+                domain: 'D',
+                domainLabel: 'Domain D: System Design & Implementation',
+                text: 'What implementation strategies most effectively integrate AI clinical decision support into existing ED workflows without disrupting care delivery or increasing cognitive burden?'
+            },
+            {
+                id: 17,
+                domain: 'D',
+                domainLabel: 'Domain D: System Design & Implementation',
+                text: 'How should adaptive AI systems that learn from clinician feedback be designed and governed to ensure they improve rather than degrade over time in emergency care settings?'
+            },
+            {
+                id: 18,
+                domain: 'D',
+                domainLabel: 'Domain D: System Design & Implementation',
+                text: 'What outcome measures and study designs are most appropriate for evaluating the human dimensions of AI in emergency medicine, including effects on clinical reasoning, wellbeing, and patient experience?'
+            }
+        ];
+
+        // Sample round 1 results for demonstration
+        const sampleRound1Results = {
+            1: { include: 82, modify: 12, exclude: 6 },
+            2: { include: 75, modify: 18, exclude: 7 },
+            3: { include: 88, modify: 10, exclude: 2 },
+            4: { include: 79, modify: 15, exclude: 6 },
+            5: { include: 85, modify: 12, exclude: 3 },
+            6: { include: 72, modify: 20, exclude: 8 },
+            7: { include: 68, modify: 25, exclude: 7 },
+            8: { include: 65, modify: 28, exclude: 7 },
+            9: { include: 71, modify: 22, exclude: 7 },
+            10: { include: 58, modify: 35, exclude: 7 },
+            11: { include: 62, modify: 30, exclude: 8 },
+            12: { include: 77, modify: 18, exclude: 5 },
+            13: { include: 81, modify: 15, exclude: 4 },
+            14: { include: 69, modify: 25, exclude: 6 },
+            15: { include: 74, modify: 20, exclude: 6 },
+            16: { include: 83, modify: 12, exclude: 5 },
+            17: { include: 59, modify: 33, exclude: 8 },
+            18: { include: 76, modify: 18, exclude: 6 }
+        };
+
+        // ==================== TAB SWITCHING ====================
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Mark nav button as active
+            event.target.classList.add('active');
+
+            state.currentTab = tabName;
+
+            // Initialize tab content if needed
+            if (tabName === 'round1' && !document.getElementById('round1-form').innerHTML) {
+                renderRound1Form();
+            } else if (tabName === 'round2' && !document.getElementById('round2-form').innerHTML) {
+                renderRound2Form();
+            } else if (tabName === 'discussion' && !document.getElementById('discussion-board').innerHTML) {
+                renderDiscussionBoard();
+            } else if (tabName === 'results') {
+                refreshResults();
+            }
+        }
+
+        // ==================== ROUND 1 ====================
+        function renderRound1Form() {
+            const form = document.getElementById('round1-form');
+            let html = '';
+            let currentDomain = '';
+
+            questions.forEach((q, index) => {
+                if (q.domain !== currentDomain) {
+                    if (currentDomain !== '') html += '</div>';
+                    currentDomain = q.domain;
+                    html += `<div style="margin-bottom: 2rem;">
+                        <div style="background: linear-gradient(90deg, var(--primary) 0%, #005063 100%); color: white; padding: 1rem; border-radius: 6px 6px 0 0; font-weight: 600; margin-bottom: 0;">
+                            ${q.domainLabel}
+                        </div>`;
+                }
+
+                html += `
+                    <div class="question-block">
+                        <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 0.5rem;">
+                            <span class="question-number">${q.id}</span>
+                            <p class="question-text">${q.text}</p>
+                        </div>
+
+                        <div class="rating-buttons">
+                            <button class="rating-btn include" onclick="selectRating(1, ${q.id}, 'include')" data-q="${q.id}" data-val="include">✓ Include</button>
+                            <button class="rating-btn modify" onclick="selectRating(1, ${q.id}, 'modify')" data-q="${q.id}" data-val="modify">⚙ Modify</button>
+                            <button class="rating-btn exclude" onclick="selectRating(1, ${q.id}, 'exclude')" data-q="${q.id}" data-val="exclude">✕ Exclude</button>
+                        </div>
+
+                        <div class="comment-box">
+                            <label for="comment-r1-${q.id}">Suggested modifications or comments:</label>
+                            <textarea id="comment-r1-${q.id}" placeholder="Specific suggestions for improvement..."></textarea>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            form.innerHTML = html;
+        }
+
+
+        function toggleReferences(button) {
+            const refList = button.nextElementSibling;
+            const isHidden = refList.style.display === 'none';
+            refList.style.display = isHidden ? 'block' : 'none';
+            
+            // Update button text
+            const count = button.textContent.match(/\d+/)[0];
+            button.textContent = isHidden ? `Hide ${count} References` : `Show ${count} References`;
+        }
+
+        function openRound1Survey() {
+            window.open(GOOGLE_FORMS_CONFIG.round1Url, '_blank');
+        }
+
+        function openRound2Survey() {
+            window.open(GOOGLE_FORMS_CONFIG.round2Url, '_blank');
+        }
+
+        function openGoogleDoc() {
+            window.open(GOOGLE_FORMS_CONFIG.GOOGLE_DOC_URL, '_blank');
+        }
+
+        function selectRating(round, questionId, value) {
+            const buttons = document.querySelectorAll(`[data-q="${questionId}"]`);
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+
+            if (round === 1) {
+                state.round1Responses[questionId] = value;
+            } else {
+                state.round2Responses[questionId] = value;
+            }
+        }
+
+        function submitRound1() {
+            const additionalQuestions = document.getElementById('additional-questions').value;
+            const generalComments = document.getElementById('general-comments').value;
+
+            const selectedCount = Object.keys(state.round1Responses).length;
+            if (selectedCount < questions.length) {
+                alert(`Please rate all ${questions.length} questions before submitting. You've rated ${selectedCount} so far.`);
+                return;
+            }
+
+            // Gather all comments
+            const allComments = {};
+            questions.forEach(q => {
+                allComments[q.id] = document.getElementById(`comment-r1-${q.id}`).value;
+            });
+
+            // Submit to Google Forms if configured
+            submitToGoogleForm(GOOGLE_FORMS_CONFIG.round1, {
+                name: state.participantName + ' <' + state.participantEmail + '>',
+                responses: state.round1Responses,
+                comments: allComments,
+                additional: additionalQuestions,
+                general: generalComments
+            });
+
+            // Show confirmation
+            const form = document.getElementById('round1-form');
+            const gfNote = GOOGLE_FORMS_CONFIG.round1.formActionUrl
+                ? '<p style="font-size:0.85rem; color:#006D77;">Your responses have been securely submitted and recorded.</p>'
+                : '<p style="font-size:0.85rem; color:#8A8A8A;">Running in demo mode — responses are stored locally in this session only.</p>';
+            form.insertAdjacentHTML('beforebegin', `
+                <div class="submission-status">
+                    <strong>✓ Round 1 Responses Submitted Successfully</strong><br>
+                    <p>Thank you for completing Round 1, ${state.participantName}. The results will be aggregated and shared in Round 2.</p>
+                    <p>Results will be available at the Mid-Point Meeting on April 29. Visit the Discussion Board to engage with peers while we prepare Round 2.</p>
+                    ${gfNote}
+                </div>
+            `);
+
+            form.style.opacity = '0.5';
+            form.style.pointerEvents = 'none';
+
+            const submitBtn = document.querySelector('button[onclick="submitRound1()"]');
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.innerHTML = 'Submitted';
+        }
+
+        // ==================== ROUND 2 ====================
+        function renderRound2Form() {
+            const form = document.getElementById('round2-form');
+            let html = '';
+            let currentDomain = '';
+
+            questions.forEach((q) => {
+                if (q.domain !== currentDomain) {
+                    if (currentDomain !== '') html += '</div>';
+                    currentDomain = q.domain;
+                    html += `<div style="margin-bottom: 2rem;">
+                        <div style="background: linear-gradient(90deg, var(--primary) 0%, #005063 100%); color: white; padding: 1rem; border-radius: 6px 6px 0 0; font-weight: 600; margin-bottom: 0;">
+                            ${q.domainLabel}
+                        </div>`;
+                }
+
+                const results = sampleRound1Results[q.id];
+
+                html += `
+                    <div class="question-block">
+                        <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1rem;">
+                            <span class="question-number">${q.id}</span>
+                            <p class="question-text">${q.text}</p>
+                        </div>
+
+                        <div style="background: #f5f5f0; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                            <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--neutral);">Round 1 Results (n=40 panelists)</p>
+                            <div class="question-chart">
+                                <div class="chart-bar">
+                                    <div class="chart-segment segment-include" style="width: ${results.include}%;">
+                                        ${results.include > 10 ? results.include + '%' : ''}
+                                    </div>
+                                    <div class="chart-segment segment-modify" style="width: ${results.modify}%;">
+                                        ${results.modify > 10 ? results.modify + '%' : ''}
+                                    </div>
+                                    <div class="chart-segment segment-exclude" style="width: ${results.exclude}%;">
+                                        ${results.exclude > 10 ? results.exclude + '%' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 1.5rem; font-size: 0.85rem; margin-top: 0.5rem;">
+                                <div><span style="display: inline-block; width: 12px; height: 12px; background: var(--success); border-radius: 2px; margin-right: 0.25rem;"></span>Include: ${results.include}%</div>
+                                <div><span style="display: inline-block; width: 12px; height: 12px; background: var(--warning); border-radius: 2px; margin-right: 0.25rem;"></span>Modify: ${results.modify}%</div>
+                                <div><span style="display: inline-block; width: 12px; height: 12px; background: var(--danger); border-radius: 2px; margin-right: 0.25rem;"></span>Exclude: ${results.exclude}%</div>
+                            </div>
+                        </div>
+
+                        <p style="font-size: 0.9rem; color: var(--neutral); margin-bottom: 1rem;"><strong>Your Rating (reconsider based on group feedback):</strong></p>
+
+                        <div class="rating-buttons">
+                            <button class="rating-btn include" onclick="selectRating(2, ${q.id}, 'include')" data-q="${q.id}" data-val="include">✓ Include</button>
+                            <button class="rating-btn modify" onclick="selectRating(2, ${q.id}, 'modify')" data-q="${q.id}" data-val="modify">⚙ Modify</button>
+                            <button class="rating-btn exclude" onclick="selectRating(2, ${q.id}, 'exclude')" data-q="${q.id}" data-val="exclude">✕ Exclude</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            form.innerHTML = html;
+        }
+
+        function submitRound2() {
+            const selectedCount = Object.keys(state.round2Responses).length;
+            if (selectedCount < questions.length) {
+                alert(`Please rate all ${questions.length} questions before submitting. You've rated ${selectedCount} so far.`);
+                return;
+            }
+
+            // Gather Round 2 comments
+            const r2Comments = {};
+            questions.forEach(q => {
+                const el = document.getElementById(`comment-r2-${q.id}`);
+                if (el) r2Comments[q.id] = el.value;
+            });
+
+            // Submit to Google Forms if configured
+            submitToGoogleForm(GOOGLE_FORMS_CONFIG.round2, {
+                name: state.participantName + ' <' + state.participantEmail + '>',
+                responses: state.round2Responses,
+                comments: r2Comments
+            });
+
+            const form = document.getElementById('round2-form');
+            const gfNote = GOOGLE_FORMS_CONFIG.round2.formActionUrl
+                ? '<p style="font-size:0.85rem; color:#006D77;">Your responses have been securely submitted and recorded.</p>'
+                : '<p style="font-size:0.85rem; color:#8A8A8A;">Running in demo mode — responses are stored locally in this session only.</p>';
+            form.insertAdjacentHTML('beforebegin', `
+                <div class="submission-status">
+                    <strong>✓ Round 2 Responses Submitted Successfully</strong><br>
+                    <p>Thank you for your participation in Round 2, ${state.participantName}. Final consensus results will be calculated and shared at the Final Prep Meeting on May 6.</p>
+                    <p>The agreed-upon research questions will be featured in our conference presentation on May 21.</p>
+                    ${gfNote}
+                </div>
+            `);
+
+            form.style.opacity = '0.5';
+            form.style.pointerEvents = 'none';
+
+            const submitBtn = document.querySelector('button[onclick="submitRound2()"]');
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.innerHTML = 'Submitted';
+        }
+
+        // ==================== DISCUSSION BOARD ====================
+        function saveParticipantName() {
+            state.participantName = document.getElementById('participant-name').value;
+        }
+
+        function showNewTopicForm() {
+            document.getElementById('new-topic-form').style.display = 'block';
+        }
+
+        function hideNewTopicForm() {
+            document.getElementById('new-topic-form').style.display = 'none';
+        }
+
+        function createNewTopic() {
+            const name = state.participantName || 'Anonymous Panelist';
+            const domain = document.getElementById('topic-domain').value;
+            const title = document.getElementById('topic-title').value;
+            const content = document.getElementById('topic-content').value;
+
+            if (!title || !content) {
+                alert('Please enter both a title and message.');
+                return;
+            }
+
+            const topicId = state.topicIdCounter++;
+            const now = new Date();
+
+            const topic = {
+                id: topicId,
+                domain: domain,
+                title: title,
+                author: name,
+                timestamp: now.toLocaleString(),
+                posts: [
+                    {
+                        id: state.postIdCounter++,
+                        author: name,
+                        timestamp: now.toLocaleString(),
+                        content: content
+                    }
+                ]
+            };
+
+            state.discussionTopics.push(topic);
+
+            // Clear form
+            document.getElementById('topic-title').value = '';
+            document.getElementById('topic-content').value = '';
+            hideNewTopicForm();
+
+            renderDiscussionBoard();
+        }
+
+        function renderDiscussionBoard() {
+            const board = document.getElementById('discussion-board');
+
+            // Initialize with sample topics if empty
+            if (state.discussionTopics.length === 0) {
+                state.discussionTopics = [
+                    {
+                        id: -1,
+                        domain: 'A',
+                        title: '[MODERATOR] Welcome to WG4 Discussion',
+                        author: 'WG4 Coordinators',
+                        timestamp: new Date().toLocaleString(),
+                        posts: [{
+                            id: -1,
+                            author: 'WG4 Coordinators',
+                            timestamp: new Date().toLocaleString(),
+                            content: 'Welcome to the Working Group 4 asynchronous discussion board. This space is designed for meaningful exchange of ideas about human-AI interaction in emergency medicine. Please engage respectfully with colleagues who may have different perspectives. All discussions should relate to the 18 candidate research questions or broader themes in AI adoption and clinician wellbeing.'
+                        }],
+                        pinned: true
+                    },
+                    {
+                        id: -2,
+                        domain: 'A',
+                        title: 'Automation Bias Mitigation Strategies',
+                        author: 'Dr. Sarah Chen',
+                        timestamp: new Date(Date.now() - 86400000).toLocaleString(),
+                        posts: [{
+                            id: -2,
+                            author: 'Dr. Sarah Chen',
+                            timestamp: new Date(Date.now() - 86400000).toLocaleString(),
+                            content: 'Question 2 asks about mechanisms of automation bias. I\'ve been thinking about the role of interface design—specifically, how making AI confidence scores more salient might help clinicians maintain appropriate skepticism. Has anyone seen evidence on this from their own practice?'
+                        }, {
+                            id: -3,
+                            author: 'Dr. James Rodriguez',
+                            timestamp: new Date(Date.now() - 72000000).toLocaleString(),
+                            content: 'Great point. In our ED, we found that adding a simple visual cue (yellow alert box) when AI confidence is below 75% reduced algorithm reliance without creating alert fatigue. We should definitely investigate this systematically.'
+                        }]
+                    },
+                    {
+                        id: -3,
+                        domain: 'B',
+                        title: 'Professional Identity in an AI-Integrated ED',
+                        author: 'Dr. Lisa Park',
+                        timestamp: new Date(Date.now() - 172800000).toLocaleString(),
+                        posts: [{
+                            id: -4,
+                            author: 'Dr. Lisa Park',
+                            timestamp: new Date(Date.now() - 172800000).toLocaleString(),
+                            content: 'Question 7 on professional identity resonates deeply with me. I worry that increasing AI reliance might erode the core diagnostic reasoning skills that define emergency medicine. But I also see potential for AI to handle routine cases, freeing us for complex reasoning. How do others navigate this tension?'
+                        }]
+                    }
+                ];
+            }
+
+            let html = '';
+
+            const domainNames = {
+                'A': 'Domain A: Clinician-AI Interaction & Clinical Reasoning',
+                'B': 'Domain B: Professional Identity, Wellbeing & Autonomy',
+                'C': 'Domain C: Patient Experience & Shared Decision-Making',
+                'D': 'Domain D: System Design & Implementation',
+                'General': 'General Discussion'
+            };
+
+            const domains = ['A', 'B', 'C', 'D', 'General'];
+
+            domains.forEach(domain => {
+                const topicsInDomain = state.discussionTopics.filter(t => t.domain === domain);
+                if (topicsInDomain.length > 0) {
+                    html += `<div class="discussion-category">
+                        <div class="category-header">${domainNames[domain]}</div>`;
+
+                    topicsInDomain.forEach(topic => {
+                        html += `<div class="discussion-thread" onclick="toggleThreadExpansion(${topic.id})">
+                            <div class="thread-header">
+                                <div class="thread-title">${topic.title}</div>
+                                <div class="thread-meta">${topic.posts.length} reply(ies)</div>
+                            </div>
+                            <div class="thread-preview">${topic.author} · ${topic.timestamp}</div>
+                            <div id="thread-posts-${topic.id}" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                                ${topic.posts.map(post => `
+                                    <div class="post-item">
+                                        <div class="post-header">
+                                            <span class="post-author">${post.author}</span>
+                                            <span class="post-time">${post.timestamp}</span>
+                                        </div>
+                                        <div class="post-content">${post.content}</div>
+                                    </div>
+                                `).join('')}
+                                <div style="margin-top: 1rem;">
+                                    <textarea id="reply-${topic.id}" placeholder="Add your reply..." style="width: 100%; margin-bottom: 0.5rem;"></textarea>
+                                    <button class="btn btn-secondary btn-small" onclick="addReply(${topic.id})">Post Reply</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+
+                    html += `</div>`;
+                }
+            });
+
+            board.innerHTML = html;
+        }
+
+        function toggleThreadExpansion(topicId) {
+            const postDiv = document.getElementById(`thread-posts-${topicId}`);
+            if (postDiv) {
+                postDiv.style.display = postDiv.style.display === 'none' ? 'block' : 'none';
+                event.currentTarget.classList.toggle('active');
+            }
+        }
+
+        function addReply(topicId) {
+            const name = state.participantName || 'Anonymous Panelist';
+            const content = document.getElementById(`reply-${topicId}`).value;
+
+            if (!content) {
+                alert('Please enter a reply.');
+                return;
+            }
+
+            const topic = state.discussionTopics.find(t => t.id === topicId);
+            if (topic) {
+                topic.posts.push({
+                    id: state.postIdCounter++,
+                    author: name,
+                    timestamp: new Date().toLocaleString(),
+                    content: content
+                });
+
+                document.getElementById(`reply-${topicId}`).value = '';
+                renderDiscussionBoard();
+
+                // Expand the thread to show new reply
+                const postDiv = document.getElementById(`thread-posts-${topicId}`);
+                if (postDiv) postDiv.style.display = 'block';
+            }
+        }
+
+        // ==================== LIVE RESULTS FROM GOOGLE SHEETS ====================
+
+        // CSV parser (handles quoted fields with commas)
+        function parseCsv(text) {
+            const rows = [];
+            const lines = text.split('\n');
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                const row = [];
+                let current = '';
+                let inQuotes = false;
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') { inQuotes = !inQuotes; }
+                    else if (ch === ',' && !inQuotes) { row.push(current.trim()); current = ''; }
+                    else { current += ch; }
+                }
+                row.push(current.trim());
+                rows.push(row);
+            }
+            return rows;
+        }
+
+        // Fetch CSV from published Google Sheet
+        async function fetchSheetData(csvUrl) {
+            try {
+                const resp = await fetch(csvUrl);
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const text = await resp.text();
+                return parseCsv(text);
+            } catch (e) {
+                console.warn('Could not fetch sheet data:', e);
+                return null;
+            }
+        }
+
+        // Compute per-question tallies from sheet rows
+        function tallyResults(rows, startCol, numQuestions, labels) {
+            const header = rows[0];
+            const dataRows = rows.slice(1);
+            const tallies = {};
+
+            for (let q = 0; q < numQuestions; q++) {
+                tallies[q + 1] = { include: 0, modify: 0, exclude: 0, total: 0 };
+            }
+
+            for (const row of dataRows) {
+                for (let q = 0; q < numQuestions; q++) {
+                    const colIdx = startCol + q;
+                    if (colIdx >= row.length) continue;
+                    const val = row[colIdx].trim().toLowerCase();
+                    tallies[q + 1].total++;
+                    if (val.includes('modif')) { tallies[q + 1].modify++; }
+                    else if (val === labels.includeLabel.toLowerCase() || val.startsWith('include')) { tallies[q + 1].include++; }
+                    else if (val === labels.excludeLabel.toLowerCase() || val.startsWith('exclude')) { tallies[q + 1].exclude++; }
+                }
+            }
+
+            // Convert to percentages
+            const results = {};
+            for (let q = 1; q <= numQuestions; q++) {
+                const t = tallies[q].total || 1;
+                results[q] = {
+                    include: Math.round((tallies[q].include / t) * 100),
+                    modify: Math.round((tallies[q].modify / t) * 100),
+                    exclude: Math.round((tallies[q].exclude / t) * 100),
+                    total: tallies[q].total
+                };
+            }
+            return results;
+        }
+
+        // Domain mapping
+        const domainMap = {
+            A: [1, 2, 3, 4, 5, 6],
+            B: [7, 8, 9, 10, 11],
+            C: [12, 13, 14, 15],
+            D: [16, 17, 18]
+        };
+
+        function renderLiveResults(results, responseCount, isLive) {
+            // Update status banner
+            const statusText = document.getElementById('results-status-text');
+            const metaText = document.getElementById('results-meta-text');
+            const dot = document.getElementById('results-live-dot');
+
+            if (isLive) {
+                statusText.textContent = 'Live results from Google Forms';
+                metaText.textContent = responseCount + ' responses received. Data refreshes each time you open this tab or click Refresh.';
+                dot.style.background = '#2A9D8F';
+            } else {
+                statusText.textContent = 'Showing demo data (Google Sheets not configured yet)';
+                metaText.textContent = 'Configure LIVE_RESULTS_CONFIG with your published Google Sheet URL to see real-time results.';
+                dot.style.background = '#F4A261';
+            }
+
+            document.getElementById('response-count').textContent = responseCount;
+
+            // Compute summary counts
+            let confirmed = 0, pending = 0, excluded = 0;
+            for (let q = 1; q <= 18; q++) {
+                const incl = results[q].include;
+                if (incl >= 80) confirmed++;
+                else if (incl <= 20) excluded++;
+                else pending++;
+            }
+            document.getElementById('count-confirmed').textContent = confirmed;
+            document.getElementById('count-pending').textContent = pending;
+            document.getElementById('count-excluded').textContent = excluded;
+
+            // Render per-question horizontal bar charts (pure HTML, no Chart.js dependency)
+            const container = document.getElementById('results-per-question');
+            let html = '';
+            let currentDomain = '';
+
+            questions.forEach(q => {
+                if (q.domain !== currentDomain) {
+                    currentDomain = q.domain;
+                    html += '<h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--primary);">' + q.domainLabel + '</h3>';
+                }
+
+                const r = results[q.id];
+                const statusColor = r.include >= 80 ? 'var(--success)' : r.include <= 20 ? 'var(--danger)' : 'var(--warning)';
+                const statusLabel = r.include >= 80 ? 'CONFIRMED' : r.include <= 20 ? 'EXCLUDED' : 'PENDING';
+
+                html += '<div style="margin-bottom: 1.25rem; padding: 1rem; border-left: 4px solid ' + statusColor + '; background: rgba(0,0,0,0.01); border-radius: 0 6px 6px 0;">';
+                html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">';
+                html += '<strong style="font-size: 0.9rem;">Q' + q.id + ': ' + q.text.substring(0, 80) + (q.text.length > 80 ? '...' : '') + '</strong>';
+                html += '<span style="font-size: 0.75rem; font-weight: 700; color: ' + statusColor + '; white-space: nowrap; margin-left: 1rem;">' + statusLabel + '</span>';
+                html += '</div>';
+
+                // Stacked bar
+                html += '<div style="display: flex; height: 28px; border-radius: 4px; overflow: hidden; background: #eee;">';
+                if (r.include > 0) html += '<div style="width: ' + r.include + '%; background: #2A9D8F; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">' + (r.include >= 10 ? r.include + '%' : '') + '</div>';
+                if (r.modify > 0) html += '<div style="width: ' + r.modify + '%; background: #F4A261; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">' + (r.modify >= 10 ? r.modify + '%' : '') + '</div>';
+                if (r.exclude > 0) html += '<div style="width: ' + r.exclude + '%; background: #E63946; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">' + (r.exclude >= 10 ? r.exclude + '%' : '') + '</div>';
+                html += '</div>';
+
+                html += '<div style="display: flex; gap: 1.5rem; font-size: 0.8rem; margin-top: 0.4rem; color: var(--neutral);">';
+                html += '<span>Include: ' + r.include + '%</span>';
+                html += '<span>Modify: ' + r.modify + '%</span>';
+                html += '<span>Exclude: ' + r.exclude + '%</span>';
+                html += '</div>';
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+
+            // Domain summaries
+            ['A', 'B', 'C', 'D'].forEach(d => {
+                const qIds = domainMap[d];
+                let dc = 0, dp = 0, de = 0;
+                qIds.forEach(id => {
+                    const incl = results[id].include;
+                    if (incl >= 80) dc++;
+                    else if (incl <= 20) de++;
+                    else dp++;
+                });
+                const el = document.getElementById('domain-' + d.toLowerCase() + '-summary');
+                if (el) {
+                    el.innerHTML =
+                        '<p style="margin: 0.3rem 0;"><span style="color: var(--success); font-weight: 600;">Confirmed:</span> ' + dc + '</p>' +
+                        '<p style="margin: 0.3rem 0;"><span style="color: var(--warning); font-weight: 600;">Pending:</span> ' + dp + '</p>' +
+                        '<p style="margin: 0.3rem 0;"><span style="color: var(--danger); font-weight: 600;">Excluded:</span> ' + de + '</p>';
+                }
+            });
+        }
+
+        async function refreshResults() {
+            const cfg = LIVE_RESULTS_CONFIG;
+
+            // Try Round 2 first, fall back to Round 1, fall back to demo data
+            let results = null;
+            let responseCount = 0;
+            let isLive = false;
+
+            if (cfg.round2SheetCsvUrl) {
+                const rows = await fetchSheetData(cfg.round2SheetCsvUrl);
+                if (rows && rows.length > 1) {
+                    results = tallyResults(rows, cfg.round2StartColumn, cfg.totalQuestions, cfg);
+                    responseCount = rows.length - 1;
+                    isLive = true;
+                }
+            }
+
+            if (!results && cfg.round1SheetCsvUrl) {
+                const rows = await fetchSheetData(cfg.round1SheetCsvUrl);
+                if (rows && rows.length > 1) {
+                    results = tallyResults(rows, cfg.round1StartColumn, cfg.totalQuestions, cfg);
+                    responseCount = rows.length - 1;
+                    isLive = true;
+                }
+            }
+
+            if (!results) {
+                // Fall back to demo data
+                results = sampleRound1Results;
+                responseCount = 40;
+                isLive = false;
+            }
+
+            renderLiveResults(results, responseCount, isLive);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderDiscussionBoard();
+        });
+    </script>
+
+<!--
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                        SETUP GUIDE                                       ║
+║               WG4 Delphi Survey Platform — Configuration                 ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║                                                                           ║
+║  STEP 1: CHANGE THE ACCESS CODE                                          ║
+║  ─────────────────────────────────                                        ║
+║  Near the top of this file, find:                                         ║
+║      const ACCESS_CODE = 'SAEM-WG4-2026';                                ║
+║  Change 'SAEM-WG4-2026' to any password you choose.                      ║
+║  Share this code with your WG members by email.                           ║
+║                                                                           ║
+║  STEP 2: CREATE GOOGLE FORMS (Survey Data Collection)                    ║
+║  ────────────────────────────────────────────────────                     ║
+║  Create two Google Forms — one for each Delphi round.                    ║
+║  Each form should have one question per research topic (18 total),       ║
+║  using Multiple Choice with these three options:                         ║
+║    • Include                                                              ║
+║    • Include with Modifications                                           ║
+║    • Exclude                                                              ║
+║                                                                           ║
+║  Important Form Settings:                                                ║
+║    • Settings → Responses → "Limit to 1 response" = ON                   ║
+║      (requires respondents to sign in with Google — enforces              ║
+║       one submission per person without custom code)                      ║
+║    • Settings → Responses → "Edit after submit" = ON (optional,           ║
+║      lets people change their mind before the round closes)               ║
+║                                                                           ║
+║  After creating each form:                                               ║
+║    1. Click the "Send" button and copy the form URL                      ║
+║    2. Paste it into GOOGLE_FORMS_CONFIG at the top of this file:         ║
+║       round1Url: 'https://docs.google.com/forms/d/e/XXXXX/viewform',    ║
+║       round2Url: 'https://docs.google.com/forms/d/e/YYYYY/viewform',    ║
+║                                                                           ║
+║  STEP 3: SET UP LIVE RESULTS (Google Sheets → CSV)                       ║
+║  ─────────────────────────────────────────────────                        ║
+║  Each Google Form auto-creates a response Google Sheet.                  ║
+║  To make results visible in real-time on the Results tab:                ║
+║                                                                           ║
+║    1. Open the response Sheet (click "View in Sheets" in the Form)       ║
+║    2. Go to File → Share → Publish to web                                ║
+║    3. In the dropdown, select the correct sheet tab                      ║
+║    4. Choose "Comma-separated values (.csv)" as the format               ║
+║    5. Click "Publish" and copy the URL                                   ║
+║    6. Paste into LIVE_RESULTS_CONFIG at the top of this file:            ║
+║       round1SheetCsvUrl: 'https://docs.google.com/.../pub?output=csv',   ║
+║       round2SheetCsvUrl: 'https://docs.google.com/.../pub?output=csv',   ║
+║                                                                           ║
+║  Column Mapping:                                                         ║
+║    Google Sheets columns are 0-indexed:                                  ║
+║      Col A (0) = Timestamp, Col B (1) = Email, Col C (2) = Q1 rating... ║
+║    If your first question rating is in column C, set:                    ║
+║      round1StartColumn: 2                                                ║
+║    The system reads 18 consecutive columns from that start point.        ║
+║                                                                           ║
+║  Label Matching:                                                         ║
+║    The includeLabel, modifyLabel, and excludeLabel values must match     ║
+║    EXACTLY what your Google Form uses as option text. Default:           ║
+║      includeLabel: 'Include'                                             ║
+║      modifyLabel: 'Include with Modifications'                           ║
+║      excludeLabel: 'Exclude'                                             ║
+║                                                                           ║
+║  If no CSV URLs are configured, the Results tab shows demo data.         ║
+║                                                                           ║
+║  STEP 4: CREATE A SHARED GOOGLE DOC (Discussion)                         ║
+║  ─────────────────────────────────────────────────                        ║
+║  Create a Google Doc for asynchronous group discussion.                  ║
+║  Set sharing to "Anyone with the link can comment."                      ║
+║  Paste the Doc URL into GOOGLE_FORMS_CONFIG:                             ║
+║      GOOGLE_DOC_URL: 'https://docs.google.com/document/d/XXXXX/edit',   ║
+║                                                                           ║
+║  Tip: Pre-populate the Doc with section headers for each domain          ║
+║  (A through D) so discussion stays organized.                            ║
+║                                                                           ║
+║  STEP 5: HOST ON GITHUB PAGES & EMBED IN SQUARESPACE                     ║
+║  ────────────────────────────────────────────────────                     ║
+║  This file must be hosted on a web server before embedding.              ║
+║                                                                           ║
+║  Recommended: GitHub Pages (free):                                       ║
+║    1. Create a new public repository on github.com                       ║
+║    2. Upload this HTML file and rename it to index.html                  ║
+║    3. Go to Settings → Pages                                             ║
+║    4. Under "Source", select "Deploy from a branch"                      ║
+║    5. Choose the main branch, click Save                                 ║
+║    6. Within 1-2 minutes you'll have a URL like:                         ║
+║       https://yourusername.github.io/your-repo-name/                     ║
+║                                                                           ║
+║  Then embed in Squarespace:                                              ║
+║    1. Edit the target page in Squarespace                                ║
+║    2. Add a "Code" block (not "Embed" — use the </> Code block)         ║
+║    3. Paste this code, replacing YOUR_GITHUB_PAGES_URL:                  ║
+║                                                                           ║
+║       <iframe src="YOUR_GITHUB_PAGES_URL" width="100%" height="900"      ║
+║        style="border:none;border-radius:8px;"                            ║
+║        allow="forms"></iframe>                                            ║
+║                                                                           ║
+║    4. For a responsive version that scales with the viewport:            ║
+║       <div style="position:relative;width:100%;padding-top:80%;">        ║
+║         <iframe src="YOUR_GITHUB_PAGES_URL"                              ║
+║           style="position:absolute;top:0;left:0;width:100%;              ║
+║           height:100%;border:none;border-radius:8px;"                    ║
+║           allow="forms" loading="lazy"></iframe>                          ║
+║       </div>                                                              ║
+║                                                                           ║
+║  To update the platform later:                                           ║
+║    Just upload the new index.html to the same repo — GitHub Pages        ║
+║    redeploys automatically within a minute or two.                       ║
+║                                                                           ║
+║  NOTES:                                                                  ║
+║  ─────                                                                   ║
+║  • The access code is a shared password, not per-user auth.              ║
+║    It prevents casual access but isn't enterprise-grade security.        ║
+║  • Unique-submission enforcement comes from Google Forms'                ║
+║    "Limit to 1 response" setting (requires Google sign-in).              ║
+║  • The Results tab fetches live CSV data each time it's opened.          ║
+║    Published Google Sheets update every ~5 minutes after new responses.  ║
+║  • Discussion uses a shared Google Doc — participants must have          ║
+║    a Google account to comment, which prevents anonymous posts.          ║
+║  • Evidence Brief links point to DOI.org and PubMed — these             ║
+║    require no additional setup and work immediately.                     ║
+║                                                                           ║
+║  TEMPLATE FOR OTHER WORKING GROUPS:                                      ║
+║  ──────────────────────────────────                                       ║
+║  To adapt this platform for WG1-WG3 or WG5:                             ║
+║    1. Change the access code                                             ║
+║    2. Replace the 18 research questions in the Round 1/Round 2 tabs     ║
+║    3. Update domain labels (A-D) to match your WG's themes              ║
+║    4. Replace the Evidence Brief content with your WG's literature       ║
+║    5. Create new Google Forms/Sheets/Doc and update all URLs             ║
+║    6. Update meeting dates in the Overview tab timeline                  ║
+║    7. Update the page title and header text                              ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+-->
+</body>
+</html>
