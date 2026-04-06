@@ -1634,16 +1634,15 @@
                     <li>Sparse research on patient perspectives and disclosure practices around AI in emergency care</li>
                 </ul>
             </div>
-        </div>
 
         <!-- Tab 6: Round 1 Results -->
         <div id="r1results" class="tab-content">
             <h1>Round 1 Results</h1>
-            <div id="r1-locked-overlay" style="display:none;">
-                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem 0; background: linear-gradient(135deg, rgba(0,48,73,0.03), rgba(0,109,119,0.06)); border: 2px solid var(--border);">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-                    <h2 style="margin-bottom: 0.75rem; color: var(--primary);">Round 1 Results Not Yet Available</h2>
-                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto;">Results will be shared after all Round 1 responses have been collected. You'll be notified when results are ready for review.</p>
+            <div id="r1-locked-overlay" style="display:none; min-height: calc(100vh - 300px); align-items: center; justify-content: center;">
+                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem auto; max-width: 600px; background: linear-gradient(135deg, rgba(0,48,73,0.05), rgba(0,109,119,0.08)); border: 2px solid var(--border); border-radius: 12px;">
+                    <div style="font-size: 4rem; margin-bottom: 1.5rem;">🔒</div>
+                    <h2 style="margin-bottom: 0.75rem; color: var(--primary); font-size: 1.5rem;">Round 1 Results Not Yet Available</h2>
+                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto; line-height: 1.6;">Results will be shared after all Round 1 responses have been collected. You'll be notified when results are ready for review.</p>
                 </div>
             </div>
             <div id="r1-results-content" style="display:none;">
@@ -1683,11 +1682,11 @@
         <!-- Tab 7: Round 2 Results -->
         <div id="r2results" class="tab-content">
             <h1>Round 2 Results</h1>
-            <div id="r2-locked-overlay" style="display:none;">
-                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem 0; background: linear-gradient(135deg, rgba(0,48,73,0.03), rgba(0,109,119,0.06)); border: 2px solid var(--border);">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-                    <h2 style="margin-bottom: 0.75rem; color: var(--primary);">Round 2 Results Not Yet Available</h2>
-                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto;">Results will be shared after all Round 2 responses have been collected.</p>
+            <div id="r2-locked-overlay" style="display:none; min-height: calc(100vh - 300px); align-items: center; justify-content: center;">
+                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem auto; max-width: 600px; background: linear-gradient(135deg, rgba(0,48,73,0.05), rgba(0,109,119,0.08)); border: 2px solid var(--border); border-radius: 12px;">
+                    <div style="font-size: 4rem; margin-bottom: 1.5rem;">🔒</div>
+                    <h2 style="margin-bottom: 0.75rem; color: var(--primary); font-size: 1.5rem;">Round 2 Results Not Yet Available</h2>
+                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto; line-height: 1.6;">Results will be shared after all Round 2 responses have been collected.</p>
                 </div>
             </div>
             <div id="r2-results-content" style="display:none;">
@@ -2119,7 +2118,7 @@
             const content = document.getElementById(round + '-results-content');
 
             if (isLocked && !isAdmin) {
-                overlay.style.display = 'block';
+                overlay.style.display = 'flex';
                 content.style.display = 'none';
             } else {
                 overlay.style.display = 'none';
@@ -2146,6 +2145,12 @@
             event.target.classList.add('active');
 
             state.currentTab = tabName;
+
+            // Scroll so the tab content is visible below the sticky header/nav
+            const mainEl = document.querySelector('main');
+            if (mainEl) {
+                mainEl.scrollIntoView({ behavior: 'instant', block: 'start' });
+            }
 
             // Initialize tab content if needed
             if (tabName === 'round1' && !document.getElementById('round1-form').innerHTML) {
