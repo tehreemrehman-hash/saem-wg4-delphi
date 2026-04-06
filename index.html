@@ -58,6 +58,15 @@
             modifyLabel: 'Include with Modifications',
             excludeLabel: 'Exclude'
         };
+
+        // ===== RESULTS DASHBOARD ACCESS CONTROL =====
+        // resultsLocked = true  → Only admin can view results (participants see "not yet available")
+        // resultsLocked = false → Everyone with the access code can view results
+        // Set to false when you're ready to share Round 1 results before opening Round 2.
+        const RESULTS_CONFIG = {
+            resultsLocked: true,
+            adminPassword: 'WG4-Admin-2026'
+        };
     </script>
 
     <style>
@@ -1627,6 +1636,26 @@
         <div id="results" class="tab-content">
             <h1>Consensus Results Dashboard</h1>
 
+            <!-- Admin lock overlay — shown when resultsLocked is true -->
+            <div id="results-locked-overlay" style="display:none;">
+                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem 0; background: linear-gradient(135deg, rgba(0,48,73,0.03), rgba(0,109,119,0.06)); border: 2px solid var(--border);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                    <h2 style="margin-bottom: 0.75rem; color: var(--primary);">Results Not Yet Available</h2>
+                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto 1.5rem;">Survey results will be shared after all Round 1 responses have been collected. You'll be notified when results are ready for review before Round 2 opens.</p>
+                    <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem;">
+                        <p style="font-size: 0.85rem; color: var(--neutral); margin-bottom: 0.75rem;">Working Group leads: enter admin password to view results</p>
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                            <input type="password" id="admin-password-input" placeholder="Admin password" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; width: 200px;">
+                            <button class="btn btn-primary" onclick="unlockResults()" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">Unlock</button>
+                        </div>
+                        <p id="admin-password-error" style="color: #c1121f; font-size: 0.85rem; margin-top: 0.5rem; display: none;">Incorrect password. Please try again.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actual results content — hidden when locked -->
+            <div id="results-actual-content">
+
             <div id="results-status-banner" class="card info">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <div id="results-live-dot" style="width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex-shrink: 0;"></div>
@@ -1671,6 +1700,8 @@
                 <div class="result-card"><strong>Domain C</strong><div id="domain-c-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
                 <div class="result-card"><strong>Domain D</strong><div id="domain-d-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
             </div>
+
+            </div><!-- end results-actual-content -->
         </div>
     </main>
 
@@ -1918,6 +1949,46 @@
             18: { include: 76, modify: 18, exclude: 6 }
         };
 
+        // ==================== RESULTS ACCESS CONTROL ====================
+        let resultsUnlocked = false;
+
+        function applyResultsLock() {
+            const overlay = document.getElementById('results-locked-overlay');
+            const content = document.getElementById('results-actual-content');
+            if (RESULTS_CONFIG.resultsLocked && !resultsUnlocked) {
+                overlay.style.display = 'block';
+                content.style.display = 'none';
+            } else {
+                overlay.style.display = 'none';
+                content.style.display = 'block';
+            }
+        }
+
+        function unlockResults() {
+            const input = document.getElementById('admin-password-input');
+            const error = document.getElementById('admin-password-error');
+            if (input.value === RESULTS_CONFIG.adminPassword) {
+                resultsUnlocked = true;
+                error.style.display = 'none';
+                applyResultsLock();
+                refreshResults();
+            } else {
+                error.style.display = 'block';
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        // Allow Enter key to submit admin password
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminInput = document.getElementById('admin-password-input');
+            if (adminInput) {
+                adminInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') unlockResults();
+                });
+            }
+        });
+
         // ==================== TAB SWITCHING ====================
         function switchTab(tabName) {
             // Hide all tabs
@@ -1946,7 +2017,10 @@
             } else if (tabName === 'discussion' && !document.getElementById('discussion-board').innerHTML) {
                 renderDiscussionBoard();
             } else if (tabName === 'results') {
-                refreshResults();
+                applyResultsLock();
+                if (!RESULTS_CONFIG.resultsLocked || resultsUnlocked) {
+                    refreshResults();
+                }
             }
         }
 
