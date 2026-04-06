@@ -2671,6 +2671,35 @@
             D: [16, 17, 18]
         };
 
+        // Render empty state when no data is available
+        function renderNoDataState(prefix) {
+            const roundLabel = prefix === 'r1' ? 'Round 1' : 'Round 2';
+            const statusText = document.getElementById(prefix + '-status-text');
+            const metaText = document.getElementById(prefix + '-meta-text');
+            const dot = document.getElementById(prefix + '-live-dot');
+
+            statusText.textContent = 'No responses yet';
+            metaText.textContent = 'Results will appear here once ' + roundLabel + ' survey responses have been submitted.';
+            dot.style.background = '#E76F51';
+
+            document.getElementById(prefix + '-response-count').textContent = '0';
+            document.getElementById(prefix + '-count-confirmed').textContent = '—';
+            document.getElementById(prefix + '-count-pending').textContent = '—';
+            document.getElementById(prefix + '-count-excluded').textContent = '—';
+
+            // Clear per-question results
+            for (let q = 1; q <= 18; q++) {
+                const barEl = document.getElementById(prefix + '-bar-q' + q);
+                if (barEl) barEl.innerHTML = '<p style="color: var(--neutral); font-style: italic; margin: 0.5rem 0;">No data</p>';
+            }
+
+            // Clear domain summaries
+            ['A','B','C','D'].forEach(d => {
+                const el = document.getElementById(prefix + '-domain-' + d);
+                if (el) el.textContent = 'No data yet';
+            });
+        }
+
         // Render results for a specific round (prefix = 'r1' or 'r2')
         function renderRoundResults(prefix, results, responseCount, isLive) {
             const statusText = document.getElementById(prefix + '-status-text');
@@ -2682,8 +2711,8 @@
                 metaText.textContent = responseCount + ' responses received. Data refreshes each time you open this tab or click Refresh.';
                 dot.style.background = '#2A9D8F';
             } else {
-                statusText.textContent = 'Showing demo data (Google Sheets not configured yet)';
-                metaText.textContent = 'Configure LIVE_RESULTS_CONFIG with your published Google Sheet URL to see real-time results.';
+                statusText.textContent = 'Results loaded (not from live sheet)';
+                metaText.textContent = 'Connect a published Google Sheet CSV URL to enable live data refresh.';
                 dot.style.background = '#F4A261';
             }
 
@@ -2774,9 +2803,9 @@
             }
 
             if (!results) {
-                results = sampleRound1Results;
-                responseCount = 40;
-                isLive = false;
+                // No data available — show empty state instead of fake data
+                renderNoDataState(prefix);
+                return;
             }
 
             renderRoundResults(prefix, results, responseCount, isLive);
