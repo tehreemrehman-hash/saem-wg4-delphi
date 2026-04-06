@@ -59,13 +59,15 @@
             excludeLabel: 'Exclude'
         };
 
-        // ===== RESULTS DASHBOARD ACCESS CONTROL =====
-        // resultsLocked = true  → Only admin can view results (participants see "not yet available")
-        // resultsLocked = false → Everyone with the access code can view results
-        // Set to false when you're ready to share Round 1 results before opening Round 2.
-        const RESULTS_CONFIG = {
-            resultsLocked: true,
-            adminPassword: 'WG4-Admin-2026'
+        // ===== RESULTS & ADMIN ACCESS CONTROL =====
+        // Admin password — used to access the Admin Panel and unlock results
+        const ADMIN_PASSWORD = 'WG4-Admin-2026';
+
+        // Default lock state (overridden by Admin Panel at runtime)
+        // Both start locked. You toggle them from the Admin Panel tab.
+        const DEFAULT_LOCKS = {
+            round1ResultsLocked: true,
+            round2ResultsLocked: true
         };
     </script>
 
@@ -1023,7 +1025,9 @@
             <button class="nav-btn" onclick="switchTab('round2')">Delphi Round 2</button>
             <button class="nav-btn" onclick="switchTab('discussion')">Discussion</button>
             <button class="nav-btn" onclick="switchTab('evidence')">Evidence Brief</button>
-            <button class="nav-btn" onclick="switchTab('results')">Results</button>
+            <button class="nav-btn" onclick="switchTab('r1results')">R1 Results</button>
+            <button class="nav-btn" onclick="switchTab('r2results')">R2 Results</button>
+            <button class="nav-btn" onclick="switchTab('admin')" style="margin-left: auto; opacity: 0.7; font-size: 0.8rem;">Admin</button>
         </div>
     </nav>
 
@@ -1632,76 +1636,161 @@
             </div>
         </div>
 
-        <!-- Tab 6: Results Dashboard -->
-        <div id="results" class="tab-content">
-            <h1>Consensus Results Dashboard</h1>
-
-            <!-- Admin lock overlay — shown when resultsLocked is true -->
-            <div id="results-locked-overlay" style="display:none;">
+        <!-- Tab 6: Round 1 Results -->
+        <div id="r1results" class="tab-content">
+            <h1>Round 1 Results</h1>
+            <div id="r1-locked-overlay" style="display:none;">
                 <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem 0; background: linear-gradient(135deg, rgba(0,48,73,0.03), rgba(0,109,119,0.06)); border: 2px solid var(--border);">
                     <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-                    <h2 style="margin-bottom: 0.75rem; color: var(--primary);">Results Not Yet Available</h2>
-                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto 1.5rem;">Survey results will be shared after all Round 1 responses have been collected. You'll be notified when results are ready for review before Round 2 opens.</p>
-                    <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1rem;">
-                        <p style="font-size: 0.85rem; color: var(--neutral); margin-bottom: 0.75rem;">Working Group leads: enter admin password to view results</p>
-                        <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
-                            <input type="password" id="admin-password-input" placeholder="Admin password" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; width: 200px;">
-                            <button class="btn btn-primary" onclick="unlockResults()" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">Unlock</button>
+                    <h2 style="margin-bottom: 0.75rem; color: var(--primary);">Round 1 Results Not Yet Available</h2>
+                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto;">Results will be shared after all Round 1 responses have been collected. You'll be notified when results are ready for review.</p>
+                </div>
+            </div>
+            <div id="r1-results-content" style="display:none;">
+                <div id="r1-status-banner" class="card info">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div id="r1-live-dot" style="width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex-shrink: 0;"></div>
+                        <div>
+                            <p style="margin:0;"><strong id="r1-status-text">Checking for live data...</strong></p>
+                            <p style="margin:0.25rem 0 0 0; font-size: 0.85rem; color: var(--neutral);" id="r1-meta-text">Results refresh each time you open this tab.</p>
                         </div>
-                        <p id="admin-password-error" style="color: #c1121f; font-size: 0.85rem; margin-top: 0.5rem; display: none;">Incorrect password. Please try again.</p>
                     </div>
                 </div>
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <button class="btn btn-secondary btn-small" onclick="refreshRoundResults('r1')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Refresh</button>
+                </div>
+                <h2>Overall Consensus Progress</h2>
+                <div class="results-grid">
+                    <div class="result-card"><div class="result-number" id="r1-count-confirmed">—</div><div class="result-label">Confirmed<br>(≥80%)</div></div>
+                    <div class="result-card"><div class="result-number" id="r1-count-pending">—</div><div class="result-label">Pending<br>(21-79%)</div></div>
+                    <div class="result-card"><div class="result-number" id="r1-count-excluded">—</div><div class="result-label">Excluded<br>(≤20%)</div></div>
+                </div>
+                <div class="card" style="margin: 1.5rem 0; padding: 1rem 1.5rem; background: rgba(0,109,119,0.03);">
+                    <p style="margin:0; font-size: 0.9rem;"><strong>Responses:</strong> <span id="r1-response-count">—</span> &nbsp;|&nbsp; <strong>Threshold:</strong> ≥80% = Confirmed &nbsp;|&nbsp; ≤20% = Excluded</p>
+                </div>
+                <h2>Per-Question Results</h2>
+                <div id="r1-per-question" style="background: white; border-radius: 8px; padding: 1.5rem; border: 1px solid var(--border);"></div>
+                <h2>Domain Summary</h2>
+                <div class="results-grid">
+                    <div class="result-card"><strong>Domain A</strong><div id="r1-domain-a" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                    <div class="result-card"><strong>Domain B</strong><div id="r1-domain-b" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                    <div class="result-card"><strong>Domain C</strong><div id="r1-domain-c" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                    <div class="result-card"><strong>Domain D</strong><div id="r1-domain-d" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                </div>
             </div>
+        </div>
 
-            <!-- Actual results content — hidden when locked -->
-            <div id="results-actual-content">
-
-            <div id="results-status-banner" class="card info">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div id="results-live-dot" style="width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex-shrink: 0;"></div>
-                    <div>
-                        <p style="margin:0;"><strong id="results-status-text">Checking for live data...</strong></p>
-                        <p style="margin:0.25rem 0 0 0; font-size: 0.85rem; color: var(--neutral);" id="results-meta-text">Results refresh each time you open this tab.</p>
+        <!-- Tab 7: Round 2 Results -->
+        <div id="r2results" class="tab-content">
+            <h1>Round 2 Results</h1>
+            <div id="r2-locked-overlay" style="display:none;">
+                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem 0; background: linear-gradient(135deg, rgba(0,48,73,0.03), rgba(0,109,119,0.06)); border: 2px solid var(--border);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                    <h2 style="margin-bottom: 0.75rem; color: var(--primary);">Round 2 Results Not Yet Available</h2>
+                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto;">Results will be shared after all Round 2 responses have been collected.</p>
+                </div>
+            </div>
+            <div id="r2-results-content" style="display:none;">
+                <div id="r2-status-banner" class="card info">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div id="r2-live-dot" style="width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex-shrink: 0;"></div>
+                        <div>
+                            <p style="margin:0;"><strong id="r2-status-text">Checking for live data...</strong></p>
+                            <p style="margin:0.25rem 0 0 0; font-size: 0.85rem; color: var(--neutral);" id="r2-meta-text">Results refresh each time you open this tab.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div style="text-align: right; margin-bottom: 1rem;">
-                <button class="btn btn-secondary btn-small" onclick="refreshResults()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Refresh Results</button>
-            </div>
-
-            <h2>Overall Consensus Progress</h2>
-            <div class="results-grid">
-                <div class="result-card">
-                    <div class="result-number" id="count-confirmed">—</div>
-                    <div class="result-label">Questions Confirmed<br>(≥80% include)</div>
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <button class="btn btn-secondary btn-small" onclick="refreshRoundResults('r2')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Refresh</button>
                 </div>
-                <div class="result-card">
-                    <div class="result-number" id="count-pending">—</div>
-                    <div class="result-label">Pending Review<br>(21-79%)</div>
+                <h2>Overall Consensus Progress</h2>
+                <div class="results-grid">
+                    <div class="result-card"><div class="result-number" id="r2-count-confirmed">—</div><div class="result-label">Confirmed<br>(≥80%)</div></div>
+                    <div class="result-card"><div class="result-number" id="r2-count-pending">—</div><div class="result-label">Pending<br>(21-79%)</div></div>
+                    <div class="result-card"><div class="result-number" id="r2-count-excluded">—</div><div class="result-label">Excluded<br>(≤20%)</div></div>
                 </div>
-                <div class="result-card">
-                    <div class="result-number" id="count-excluded">—</div>
-                    <div class="result-label">Excluded<br>(≤20% include)</div>
+                <div class="card" style="margin: 1.5rem 0; padding: 1rem 1.5rem; background: rgba(0,109,119,0.03);">
+                    <p style="margin:0; font-size: 0.9rem;"><strong>Responses:</strong> <span id="r2-response-count">—</span> &nbsp;|&nbsp; <strong>Threshold:</strong> ≥80% = Confirmed &nbsp;|&nbsp; ≤20% = Excluded</p>
+                </div>
+                <h2>Per-Question Results</h2>
+                <div id="r2-per-question" style="background: white; border-radius: 8px; padding: 1.5rem; border: 1px solid var(--border);"></div>
+                <h2>Domain Summary</h2>
+                <div class="results-grid">
+                    <div class="result-card"><strong>Domain A</strong><div id="r2-domain-a" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                    <div class="result-card"><strong>Domain B</strong><div id="r2-domain-b" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                    <div class="result-card"><strong>Domain C</strong><div id="r2-domain-c" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                    <div class="result-card"><strong>Domain D</strong><div id="r2-domain-d" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
                 </div>
             </div>
+        </div>
 
-            <div class="card" style="margin: 1.5rem 0; padding: 1rem 1.5rem; background: rgba(0,109,119,0.03);">
-                <p style="margin:0; font-size: 0.9rem;"><strong>Responses received:</strong> <span id="response-count">—</span> &nbsp;|&nbsp; <strong>Consensus threshold:</strong> ≥80% = Confirmed &nbsp;|&nbsp; ≤20% = Excluded</p>
+        <!-- Tab 8: Admin Panel -->
+        <div id="admin" class="tab-content">
+            <h1>Admin Panel</h1>
+            <div id="admin-login" style="display:block;">
+                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem 0; max-width: 480px; margin-left: auto; margin-right: auto; background: linear-gradient(135deg, rgba(0,48,73,0.03), rgba(0,109,119,0.06)); border: 2px solid var(--border);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
+                    <h2 style="margin-bottom: 0.75rem; color: var(--primary);">Working Group Lead Access</h2>
+                    <p style="color: var(--neutral); margin-bottom: 1.5rem;">Enter the admin password to manage result visibility and platform settings.</p>
+                    <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                        <input type="password" id="admin-password-input" placeholder="Admin password" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; width: 200px;" onkeydown="if(event.key==='Enter')adminLogin()">
+                        <button class="btn btn-primary" onclick="adminLogin()" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">Log In</button>
+                    </div>
+                    <p id="admin-password-error" style="color: #c1121f; font-size: 0.85rem; margin-top: 0.5rem; display: none;">Incorrect password. Please try again.</p>
+                </div>
             </div>
+            <div id="admin-panel" style="display:none;">
+                <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; background: rgba(42,157,143,0.05); border: 1px solid rgba(42,157,143,0.2);">
+                    <p style="margin:0; color: var(--success); font-weight: 600;">Logged in as Working Group Lead</p>
+                </div>
 
-            <h2>Per-Question Results</h2>
-            <div id="results-per-question" style="background: white; border-radius: 8px; padding: 1.5rem; border: 1px solid var(--border);"></div>
+                <h2>Result Visibility Controls</h2>
+                <p style="color: var(--neutral); margin-bottom: 1.5rem;">Toggle which results participants can see. Changes take effect immediately for all visitors.</p>
 
-            <h2>Domain Summary</h2>
-            <div class="results-grid" id="domain-summary-grid">
-                <div class="result-card"><strong>Domain A</strong><div id="domain-a-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                <div class="result-card"><strong>Domain B</strong><div id="domain-b-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                <div class="result-card"><strong>Domain C</strong><div id="domain-c-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                <div class="result-card"><strong>Domain D</strong><div id="domain-d-summary" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
+                <div class="card" style="padding: 1.5rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <strong style="font-size: 1.05rem;">Round 1 Results</strong>
+                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Show aggregated Round 1 voting results to all participants</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span id="r1-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
+                            <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
+                                <input type="checkbox" id="r1-lock-toggle" onchange="toggleLock('r1')" style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s;" id="r1-toggle-track"></span>
+                                <span style="position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" id="r1-toggle-knob"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <strong style="font-size: 1.05rem;">Round 2 Results</strong>
+                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Show aggregated Round 2 voting results to all participants</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span id="r2-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
+                            <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
+                                <input type="checkbox" id="r2-lock-toggle" onchange="toggleLock('r2')" style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s;" id="r2-toggle-track"></span>
+                                <span style="position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" id="r2-toggle-knob"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 1.5rem; background: rgba(0,48,73,0.03);">
+                    <h3 style="margin-top: 0;">Quick Reference</h3>
+                    <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Recommended workflow:</strong></p>
+                    <p style="margin: 0.25rem 0 0.25rem 1rem; font-size: 0.88rem; color: var(--neutral);">1. Distribute the site with both results locked (default)</p>
+                    <p style="margin: 0.25rem 0 0.25rem 1rem; font-size: 0.88rem; color: var(--neutral);">2. After all Round 1 surveys are in, unlock Round 1 Results</p>
+                    <p style="margin: 0.25rem 0 0.25rem 1rem; font-size: 0.88rem; color: var(--neutral);">3. Notify participants to review R1 results and complete Round 2</p>
+                    <p style="margin: 0.25rem 0 0.25rem 1rem; font-size: 0.88rem; color: var(--neutral);">4. After all Round 2 surveys are in, unlock Round 2 Results</p>
+                    <p style="margin: 0.75rem 0 0; font-size: 0.85rem; color: var(--neutral);"><strong>Note:</strong> Lock state is stored in your browser. Other visitors will see whatever the current toggle state is when they load the page. To persist lock state across all visitors, the toggles update a URL parameter scheme — see the site URL after toggling.</p>
+                </div>
             </div>
-
-            </div><!-- end results-actual-content -->
         </div>
     </main>
 
@@ -1949,29 +2038,27 @@
             18: { include: 76, modify: 18, exclude: 6 }
         };
 
-        // ==================== RESULTS ACCESS CONTROL ====================
-        let resultsUnlocked = false;
+        // ==================== ADMIN & RESULTS ACCESS CONTROL ====================
+        let adminLoggedIn = false;
 
-        function applyResultsLock() {
-            const overlay = document.getElementById('results-locked-overlay');
-            const content = document.getElementById('results-actual-content');
-            if (RESULTS_CONFIG.resultsLocked && !resultsUnlocked) {
-                overlay.style.display = 'block';
-                content.style.display = 'none';
-            } else {
-                overlay.style.display = 'none';
-                content.style.display = 'block';
-            }
+        // Lock state — read from URL params, fall back to defaults
+        function getLockState() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                r1Locked: params.get('r1') !== 'open',
+                r2Locked: params.get('r2') !== 'open'
+            };
         }
 
-        function unlockResults() {
+        function adminLogin() {
             const input = document.getElementById('admin-password-input');
             const error = document.getElementById('admin-password-error');
-            if (input.value === RESULTS_CONFIG.adminPassword) {
-                resultsUnlocked = true;
+            if (input.value === ADMIN_PASSWORD) {
+                adminLoggedIn = true;
                 error.style.display = 'none';
-                applyResultsLock();
-                refreshResults();
+                document.getElementById('admin-login').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                syncAdminToggles();
             } else {
                 error.style.display = 'block';
                 input.value = '';
@@ -1979,15 +2066,66 @@
             }
         }
 
-        // Allow Enter key to submit admin password
-        document.addEventListener('DOMContentLoaded', function() {
-            const adminInput = document.getElementById('admin-password-input');
-            if (adminInput) {
-                adminInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') unlockResults();
-                });
+        function syncAdminToggles() {
+            const locks = getLockState();
+            // R1 toggle
+            const r1Toggle = document.getElementById('r1-lock-toggle');
+            r1Toggle.checked = !locks.r1Locked;
+            updateToggleUI('r1', !locks.r1Locked);
+            // R2 toggle
+            const r2Toggle = document.getElementById('r2-lock-toggle');
+            r2Toggle.checked = !locks.r2Locked;
+            updateToggleUI('r2', !locks.r2Locked);
+        }
+
+        function updateToggleUI(round, isUnlocked) {
+            const label = document.getElementById(round + '-lock-label');
+            const track = document.getElementById(round + '-toggle-track');
+            const knob = document.getElementById(round + '-toggle-knob');
+            if (isUnlocked) {
+                label.textContent = 'VISIBLE';
+                label.style.color = 'var(--success)';
+                track.style.background = '#2A9D8F';
+                knob.style.transform = 'translateX(24px)';
+            } else {
+                label.textContent = 'LOCKED';
+                label.style.color = 'var(--danger)';
+                track.style.background = '#ccc';
+                knob.style.transform = 'translateX(0)';
             }
-        });
+        }
+
+        function toggleLock(round) {
+            const isNowUnlocked = document.getElementById(round + '-lock-toggle').checked;
+            updateToggleUI(round, isNowUnlocked);
+
+            // Update URL params to persist state
+            const params = new URLSearchParams(window.location.search);
+            if (isNowUnlocked) {
+                params.set(round, 'open');
+            } else {
+                params.delete(round);
+            }
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.history.replaceState({}, '', newUrl);
+        }
+
+        function applyRoundLock(round) {
+            const locks = getLockState();
+            const isLocked = round === 'r1' ? locks.r1Locked : locks.r2Locked;
+            const isAdmin = adminLoggedIn;
+
+            const overlay = document.getElementById(round + '-locked-overlay');
+            const content = document.getElementById(round + '-results-content');
+
+            if (isLocked && !isAdmin) {
+                overlay.style.display = 'block';
+                content.style.display = 'none';
+            } else {
+                overlay.style.display = 'none';
+                content.style.display = 'block';
+            }
+        }
 
         // ==================== TAB SWITCHING ====================
         function switchTab(tabName) {
@@ -2016,10 +2154,15 @@
                 renderRound2Form();
             } else if (tabName === 'discussion' && !document.getElementById('discussion-board').innerHTML) {
                 renderDiscussionBoard();
-            } else if (tabName === 'results') {
-                applyResultsLock();
-                if (!RESULTS_CONFIG.resultsLocked || resultsUnlocked) {
-                    refreshResults();
+            } else if (tabName === 'r1results') {
+                applyRoundLock('r1');
+                refreshRoundResults('r1');
+            } else if (tabName === 'r2results') {
+                applyRoundLock('r2');
+                refreshRoundResults('r2');
+            } else if (tabName === 'admin') {
+                if (adminLoggedIn) {
+                    syncAdminToggles();
                 }
             }
         }
@@ -2523,11 +2666,11 @@
             D: [16, 17, 18]
         };
 
-        function renderLiveResults(results, responseCount, isLive) {
-            // Update status banner
-            const statusText = document.getElementById('results-status-text');
-            const metaText = document.getElementById('results-meta-text');
-            const dot = document.getElementById('results-live-dot');
+        // Render results for a specific round (prefix = 'r1' or 'r2')
+        function renderRoundResults(prefix, results, responseCount, isLive) {
+            const statusText = document.getElementById(prefix + '-status-text');
+            const metaText = document.getElementById(prefix + '-meta-text');
+            const dot = document.getElementById(prefix + '-live-dot');
 
             if (isLive) {
                 statusText.textContent = 'Live results from Google Forms';
@@ -2539,9 +2682,8 @@
                 dot.style.background = '#F4A261';
             }
 
-            document.getElementById('response-count').textContent = responseCount;
+            document.getElementById(prefix + '-response-count').textContent = responseCount;
 
-            // Compute summary counts
             let confirmed = 0, pending = 0, excluded = 0;
             for (let q = 1; q <= 18; q++) {
                 const incl = results[q].include;
@@ -2549,12 +2691,11 @@
                 else if (incl <= 20) excluded++;
                 else pending++;
             }
-            document.getElementById('count-confirmed').textContent = confirmed;
-            document.getElementById('count-pending').textContent = pending;
-            document.getElementById('count-excluded').textContent = excluded;
+            document.getElementById(prefix + '-count-confirmed').textContent = confirmed;
+            document.getElementById(prefix + '-count-pending').textContent = pending;
+            document.getElementById(prefix + '-count-excluded').textContent = excluded;
 
-            // Render per-question horizontal bar charts (pure HTML, no Chart.js dependency)
-            const container = document.getElementById('results-per-question');
+            const container = document.getElementById(prefix + '-per-question');
             let html = '';
             let currentDomain = '';
 
@@ -2574,7 +2715,6 @@
                 html += '<span style="font-size: 0.75rem; font-weight: 700; color: ' + statusColor + '; white-space: nowrap; margin-left: 1rem;">' + statusLabel + '</span>';
                 html += '</div>';
 
-                // Stacked bar
                 html += '<div style="display: flex; height: 28px; border-radius: 4px; overflow: hidden; background: #eee;">';
                 if (r.include > 0) html += '<div style="width: ' + r.include + '%; background: #2A9D8F; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">' + (r.include >= 10 ? r.include + '%' : '') + '</div>';
                 if (r.modify > 0) html += '<div style="width: ' + r.modify + '%; background: #F4A261; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">' + (r.modify >= 10 ? r.modify + '%' : '') + '</div>';
@@ -2591,7 +2731,6 @@
 
             container.innerHTML = html;
 
-            // Domain summaries
             ['A', 'B', 'C', 'D'].forEach(d => {
                 const qIds = domainMap[d];
                 let dc = 0, dp = 0, de = 0;
@@ -2601,7 +2740,7 @@
                     else if (incl <= 20) de++;
                     else dp++;
                 });
-                const el = document.getElementById('domain-' + d.toLowerCase() + '-summary');
+                const el = document.getElementById(prefix + '-domain-' + d.toLowerCase());
                 if (el) {
                     el.innerHTML =
                         '<p style="margin: 0.3rem 0;"><span style="color: var(--success); font-weight: 600;">Confirmed:</span> ' + dc + '</p>' +
@@ -2611,40 +2750,31 @@
             });
         }
 
-        async function refreshResults() {
+        async function refreshRoundResults(prefix) {
             const cfg = LIVE_RESULTS_CONFIG;
-
-            // Try Round 2 first, fall back to Round 1, fall back to demo data
             let results = null;
             let responseCount = 0;
             let isLive = false;
 
-            if (cfg.round2SheetCsvUrl) {
-                const rows = await fetchSheetData(cfg.round2SheetCsvUrl);
-                if (rows && rows.length > 1) {
-                    results = tallyResults(rows, cfg.round2StartColumn, cfg.totalQuestions, cfg);
-                    responseCount = rows.length - 1;
-                    isLive = true;
-                }
-            }
+            const sheetUrl = prefix === 'r1' ? cfg.round1SheetCsvUrl : cfg.round2SheetCsvUrl;
+            const startCol = prefix === 'r1' ? cfg.round1StartColumn : cfg.round2StartColumn;
 
-            if (!results && cfg.round1SheetCsvUrl) {
-                const rows = await fetchSheetData(cfg.round1SheetCsvUrl);
+            if (sheetUrl) {
+                const rows = await fetchSheetData(sheetUrl);
                 if (rows && rows.length > 1) {
-                    results = tallyResults(rows, cfg.round1StartColumn, cfg.totalQuestions, cfg);
+                    results = tallyResults(rows, startCol, cfg.totalQuestions, cfg);
                     responseCount = rows.length - 1;
                     isLive = true;
                 }
             }
 
             if (!results) {
-                // Fall back to demo data
                 results = sampleRound1Results;
                 responseCount = 40;
                 isLive = false;
             }
 
-            renderLiveResults(results, responseCount, isLive);
+            renderRoundResults(prefix, results, responseCount, isLive);
         }
 
         // Initialize on page load
