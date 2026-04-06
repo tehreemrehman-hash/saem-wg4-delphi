@@ -1024,7 +1024,6 @@
             <button class="nav-btn active" onclick="switchTab('overview')">Overview</button>
             <button class="nav-btn" onclick="switchTab('round1')">Delphi Round 1</button>
             <button class="nav-btn" onclick="switchTab('round2')">Delphi Round 2</button>
-            <button class="nav-btn" onclick="switchTab('discussion')">Discussion</button>
             <button class="nav-btn" onclick="switchTab('evidence')">Evidence Brief</button>
             <button class="nav-btn" onclick="switchTab('r1results')">R1 Results</button>
             <button class="nav-btn" onclick="switchTab('r2results')">R2 Results</button>
@@ -1095,7 +1094,6 @@
                     <li><strong>Rate Questions:</strong> In Round 1, review each research question and select: "Include," "Include with Modifications," or "Exclude"</li>
                     <li><strong>Provide Feedback:</strong> Share specific suggestions for modifications in the comment box below each question</li>
                     <li><strong>Propose Questions:</strong> At the end of Round 1, suggest additional research questions if needed</li>
-                    <li><strong>Participate in Discussion:</strong> Use the Discussion tab to elaborate on your rationale and engage with peers</li>
                     <li><strong>Review Results:</strong> In Round 2, you'll see aggregated Round 1 results and can refine your ratings based on group feedback</li>
                     <li><strong>Submit Once Per Round:</strong> Click "Submit Responses" when you've completed your ratings. You cannot change responses after submission.</li>
                 </ol>
@@ -1172,27 +1170,6 @@
             <p style="color: var(--neutral); margin-bottom: 1.5rem;">Review how the group voted in Round 1. Consider the consensus patterns as you provide your Round 2 ratings.</p>
 
             <div id="round2-preview"></div>
-        </div>
-
-        <!-- Tab 4: Discussion Board -->
-        <div id="discussion" class="tab-content">
-            <h1>Asynchronous Collaboration & Discussion</h1>
-
-            <div class="card info">
-                <p><strong>Purpose:</strong> We use a shared Google Doc for discussions to ensure all contributions are linked to verified Google accounts. This prevents anonymous or impersonated posts and creates a permanent record of our consensus process.</p>
-            </div>
-
-            <div class="card">
-                <p style="margin-bottom: 1.5rem;"><strong>Open the Shared Discussion Document:</strong></p>
-                <div style="text-align: center; margin: 1.5rem 0;">
-                    <button class="btn btn-primary" id="googledoc-btn" onclick="openGoogleDoc()" style="padding: 1rem 2rem; font-size: 1.1rem;">Open Discussion Document</button>
-                </div>
-            </div>
-
-            <h2 style="margin-top: 2.5rem;">Discussion Topics by Domain</h2>
-            <p style="color: var(--neutral); margin-bottom: 1.5rem;">Use the shared Google Doc to discuss these areas with your colleagues.</p>
-
-            <div id="discussion-topics"></div>
         </div>
 
         <!-- Tab 5: Evidence Brief -->
@@ -2158,8 +2135,8 @@
                 renderRound1Form();
             } else if (tabName === 'round2' && !document.getElementById('round2-form').innerHTML) {
                 renderRound2Form();
-            } else if (tabName === 'discussion' && !document.getElementById('discussion-board').innerHTML) {
-                renderDiscussionBoard();
+            } else if (tabName === 'discussion') {
+                // Discussion tab now uses an embedded Google Doc; nothing to render here
             } else if (tabName === 'r1results') {
                 applyRoundLock('r1');
                 refreshRoundResults('r1');
@@ -2282,7 +2259,7 @@
                 <div class="submission-status">
                     <strong>✓ Round 1 Responses Submitted Successfully</strong><br>
                     <p>Thank you for completing Round 1, ${state.participantName}. The results will be aggregated and shared in Round 2.</p>
-                    <p>Results will be available at the Mid-Point Meeting on April 29. Visit the Discussion Board to engage with peers while we prepare Round 2.</p>
+                    <p>Results will be available at the Mid-Point Meeting on April 29.</p>
                     ${gfNote}
                 </div>
             `);
@@ -2455,6 +2432,7 @@
 
         function renderDiscussionBoard() {
             const board = document.getElementById('discussion-board');
+            if (!board) return; // Discussion tab now uses a Google Doc; legacy board removed
 
             // Initialize with sample topics if empty
             if (state.discussionTopics.length === 0) {
@@ -2632,7 +2610,7 @@
         function tallyResults(rows, startCol, numQuestions, labels) {
             const header = rows[0];
             const dataRows = rows.slice(1);
-            const stride = cfg.columnStride || 1; // 2 when comment fields follow each MC question
+            const stride = LIVE_RESULTS_CONFIG.columnStride || 1; // 2 when comment fields follow each MC question
             const tallies = {};
 
             for (let q = 0; q < numQuestions; q++) {
@@ -2815,7 +2793,7 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            renderDiscussionBoard();
+            // Discussion tab removed; no init needed
         });
     </script>
 
