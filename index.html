@@ -51,6 +51,7 @@
             // the rating for each question. Timestamp=Col A (0), Q1=Col B (1), etc.
             round1StartColumn: 1,   // 0-indexed column where Q1 rating begins (Col B)
             round2StartColumn: 1,
+            columnStride: 2,        // 2 = every other column (MC answer, then comment field)
             totalQuestions: 18,
 
             // What values your Google Form uses for the 3 options:
@@ -2631,6 +2632,7 @@
         function tallyResults(rows, startCol, numQuestions, labels) {
             const header = rows[0];
             const dataRows = rows.slice(1);
+            const stride = cfg.columnStride || 1; // 2 when comment fields follow each MC question
             const tallies = {};
 
             for (let q = 0; q < numQuestions; q++) {
@@ -2639,7 +2641,7 @@
 
             for (const row of dataRows) {
                 for (let q = 0; q < numQuestions; q++) {
-                    const colIdx = startCol + q;
+                    const colIdx = startCol + (q * stride);
                     if (colIdx >= row.length) continue;
                     const val = row[colIdx].trim().toLowerCase();
                     tallies[q + 1].total++;
