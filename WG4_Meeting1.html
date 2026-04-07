@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WG4 Meeting 1: Kickoff & Orientation</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+// ===== CONFIG =====
+const ADMIN_HASH = "4a85a332e574939d92bd735e6ad56e1be9db5c89a261a0abee1b86636368edfd"; // SHA-256 of admin key
+const LIVE_RESULTS_CONFIG = {
+  round1SheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTkT_gCxWGI8-qgaYlnGmYKg78Sr7ggjLLCpeaV3WC9eiMrwpvBeGDxFGmGGoLhkkrep4cWFxsKGVYY/pub?output=csv",
+  round2SheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnQTxjbTyRrqmO-MiejFagUbDi9GwJLyu9q6dSdG38Gjwswn5b8tCqRz6StvoN6QC_ubvTDjgbeXB8/pub?output=csv",
+  round1StartColumn: 1,
+  round2StartColumn: 1,
+  columnStride: 2,
+  totalQuestions: 18,
+  includeLabel: 'Include',
+  modifyLabel: 'Include with Modifications',
+  excludeLabel: 'Exclude'
+};
+const QUESTIONS = [
+  {id:1, domain:'A', domainLabel:"Domain A: Clinician-AI Interaction & Clinical Reasoning", text:"How does AI-assisted clinical decision support affect emergency physicians\u2019 diagnostic reasoning, and under what conditions does it enhance versus impair clinical judgment?"},
+  {id:2, domain:'A', domainLabel:"Domain A: Clinician-AI Interaction & Clinical Reasoning", text:"What cognitive and behavioral mechanisms drive automation bias in EM physicians\u2019 use of AI, and which interventions effectively mitigate it?"},
+  {id:3, domain:'A', domainLabel:"Domain A: Clinician-AI Interaction & Clinical Reasoning", text:"How do varying levels of AI explainability influence trust calibration and decision accuracy in time-critical ED settings?"},
+  {id:4, domain:'A', domainLabel:"Domain A: Clinician-AI Interaction & Clinical Reasoning", text:"What is the relationship between AI-generated alert burden, cognitive load, alert fatigue, and patient safety outcomes?"},
+  {id:5, domain:'A', domainLabel:"Domain A: Clinician-AI Interaction & Clinical Reasoning", text:"How do EM physicians develop and maintain calibrated trust in AI systems over time?"},
+  {id:6, domain:'A', domainLabel:"Domain A: Clinician-AI Interaction & Clinical Reasoning", text:"What human factors principles should guide AI interface design for emergency medicine?"},
+  {id:7, domain:'B', domainLabel:"Domain B: Professional Identity, Wellbeing & Autonomy", text:"How does AI presence in clinical workflows affect EM physicians\u2019 professional identity, autonomy, and expertise?"},
+  {id:8, domain:'B', domainLabel:"Domain B: Professional Identity, Wellbeing & Autonomy", text:"What is the impact of AI integration on EM physician burnout, moral injury, and well-being?"},
+  {id:9, domain:'B', domainLabel:"Domain B: Professional Identity, Wellbeing & Autonomy", text:"How do clinicians\u2019 perceptions of expertise and agency evolve as AI takes on more clinical functions?"},
+  {id:10, domain:'B', domainLabel:"Domain B: Professional Identity, Wellbeing & Autonomy", text:"What are the effects of AI on the clinician\u2013patient relationship in emergency care?"},
+  {id:11, domain:'B', domainLabel:"Domain B: Professional Identity, Wellbeing & Autonomy", text:"How should human oversight frameworks be designed for increasingly autonomous AI systems in EM?"},
+  {id:12, domain:'C', domainLabel:"Domain C: Patient Experience & Shared Decision-Making", text:"How do ED patients perceive and respond to AI involvement in their diagnosis and treatment?"},
+  {id:13, domain:'C', domainLabel:"Domain C: Patient Experience & Shared Decision-Making", text:"What are the effects of AI-mediated shared decision-making tools on patient understanding, autonomy, and outcomes?"},
+  {id:14, domain:'C', domainLabel:"Domain C: Patient Experience & Shared Decision-Making", text:"How does anthropomorphism of AI affect clinician reliance and patient trust?"},
+  {id:15, domain:'C', domainLabel:"Domain C: Patient Experience & Shared Decision-Making", text:"What transparency and disclosure requirements best support informed consent when AI contributes to ED care?"},
+  {id:16, domain:'D', domainLabel:"Domain D: System Design & Implementation", text:"What implementation strategies most effectively integrate AI CDS into existing ED workflows?"},
+  {id:17, domain:'D', domainLabel:"Domain D: System Design & Implementation", text:"How should adaptive AI systems that learn from clinician feedback be designed and governed?"},
+  {id:18, domain:'D', domainLabel:"Domain D: System Design & Implementation", text:"What outcome measures and study designs are most appropriate for evaluating the human dimensions of AI in EM?"}
+];
+const DOMAIN_MAP = { A:[1,2,3,4,5,6], B:[7,8,9,10,11], C:[12,13,14,15], D:[16,17,18] };
+const SHOW_RESULTS = false;
+</script>
+<style>
+:root {
+  --primary:#006D77; --primary-dark:#003049; --accent:#E29578;
+  --success:#2A9D8F; --warning:#F4A261; --danger:#E63946;
+  --bg:#F7F5F2; --card:#ffffff; --text:#1d1d1f; --neutral:#6b7280;
+  --border:#e5e7eb;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Inter',sans-serif; background:var(--bg); color:var(--text);
+  line-height:1.6; min-height:100vh;
+}
+h1,h2,h3 { font-family:'Lora',serif; color:var(--primary-dark); }
+
+/* ===== LOGIN GATE ===== */
+#gate {
+  position:fixed; inset:0; z-index:9999;
+  background:linear-gradient(135deg,#006D77 0%,#003049 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+#gate.hidden { display:none; }
+.gate-card {
+  background:white; border-radius:14px; padding:3rem; max-width:460px; width:90%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.35); text-align:center;
+}
+.gate-card h1 { font-size:1.4rem; margin-bottom:0.4rem; }
+.gate-card .badge {
+  display:inline-block; background:var(--accent); color:white;
+  padding:0.25rem 0.75rem; border-radius:99px; font-size:0.75rem;
+  font-weight:600; letter-spacing:0.04em; margin-bottom:1rem;
+}
+.gate-card p { color:var(--neutral); font-size:0.92rem; margin-bottom:1.5rem; }
+.gate-card input {
+  width:100%; padding:0.85rem 1rem; border:2px solid var(--border);
+  border-radius:8px; font-size:1rem; margin-bottom:0.75rem; font-family:inherit;
+}
+.gate-card input:focus { outline:none; border-color:var(--primary); }
+.gate-card button {
+  width:100%; padding:0.9rem; background:var(--primary); color:white;
+  border:none; border-radius:8px; font-size:1rem; font-weight:600;
+  cursor:pointer; transition:background 0.2s;
+}
+.gate-card button:hover { background:var(--primary-dark); }
+.gate-error { color:var(--danger); font-size:0.85rem; margin-top:0.5rem; min-height:1.2em; }
+.gate-foot { font-size:0.75rem; color:var(--neutral); margin-top:1rem; }
+
+/* ===== PAGE LAYOUT ===== */
+header.page {
+  background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);
+  color:white; padding:2.5rem 2rem; text-align:center;
+}
+header.page .meeting-tag {
+  display:inline-block; background:rgba(255,255,255,0.18); backdrop-filter:blur(8px);
+  padding:0.3rem 0.9rem; border-radius:99px; font-size:0.78rem;
+  letter-spacing:0.08em; text-transform:uppercase; font-weight:600; margin-bottom:0.75rem;
+}
+header.page h1 { color:white; font-size:2rem; margin-bottom:0.4rem; }
+header.page .sub { font-size:1.05rem; opacity:0.9; }
+header.page .meta { font-size:0.85rem; opacity:0.75; margin-top:0.6rem; }
+.container { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+.card {
+  background:var(--card); border-radius:12px; padding:2rem;
+  margin-bottom:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.05);
+  border:1px solid var(--border);
+}
+.card h2 { font-size:1.5rem; margin-bottom:1rem; padding-bottom:0.6rem; border-bottom:3px solid var(--accent); }
+.card h3 { font-size:1.1rem; margin:1.25rem 0 0.5rem; color:var(--primary); }
+.card p { margin-bottom:0.75rem; }
+.card ul, .card ol { padding-left:1.5rem; margin-bottom:0.75rem; }
+.card li { margin-bottom:0.4rem; }
+
+/* Agenda table */
+.agenda { width:100%; border-collapse:collapse; margin:0.5rem 0 1rem; }
+.agenda th {
+  background:var(--primary); color:white; text-align:left;
+  padding:0.7rem 1rem; font-size:0.85rem; letter-spacing:0.03em;
+}
+.agenda td { padding:0.7rem 1rem; border-bottom:1px solid var(--border); font-size:0.92rem; }
+.agenda tr:last-child td { border-bottom:none; }
+.agenda td:first-child { font-weight:600; color:var(--primary); white-space:nowrap; width:140px; }
+
+/* Live results */
+.live-banner {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.85rem 1.1rem; background:#f0f9f8;
+  border-left:4px solid var(--success); border-radius:6px; margin-bottom:1rem;
+}
+.live-dot {
+  display:inline-block; width:10px; height:10px; border-radius:50%;
+  background:var(--success); margin-right:0.5rem;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.refresh-btn {
+  background:var(--primary); color:white; border:none; padding:0.45rem 0.9rem;
+  border-radius:6px; font-size:0.8rem; font-weight:600; cursor:pointer;
+}
+.refresh-btn:hover { background:var(--primary-dark); }
+
+.summary-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:1rem; margin:1rem 0;
+}
+.summary-tile {
+  background:#f8fafc; padding:1rem; border-radius:8px; text-align:center;
+  border:1px solid var(--border);
+}
+.summary-tile .num { font-size:2rem; font-weight:700; color:var(--primary); }
+.summary-tile .lbl { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--neutral); }
+
+.q-row {
+  margin-bottom:1.1rem; padding:0.9rem 1rem;
+  border-left:4px solid var(--neutral); background:#fafafa; border-radius:0 6px 6px 0;
+}
+.q-row.confirmed { border-left-color:var(--success); }
+.q-row.pending { border-left-color:var(--warning); }
+.q-row.excluded { border-left-color:var(--danger); }
+.q-row .head { display:flex; justify-content:space-between; gap:1rem; margin-bottom:0.5rem; }
+.q-row .head strong { font-size:0.88rem; flex:1; }
+.q-row .badge { font-size:0.7rem; font-weight:700; white-space:nowrap; padding:0.15rem 0.55rem; border-radius:99px; }
+.q-row.confirmed .badge { background:var(--success); color:white; }
+.q-row.pending .badge { background:var(--warning); color:white; }
+.q-row.excluded .badge { background:var(--danger); color:white; }
+.bar { display:flex; height:24px; border-radius:4px; overflow:hidden; background:#eee; }
+.bar > div { display:flex; align-items:center; justify-content:center; color:white; font-size:0.72rem; font-weight:600; }
+.bar-meta { display:flex; gap:1.2rem; font-size:0.75rem; margin-top:0.3rem; color:var(--neutral); }
+
+.domain-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1rem; margin:1rem 0;
+}
+.domain-tile {
+  background:white; padding:1rem; border-radius:8px;
+  border:1px solid var(--border); border-top:4px solid var(--primary);
+}
+.domain-tile h4 { font-size:0.85rem; margin-bottom:0.5rem; color:var(--primary-dark); }
+.domain-tile p { font-size:0.82rem; margin:0.2rem 0; }
+
+footer.page {
+  text-align:center; padding:2rem; color:var(--neutral); font-size:0.85rem;
+  border-top:1px solid var(--border); background:white;
+}
+footer.page a { color:var(--primary); text-decoration:none; }
+
+.btn-row { display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.75rem; }
+.btn {
+  display:inline-block; padding:0.7rem 1.2rem; background:var(--primary);
+  color:white; border-radius:6px; text-decoration:none; font-size:0.9rem; font-weight:600;
+}
+.btn.secondary { background:white; color:var(--primary); border:2px solid var(--primary); }
+.btn:hover { opacity:0.9; }
+
+@media (max-width:640px) {
+  header.page h1 { font-size:1.5rem; }
+  .card { padding:1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== ADMIN GATE ===== -->
+<div id="gate">
+  <div class="gate-card">
+    <span class="badge">Admin Access Required</span>
+    <h1>WG4 Meeting 1</h1>
+    <p>Kickoff & Orientation<br><small>Wednesday, April 22, 2026 · 3:00–3:45 PM ET · Virtual</small></p>
+    <form id="gate-form" autocomplete="off">
+      <input id="gate-input" type="password" placeholder="Enter admin key" autofocus>
+      <button type="submit">Unlock Meeting Materials</button>
+      <div id="gate-error" class="gate-error"></div>
+    </form>
+    <p class="gate-foot">SAEM 2026 AI Consensus Conference · Workgroup 4</p>
+  </div>
+</div>
+
+<!-- ===== MEETING PAGE (hidden until unlocked) ===== -->
+<div id="page" style="display:none;">
+  <header class="page">
+    <span class="meeting-tag">Workgroup 4 · Meeting 1 of 3</span>
+    <h1>Kickoff & Orientation</h1>
+    <p class="sub">Human-AI Interaction & the Perception of Self</p>
+    <p class="meta">Wednesday, April 22, 2026 · 3:00–3:45 PM ET · Virtual · 45 min · Virtual</p>
+  </header>
+
+  <div class="container">
+
+    <div class="card">
+      <h2>Agenda</h2>
+      <table class="agenda">
+        <thead><tr><th>Time</th><th>Topic</th></tr></thead>
+        <tbody>
+          <tr><td>3:00–3:05</td><td>Welcome, introductions, and meeting objectives</td></tr>
+          <tr><td>3:05–3:12</td><td>SAEM 2026 AI Consensus Conference overview & WG4 scope</td></tr>
+          <tr><td>3:12–3:20</td><td>The modified Delphi process, timeline, and consensus threshold</td></tr>
+          <tr><td>3:20–3:35</td><td>Walkthrough of the 18 candidate research questions (by domain)</td></tr>
+          <tr><td>3:35–3:42</td><td>Round 1 logistics, comment fields, deadlines</td></tr>
+          <tr><td>3:42–3:45</td><td>Q&A and next steps</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <div class="card">
+      <h2>Welcome to Workgroup 4</h2>
+      <p>Thank you for joining the 2026 SAEM Consensus Conference effort to define a 10-year research agenda for AI in emergency medicine. Workgroup 4 is focused on the most distinctly human dimensions of this work: how AI affects clinical reasoning, professional identity, burnout, trust, and the patient experience.</p>
+      <p>This kickoff meeting orients the group to the modified Delphi process, the 18 candidate research questions, and the timeline leading up to our in-person consensus session on May 21, 2026 in Atlanta.</p>
+    </div>
+
+    <div class="card">
+      <h2>WG4 Scope & Domains</h2>
+      <p>Our 18 candidate questions are organized across four domains:</p>
+      <ul>
+        <li><strong>Domain A — Clinician–AI Interaction & Clinical Reasoning</strong> (Q1–Q6): automation bias, explainability, trust calibration, alert burden, human factors</li>
+        <li><strong>Domain B — Professional Identity, Wellbeing & Autonomy</strong> (Q7–Q11): identity, burnout, agency, clinician–patient relationship, oversight</li>
+        <li><strong>Domain C — Patient Experience & Shared Decision-Making</strong> (Q12–Q15): patient perception, SDM tools, anthropomorphism, disclosure</li>
+        <li><strong>Domain D — System Design & Implementation</strong> (Q16–Q18): workflow integration, adaptive systems, outcome measures</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>The Modified Delphi Process</h2>
+      <ol>
+        <li><strong>Round 1 (this meeting → mid-point):</strong> Each member rates all 18 questions Include / Include with Modifications / Exclude, with optional comments.</li>
+        <li><strong>Mid-point review:</strong> We share aggregated Round 1 results, discuss disagreements, and refine wording.</li>
+        <li><strong>Round 2:</strong> Members re-rate the (possibly revised) set in light of group feedback.</li>
+        <li><strong>May 21, Atlanta:</strong> Final breakouts, cross-group discussion, and full-audience consensus vote.</li>
+      </ol>
+      <p>Consensus threshold: <strong>≥80% Include</strong> for a question to be confirmed.</p>
+    </div>
+
+    <div class="card">
+      <h2>Your Pre-Conference Commitment</h2>
+      <p>Approximately <strong>5–8 hours</strong> over the next several weeks:</p>
+      <ul>
+        <li>Three virtual meetings, 45 minutes each (Wed Apr 22, Apr 29, May 6 · 3:00–3:45 PM ET)</li>
+        <li>Two brief Delphi survey rounds (~30 min each)</li>
+        <li>Asynchronous discussion in our shared Google Doc</li>
+        <li>Breakouts and a full-audience vote on May 21 in Atlanta</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Action Items</h2>
+      <ul>
+        <li>Complete the Round 1 survey by the deadline shared in chat</li>
+        <li>Skim the Evidence Brief on the Delphi platform before voting</li>
+        <li>Drop questions or comments in the Discussion Doc anytime</li>
+      </ul>
+    </div>
+
+
+
+
+    <div class="card">
+      <h2>Quick Links</h2>
+      <div class="btn-row">
+        <a class="btn" href="index.html">Open Delphi Platform</a>
+        <a class="btn secondary" href="https://docs.google.com/forms/d/e/1FAIpQLSfItKfqtcVlgyn5q92gILku8Ab-RW7S_PppPsdzyop1scNY4A/viewform" target="_blank">Round 1 Form</a>
+        <a class="btn secondary" href="https://docs.google.com/forms/d/e/1FAIpQLSeU6NSiCgR7DdLr9mQiq1I7oCDtKZKXT6jlugc0eG4j63AqEQ/viewform" target="_blank">Round 2 Form</a>
+        <a class="btn secondary" href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Discussion Doc</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="page">
+    SAEM 2026 AI Consensus Conference · Workgroup 4: Human-AI Interaction & the Perception of Self<br>
+    Co-led by Tehreem Rehman, MD · Mount Sinai · May 21, 2026 · Atlanta Marriott Marquis
+  </footer>
+</div>
+
+<script>
+// ===== ADMIN GATE LOGIC (SHA-256) =====
+async function sha256(s) {
+  const buf = new TextEncoder().encode(s);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+document.getElementById('gate-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('gate-input').value;
+  const err = document.getElementById('gate-error');
+  err.textContent = '';
+  const h = await sha256(input);
+  if (h === ADMIN_HASH) {
+    sessionStorage.setItem('wg4_meeting_unlocked', '1');
+    showPage();
+  } else {
+    err.textContent = 'Incorrect admin key. Try again.';
+  }
+});
+
+function showPage() {
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('page').style.display = 'block';
+  if (SHOW_RESULTS) {
+    if (document.getElementById('r1-banner')) loadRound('r1');
+    if (document.getElementById('r2-banner')) loadRound('r2');
+  }
+}
+
+if (sessionStorage.getItem('wg4_meeting_unlocked') === '1') {
+  showPage();
+}
+
+// ===== LIVE RESULTS =====
+function parseCsv(text) {
+  const rows = [];
+  for (const line of text.split('\n')) {
+    if (!line.trim()) continue;
+    const row = []; let cur = ''; let inQ = false;
+    for (let i=0;i<line.length;i++) {
+      const ch = line[i];
+      if (ch === '"') inQ = !inQ;
+      else if (ch === ',' && !inQ) { row.push(cur.trim()); cur=''; }
+      else cur += ch;
+    }
+    row.push(cur.trim());
+    rows.push(row);
+  }
+  return rows;
+}
+
+async function fetchSheet(url) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    return parseCsv(await r.text());
+  } catch(e) { console.warn('Sheet fetch failed:', e); return null; }
+}
+
+function tally(rows, startCol) {
+  const cfg = LIVE_RESULTS_CONFIG;
+  const dataRows = rows.slice(1);
+  const stride = cfg.columnStride;
+  const out = {};
+  for (let q=0; q<cfg.totalQuestions; q++) {
+    out[q+1] = {include:0, modify:0, exclude:0, total:0};
+  }
+  for (const row of dataRows) {
+    for (let q=0; q<cfg.totalQuestions; q++) {
+      const idx = startCol + (q*stride);
+      if (idx >= row.length) continue;
+      const v = row[idx].trim().toLowerCase();
+      if (!v) continue;
+      out[q+1].total++;
+      if (v.includes('modif')) out[q+1].modify++;
+      else if (v.startsWith('include')) out[q+1].include++;
+      else if (v.startsWith('exclude')) out[q+1].exclude++;
+    }
+  }
+  const pct = {};
+  for (let q=1; q<=cfg.totalQuestions; q++) {
+    const t = out[q].total || 1;
+    pct[q] = {
+      include: Math.round(out[q].include/t*100),
+      modify: Math.round(out[q].modify/t*100),
+      exclude: Math.round(out[q].exclude/t*100),
+      total: out[q].total
+    };
+  }
+  return pct;
+}
+
+function renderRound(prefix, results, count) {
+  const banner = document.getElementById(prefix+'-banner');
+  if (results === null || count === 0) {
+    banner.querySelector('.status').textContent = 'No responses yet';
+    document.getElementById(prefix+'-count').textContent = '0';
+    document.getElementById(prefix+'-confirmed').textContent = '—';
+    document.getElementById(prefix+'-pending').textContent = '—';
+    document.getElementById(prefix+'-excluded').textContent = '—';
+    document.getElementById(prefix+'-questions').innerHTML = '<p style="color:var(--neutral); font-style:italic;">Live results will appear here once survey responses come in.</p>';
+    return;
+  }
+  banner.querySelector('.status').textContent = count + ' responses · live from Google Sheets';
+  document.getElementById(prefix+'-count').textContent = count;
+
+  let conf=0, pend=0, exc=0;
+  for (let q=1; q<=18; q++) {
+    const i = results[q].include;
+    if (i >= 80) conf++;
+    else if (i <= 20) exc++;
+    else pend++;
+  }
+  document.getElementById(prefix+'-confirmed').textContent = conf;
+  document.getElementById(prefix+'-pending').textContent = pend;
+  document.getElementById(prefix+'-excluded').textContent = exc;
+
+  const container = document.getElementById(prefix+'-questions');
+  let html = '';
+  let curDomain = '';
+  QUESTIONS.forEach(q => {
+    if (q.domainLabel !== curDomain) {
+      curDomain = q.domainLabel;
+      html += '<h3 style="margin-top:1.5rem; color:var(--primary);">'+curDomain+'</h3>';
+    }
+    const r = results[q.id];
+    const cls = r.include >= 80 ? 'confirmed' : r.include <= 20 ? 'excluded' : 'pending';
+    const lbl = r.include >= 80 ? 'CONFIRMED' : r.include <= 20 ? 'EXCLUDED' : 'PENDING';
+    html += '<div class="q-row '+cls+'">';
+    html += '<div class="head"><strong>Q'+q.id+': '+q.text+'</strong><span class="badge">'+lbl+'</span></div>';
+    html += '<div class="bar">';
+    if (r.include > 0) html += '<div style="width:'+r.include+'%; background:var(--success);">'+(r.include>=10?r.include+'%':'')+'</div>';
+    if (r.modify > 0) html += '<div style="width:'+r.modify+'%; background:var(--warning);">'+(r.modify>=10?r.modify+'%':'')+'</div>';
+    if (r.exclude > 0) html += '<div style="width:'+r.exclude+'%; background:var(--danger);">'+(r.exclude>=10?r.exclude+'%':'')+'</div>';
+    html += '</div>';
+    html += '<div class="bar-meta"><span>Include '+r.include+'%</span><span>Modify '+r.modify+'%</span><span>Exclude '+r.exclude+'%</span></div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+
+  // Domain summary
+  ['A','B','C','D'].forEach(d => {
+    let dc=0,dp=0,de=0;
+    DOMAIN_MAP[d].forEach(id => {
+      const i = results[id].include;
+      if (i>=80) dc++; else if (i<=20) de++; else dp++;
+    });
+    const el = document.getElementById(prefix+'-dom-'+d);
+    if (el) el.innerHTML =
+      '<p><span style="color:var(--success); font-weight:600;">Confirmed:</span> '+dc+'</p>'+
+      '<p><span style="color:var(--warning); font-weight:600;">Pending:</span> '+dp+'</p>'+
+      '<p><span style="color:var(--danger); font-weight:600;">Excluded:</span> '+de+'</p>';
+  });
+}
+
+async function loadRound(prefix) {
+  const cfg = LIVE_RESULTS_CONFIG;
+  const url = prefix === 'r1' ? cfg.round1SheetCsvUrl : cfg.round2SheetCsvUrl;
+  const startCol = prefix === 'r1' ? cfg.round1StartColumn : cfg.round2StartColumn;
+  const banner = document.getElementById(prefix+'-banner');
+  banner.querySelector('.status').textContent = 'Loading…';
+  const rows = await fetchSheet(url);
+  if (!rows) {
+    banner.querySelector('.status').textContent = 'Could not fetch live data (host the file via HTTP/HTTPS)';
+    return;
+  }
+  const responseCount = Math.max(0, rows.length - 1);
+  if (responseCount === 0) {
+    renderRound(prefix, null, 0);
+    return;
+  }
+  const results = tally(rows, startCol);
+  renderRound(prefix, results, responseCount);
+}
+
+window.refreshRound = loadRound;
+</script>
+</body>
+</html>
