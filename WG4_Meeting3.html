@@ -348,8 +348,11 @@ footer.page a { color:var(--primary); text-decoration:none; }
 // ===== URL-PARAMETER LOCK (matches main platform's results tab pattern) =====
 // Meeting is unlocked when URL contains ?open=1. Admin controls this via the
 // admin panel on index.html, which generates the correct share link.
+const DEFAULT_OPEN = false;
 function isUnlocked() {
   const params = new URLSearchParams(window.location.search);
+  if (params.get('open') === '0') return false; // explicit lock override
+  if (DEFAULT_OPEN) return true;
   return params.get('open') === '1';
 }
 

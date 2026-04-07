@@ -1092,7 +1092,7 @@
                 <p style="margin-bottom: 1rem;">Each virtual meeting has its own materials page with agenda, talking points, and (for Meetings 2 and 3) live results pulled directly from the Round 1 and Round 2 Google Sheets. Visibility is controlled from the Admin tab — similar to R1/R2 results.</p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; margin-top: 0.5rem;">
                     <a id="meeting1-link" href="WG4_Meeting1.html" style="display: block; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-left: 4px solid #006D77; border-radius: 6px; text-decoration: none; color: inherit;">
-                        <strong style="color: #003049;">Meeting 1 — Kickoff</strong> <span class="lock-status" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: var(--danger);">LOCKED</span><br>
+                        <strong style="color: #003049;">Meeting 1 — Kickoff</strong> <span class="lock-status" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: var(--success);">UNLOCKED</span><br>
                         <span style="font-size: 0.85rem; color: #6b7280;">Wed Apr 22 · 3:00–3:45 PM ET</span>
                     </a>
                     <a id="meeting2-link" href="WG4_Meeting2.html" style="display: block; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-left: 4px solid #006D77; border-radius: 6px; text-decoration: none; color: inherit;">
@@ -1787,7 +1787,7 @@
                             <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Wed Apr 22 · 3:00–3:45 PM ET · Agenda &amp; talking points</p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <span id="m1-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
+                            <span id="m1-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--success);">VISIBLE</span>
                             <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
                                 <input type="checkbox" id="m1-lock-toggle" onchange="toggleLock('m1')" style="opacity: 0; width: 0; height: 0;">
                                 <span style="position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s;" id="m1-toggle-track"></span>
@@ -2097,7 +2097,8 @@
             return {
                 r1Locked: params.get('r1') !== 'open',
                 r2Locked: params.get('r2') !== 'open',
-                m1Locked: params.get('m1') !== 'open',
+                // Meeting 1 (Kickoff) is unlocked by default — admin can lock with ?m1=closed
+                m1Locked: params.get('m1') === 'closed',
                 m2Locked: params.get('m2') !== 'open',
                 m3Locked: params.get('m3') !== 'open'
             };
@@ -2151,7 +2152,12 @@
                 const el = document.getElementById(id);
                 if (!el) return;
                 const unlocked = !locks[key + 'Locked'];
-                el.href = unlocked ? file + '?open=1' : file;
+                if (key === 'm1') {
+                    // Meeting 1 page is unlocked by default; pass ?open=0 only to lock
+                    el.href = unlocked ? file : file + '?open=0';
+                } else {
+                    el.href = unlocked ? file + '?open=1' : file;
+                }
                 const status = el.querySelector('.lock-status');
                 if (status) status.textContent = unlocked ? 'UNLOCKED' : 'LOCKED';
                 if (status) status.style.color = unlocked ? 'var(--success)' : 'var(--danger)';
@@ -2181,7 +2187,14 @@
 
             // Update URL params to persist state
             const params = new URLSearchParams(window.location.search);
-            if (isNowUnlocked) {
+            if (round === 'm1') {
+                // Meeting 1 defaults to unlocked, so use ?m1=closed to lock it
+                if (isNowUnlocked) {
+                    params.delete('m1');
+                } else {
+                    params.set('m1', 'closed');
+                }
+            } else if (isNowUnlocked) {
                 params.set(round, 'open');
             } else {
                 params.delete(round);
