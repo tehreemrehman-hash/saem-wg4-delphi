@@ -1087,20 +1087,20 @@
                 </div>
             </div>
 
-            <h2>Meeting Materials <span style="font-size: 0.7rem; background: #E29578; color: white; padding: 0.2rem 0.6rem; border-radius: 99px; vertical-align: middle; letter-spacing: 0.05em;">ADMIN ONLY</span></h2>
+            <h2>Meeting Materials</h2>
             <div class="card" style="background: #fafafa;">
-                <p style="margin-bottom: 1rem;">Each virtual meeting has its own materials page with agenda, talking points, and (for Meetings 2 and 3) live results pulled directly from the Round 1 and Round 2 Google Sheets. Pages are gated behind the WG4 admin key.</p>
+                <p style="margin-bottom: 1rem;">Each virtual meeting has its own materials page with agenda, talking points, and (for Meetings 2 and 3) live results pulled directly from the Round 1 and Round 2 Google Sheets. Visibility is controlled from the Admin tab — similar to R1/R2 results.</p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; margin-top: 0.5rem;">
-                    <a href="WG4_Meeting1.html" style="display: block; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-left: 4px solid #006D77; border-radius: 6px; text-decoration: none; color: inherit;">
-                        <strong style="color: #003049;">Meeting 1 — Kickoff</strong><br>
+                    <a id="meeting1-link" href="WG4_Meeting1.html" style="display: block; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-left: 4px solid #006D77; border-radius: 6px; text-decoration: none; color: inherit;">
+                        <strong style="color: #003049;">Meeting 1 — Kickoff</strong> <span class="lock-status" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: var(--danger);">LOCKED</span><br>
                         <span style="font-size: 0.85rem; color: #6b7280;">Wed Apr 22 · 3:00–3:45 PM ET</span>
                     </a>
-                    <a href="WG4_Meeting2.html" style="display: block; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-left: 4px solid #006D77; border-radius: 6px; text-decoration: none; color: inherit;">
-                        <strong style="color: #003049;">Meeting 2 — Mid-Point</strong><br>
+                    <a id="meeting2-link" href="WG4_Meeting2.html" style="display: block; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-left: 4px solid #006D77; border-radius: 6px; text-decoration: none; color: inherit;">
+                        <strong style="color: #003049;">Meeting 2 — Mid-Point</strong> <span class="lock-status" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: var(--danger);">LOCKED</span><br>
                         <span style="font-size: 0.85rem; color: #6b7280;">Wed Apr 29 · 3:00–3:45 PM ET</span>
                     </a>
-                    <a href="WG4_Meeting3.html" style="display: block; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-left: 4px solid #006D77; border-radius: 6px; text-decoration: none; color: inherit;">
-                        <strong style="color: #003049;">Meeting 3 — Final Prep</strong><br>
+                    <a id="meeting3-link" href="WG4_Meeting3.html" style="display: block; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-left: 4px solid #006D77; border-radius: 6px; text-decoration: none; color: inherit;">
+                        <strong style="color: #003049;">Meeting 3 — Final Prep</strong> <span class="lock-status" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: var(--danger);">LOCKED</span><br>
                         <span style="font-size: 0.85rem; color: #6b7280;">Wed May 6 · 3:00–3:45 PM ET</span>
                     </a>
                 </div>
@@ -1777,6 +1777,60 @@
                     </div>
                 </div>
 
+                <h2 style="margin-top: 2rem;">Meeting Materials Visibility</h2>
+                <p style="color: var(--neutral); margin-bottom: 1rem;">Toggle participant access to each virtual meeting's materials page. When unlocked, the Meeting Materials cards on the Overview tab will link straight into the page.</p>
+
+                <div class="card" style="padding: 1.5rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <strong style="font-size: 1.05rem;">Meeting 1 — Kickoff</strong>
+                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Wed Apr 22 · 3:00–3:45 PM ET · Agenda &amp; talking points</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span id="m1-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
+                            <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
+                                <input type="checkbox" id="m1-lock-toggle" onchange="toggleLock('m1')" style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s;" id="m1-toggle-track"></span>
+                                <span style="position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" id="m1-toggle-knob"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 1.5rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <strong style="font-size: 1.05rem;">Meeting 2 — Mid-Point</strong>
+                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Wed Apr 29 · 3:00–3:45 PM ET · Includes live R1 results</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span id="m2-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
+                            <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
+                                <input type="checkbox" id="m2-lock-toggle" onchange="toggleLock('m2')" style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s;" id="m2-toggle-track"></span>
+                                <span style="position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" id="m2-toggle-knob"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <strong style="font-size: 1.05rem;">Meeting 3 — Final Prep</strong>
+                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Wed May 6 · 3:00–3:45 PM ET · Includes live R2 results</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span id="m3-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
+                            <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
+                                <input type="checkbox" id="m3-lock-toggle" onchange="toggleLock('m3')" style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s;" id="m3-toggle-track"></span>
+                                <span style="position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" id="m3-toggle-knob"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card" style="padding: 1.5rem; background: rgba(0,48,73,0.03);">
                     <h3 style="margin-top: 0;">Quick Reference</h3>
                     <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Recommended workflow:</strong></p>
@@ -2042,7 +2096,10 @@
             const params = new URLSearchParams(window.location.search);
             return {
                 r1Locked: params.get('r1') !== 'open',
-                r2Locked: params.get('r2') !== 'open'
+                r2Locked: params.get('r2') !== 'open',
+                m1Locked: params.get('m1') !== 'open',
+                m2Locked: params.get('m2') !== 'open',
+                m3Locked: params.get('m3') !== 'open'
             };
         }
 
@@ -2072,6 +2129,33 @@
             const r2Toggle = document.getElementById('r2-lock-toggle');
             r2Toggle.checked = !locks.r2Locked;
             updateToggleUI('r2', !locks.r2Locked);
+            // Meeting toggles
+            ['m1','m2','m3'].forEach(m => {
+                const t = document.getElementById(m + '-lock-toggle');
+                if (!t) return;
+                const unlocked = !locks[m + 'Locked'];
+                t.checked = unlocked;
+                updateToggleUI(m, unlocked);
+            });
+            updateMeetingLinks();
+        }
+
+        // Rewrite the Meeting Materials card hrefs so they include ?open=1 when
+        // the admin has unlocked them, so that sharing the main URL surfaces
+        // unlocked meeting pages for participants too.
+        function updateMeetingLinks() {
+            const locks = getLockState();
+            [['m1','meeting1-link','WG4_Meeting1.html'],
+             ['m2','meeting2-link','WG4_Meeting2.html'],
+             ['m3','meeting3-link','WG4_Meeting3.html']].forEach(([key,id,file]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const unlocked = !locks[key + 'Locked'];
+                el.href = unlocked ? file + '?open=1' : file;
+                const status = el.querySelector('.lock-status');
+                if (status) status.textContent = unlocked ? 'UNLOCKED' : 'LOCKED';
+                if (status) status.style.color = unlocked ? 'var(--success)' : 'var(--danger)';
+            });
         }
 
         function updateToggleUI(round, isUnlocked) {
@@ -2104,6 +2188,11 @@
             }
             const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
             window.history.replaceState({}, '', newUrl);
+
+            // If this was a meeting toggle, update the Meeting Materials card links
+            if (round === 'm1' || round === 'm2' || round === 'm3') {
+                updateMeetingLinks();
+            }
         }
 
         function applyRoundLock(round) {
@@ -2812,7 +2901,10 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Discussion tab removed; no init needed
+            // Propagate meeting lock state to Meeting Materials card links
+            if (typeof updateMeetingLinks === 'function') {
+                updateMeetingLinks();
+            }
         });
     </script>
 
