@@ -215,19 +215,48 @@
 
         :root {
             --primary: #006D77;
+            --primary-ink: #004E54;        /* WCAG AA-compliant version of --primary for small text */
             --accent: #E29578;
             --dark: #003049;
             --light: #FAFAF5;
             --success: #2A9D8F;
             --warning: #F4A261;
+            --warning-ink: #8A4A0C;        /* WCAG AA-compliant version of --warning for small text */
             --danger: #E63946;
+            --danger-ink: #991B1B;
             --neutral: #8A8A8A;
+            --neutral-ink: #5A5A5A;        /* AA-compliant body-muted */
             --border: #E0DDD7;
         }
 
         html {
             scroll-behavior: smooth;
         }
+
+        /* ===== Accessibility: keyboard focus visibility (WCAG 2.4.7) ===== */
+        *:focus { outline: none; }
+        a:focus-visible,
+        button:focus-visible,
+        [role="button"]:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible,
+        select:focus-visible,
+        summary:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* ===== Reading typography utility for long-form text (Evidence Brief, preview questions) ===== */
+        .reading-column {
+            max-width: 68ch;
+            font-size: 1rem;
+            line-height: 1.65;
+        }
+        .reading-column p { margin: 0 0 0.9em 0; }
+        .reading-column h2 { margin-top: 2rem; }
+        .reading-column h3 { margin-top: 1.5rem; }
+        .reading-serif { font-family: 'Lora', Georgia, serif; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -1040,440 +1069,139 @@
     <nav>
         <div class="nav-container" style="display:flex; align-items:center; justify-content:space-between;">
             <button class="nav-btn active" onclick="switchTab('overview')" style="font-weight:600;">← WG4 Journey</button>
-            <button class="nav-btn" onclick="switchTab('roster')" style="font-size: 0.8rem;">Roster</button>
-            <button class="nav-btn" onclick="switchTab('admin')" style="opacity: 0.7; font-size: 0.8rem;">Admin</button>
+            <button class="nav-btn admin-only-nav" id="nav-btn-admin" onclick="switchTab('admin')" style="opacity: 0.7; font-size: 0.8rem;">Admin</button>
         </div>
     </nav>
 
     <main>
         <!-- Tab 1: Overview -->
+        <!-- Tab 1: WG4 Journey (simplified vertical list) -->
         <div id="overview" class="tab-content active">
             <style>
-                .journey-hero { background: linear-gradient(135deg, #003049 0%, #006D77 100%); color: white; padding: 2rem 1.75rem; border-radius: 10px; margin-bottom: 1.5rem; }
-                .journey-hero h1 { color: white; margin: 0 0 0.5rem 0; font-size: 1.5rem; }
-                .journey-hero p { margin: 0; opacity: 0.92; font-size: 0.95rem; }
-                .journey-pillbar { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1.25rem; }
-                .journey-pill { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.35rem 0.7rem; border-radius: 999px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
-                .journey-pill.done { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); text-decoration: line-through; }
-                .journey-pill.current { background: #E29578; color: #003049; border-color: #E29578; box-shadow: 0 0 0 2px rgba(226,149,120,0.35); }
-                .stage-card { background: white; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1.25rem; overflow: hidden; position: relative; }
-                .stage-card.current { border-color: #E29578; box-shadow: 0 4px 18px rgba(226,149,120,0.18); }
-                .stage-card.done { opacity: 0.72; }
-                .stage-header { display: flex; align-items: center; gap: 0.85rem; padding: 1rem 1.25rem; background: #fafafa; border-bottom: 1px solid var(--border); }
-                .stage-num { width: 36px; height: 36px; border-radius: 50%; background: #e5e7eb; color: #6b7280; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; }
-                .stage-card.current .stage-num { background: #E29578; color: white; }
-                .stage-card.done .stage-num { background: #2a9d8f; color: white; }
-                .stage-title { font-weight: 700; color: #003049; font-size: 1.05rem; margin: 0; }
-                .stage-meta { font-size: 0.82rem; color: #6b7280; margin-top: 0.15rem; }
-                .stage-status { margin-left: auto; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.3rem 0.65rem; border-radius: 999px; }
-                .stage-status.done { background: rgba(42,157,143,0.15); color: #2a9d8f; }
-                .stage-status.current { background: #E29578; color: white; }
-                .stage-status.upcoming { background: #f3f4f6; color: #9ca3af; }
-                .stage-body { padding: 1.25rem; }
-                .phase-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.85rem; }
-                .phase-card { padding: 1rem; border-radius: 8px; border-left: 4px solid; background: #fafafa; }
-                .phase-card.before { border-left-color: #f4a261; background: rgba(244,162,97,0.05); }
-                .phase-card.during { border-left-color: #006D77; background: rgba(0,109,119,0.05); }
-                .phase-card.after { border-left-color: #2a9d8f; background: rgba(42,157,143,0.05); }
-                .phase-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
-                .phase-card.before .phase-label { color: #f4a261; }
-                .phase-card.during .phase-label { color: #006D77; }
-                .phase-card.after .phase-label { color: #2a9d8f; }
-                .phase-card ul { margin: 0.4rem 0 0 1.1rem; padding: 0; font-size: 0.88rem; color: #374151; }
-                .phase-card ul li { margin-bottom: 0.35rem; }
-                .stage-cta { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.6rem; }
-                .stage-cta a, .stage-cta button { font-size: 0.85rem; padding: 0.55rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; }
-                .stage-cta .cta-primary { background: #006D77; color: white; }
-                .stage-cta .cta-secondary { background: white; color: #006D77; border: 1px solid #006D77; }
-                .single-phase-note { padding: 0.85rem 1rem; background: #fafafa; border-left: 3px solid #E29578; border-radius: 6px; font-size: 0.9rem; color: #374151; }
-                .meeting-details { margin-top: 1rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1rem; }
-                .meeting-details > summary { cursor: pointer; font-weight: 600; color: #003049; font-size: 0.92rem; list-style: none; }
-                .meeting-details > summary::before { content: "▸ "; color: #006D77; transition: transform 0.15s; display: inline-block; }
-                .meeting-details[open] > summary::before { content: "▾ "; }
-                .meeting-details .zoom-row { margin: 0.85rem 0 0.5rem; padding: 0.5rem 0.75rem; background: rgba(0,109,119,0.06); border-radius: 6px; font-size: 0.88rem; color: #003049; }
-                .meeting-details .zoom-row code { background: white; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.82rem; color: #6b7280; }
-                .agenda-mini { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.85rem; }
-                .agenda-mini td { padding: 0.45rem 0.6rem; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
-                .agenda-mini td:first-child { font-weight: 600; color: #006D77; white-space: nowrap; width: 90px; }
-                .agenda-mini tr:last-child td { border-bottom: none; }
-
+                .j-hero { background: linear-gradient(135deg, #003049 0%, #006D77 100%); color: white; padding: 2rem 1.75rem; border-radius: 10px; margin-bottom: 1.75rem; }
+                .j-hero h1 { color: white; margin: 0 0 0.5rem 0; font-size: 1.5rem; font-family: 'Lora', serif; }
+                .j-hero p { margin: 0; opacity: 0.92; font-size: 0.95rem; max-width: 68ch; }
+                .j-timeline { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+                .j-stage { display: grid; grid-template-columns: 40px 1fr; gap: 1rem; align-items: start; padding: 1.1rem 0.25rem; border-bottom: 1px solid var(--border); }
+                .j-num { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+                .j-body { min-width: 0; }
+                .j-title { font-weight: 700; color: var(--dark); font-size: 1.02rem; margin: 0.1rem 0 0.15rem 0; }
+                .j-date { font-size: 0.82rem; color: var(--neutral-ink); margin-bottom: 0.3rem; }
+                .j-desc { font-size: 0.9rem; color: #374151; line-height: 1.5; margin: 0.35rem 0 0 0; }
+                .j-do { margin: 0.7rem 0 0.25rem 0; padding: 0.7rem 0.9rem; background: rgba(0,109,119,0.06); border-left: 3px solid var(--primary); border-radius: 4px; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+                .j-do button, .j-do a { font-size: 0.83rem; padding: 0.5rem 0.95rem; border-radius: 5px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; font-family: 'Inter', sans-serif; background: var(--primary); color: white; flex: 1 1 auto; text-align: center; min-width: 0; }
+                .j-do button:hover, .j-do a:hover { background: #005a63; }
+                .j-do .j-do-note { font-size: 0.83rem; color: var(--neutral-ink); font-style: italic; }
+                .j-thresholds { margin: 2rem 0 0 0; padding: 1.25rem 1.5rem; background: white; border: 1px solid var(--border); border-radius: 8px; }
+                .j-thresholds h2 { font-family: 'Lora', serif; font-size: 1.15rem; margin: 0 0 0.85rem 0; color: var(--dark); }
+                .j-thresholds .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
+                .j-chip { padding: 0.75rem 0.85rem; border-radius: 6px; border-left: 4px solid; }
+                .j-chip.green { background: rgba(34,197,94,0.08); border-left-color: #16a34a; color: #14532d; }
+                .j-chip.yellow { background: rgba(245,158,11,0.08); border-left-color: #d97706; color: #78350f; }
+                .j-chip.red { background: rgba(239,68,68,0.08); border-left-color: #dc2626; color: #7f1d1d; }
+                .j-chip strong { display: block; font-size: 0.95rem; margin-bottom: 0.1rem; }
+                .j-chip span { font-size: 0.82rem; line-height: 1.4; }
+                @media (max-width: 600px) {
+                    .j-stage { grid-template-columns: 32px 1fr; gap: 0.75rem; }
+                }
             </style>
 
-            <div class="journey-hero">
+            <div class="j-hero">
                 <h1>WG4: Human-AI Interaction &amp; the Perception of Self</h1>
-                <p>Your modified Delphi journey from kickoff to the Atlanta consensus vote. Everything you need — surveys, meetings, results, evidence brief — lives on this page in the order you'll encounter it.</p>
-                <div class="journey-pillbar" id="journey-pillbar">
-                    <span class="journey-pill" data-stage="1">1 · Orientation</span>
-                    <span class="journey-pill" data-stage="2">2 · Kickoff</span>
-                    <span class="journey-pill" data-stage="3">3 · Round 1</span>
-                    <span class="journey-pill" data-stage="4">4 · Mid-Point</span>
-                    <span class="journey-pill" data-stage="5">5 · Round 2</span>
-                    <span class="journey-pill" data-stage="6">6 · Final Prep</span>
-                    <span class="journey-pill" data-stage="7">7 · Atlanta</span>
-                </div>
+                <p>Your modified Delphi journey from kickoff to the Atlanta consensus vote. Seven stages between now and May 21. Everything you need — surveys, the evidence brief, results — lives on this page.</p>
             </div>
 
-            <!-- Stage 1: Orientation -->
-            <div class="stage-card" data-stage="1" id="stage-1">
-                <div class="stage-header">
-                    <div class="stage-num">1</div>
-                    <div>
-                        <div class="stage-title">Orientation</div>
-                        <div class="stage-meta">Now through Tue Apr 21 · Get oriented before the kickoff call</div>
+            <ol class="j-timeline">
+                <li class="j-stage" data-stage="1" id="stage-1">
+                    <div class="j-num">1</div>
+                    <div class="j-body">
+                        <p class="j-title">Orientation</p>
+                        <p class="j-date">Now through Tue Apr 21</p>
+                        <div class="j-do">
+<button onclick="switchTab('evidence')">Read the Evidence Brief</button>
+                            <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Open Shared Working Doc &amp; comment on ≥3 questions</a>
+                        </div>
+                        <p class="j-desc">Before the kickoff call, read the Evidence Brief and leave comments on at least three candidate questions in the Shared Working Doc. Every question needs at least one member's voice before we meet.</p>
                     </div>
-                    <div class="stage-status upcoming">Upcoming</div>
-                </div>
-                <div class="stage-body">
-                    <div class="single-phase-note">
-                        <strong>What this phase is for:</strong> Before the kickoff call, (1) read the evidence brief, (2) review the candidate research questions in the Shared Working Doc, and (3) leave comments on at least three questions where you have concrete suggestions — wording, missing constructs, scope, or equity angles. The goal is for every candidate question to have at least one member's voice on it before we meet.
+                </li>
+                <li class="j-stage" data-stage="2" id="stage-2">
+                    <div class="j-num">2</div>
+                    <div class="j-body">
+                        <p class="j-title">Meeting 1 — Kickoff</p>
+                        <p class="j-date">Wed Apr 22 · 3:00–3:45 PM ET</p>
+                        <div class="j-do">
+<span class="j-do-note">Join via the Zoom link in your email — no calendar invite will be sent.</span>
+                        </div>
+                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded.</p>
                     </div>
-                    <div class="stage-cta">
-                        <button class="cta-primary" onclick="openGoogleDoc()">Open Shared Working Doc (leave comments here)</button>
-                        <button class="cta-secondary" onclick="switchTab('evidence')">Read the Evidence Brief</button>
-                        <button class="cta-secondary" onclick="switchTab('round1')">Preview the Candidate Questions</button>
+                </li>
+                <li class="j-stage" data-stage="3" id="stage-3">
+                    <div class="j-num">3</div>
+                    <div class="j-body">
+                        <p class="j-title">Delphi Round 1</p>
+                        <p class="j-date">Opens after kickoff · closes Mon Apr 27, 3:00 PM ET</p>
+                        <div class="j-do">
+<button onclick="switchTab('round1')">Open Round 1 Survey</button>
+                        </div>
+                        <p class="j-desc">After Meeting 1, the survey opens and you'll get an email with the Google Form link. Rate each question Include / Include with modifications / Exclude, and leave a rationale on anything you want revised.</p>
                     </div>
+                </li>
+                <li class="j-stage" data-stage="4" id="stage-4">
+                    <div class="j-num">4</div>
+                    <div class="j-body">
+                        <p class="j-title">Meeting 2 — Round 1 Debrief</p>
+                        <p class="j-date">Wed Apr 29 · 3:00–3:45 PM ET</p>
+                        <div class="j-do">
+<button onclick="switchTab('r1results')">View Round 1 Results</button>
+                            <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Refine questions in Shared Working Doc</a>
+                        </div>
+                        <p class="j-desc">At least 24 hours before this meeting you'll get an email with the Round 1 results link, color-coded green (≥80% confirmed), yellow (21–79% pending), and red (≤20% removed). We'll refine the questions live — confirming greens, dropping reds, and focusing discussion on the yellow middle band.</p>
+                    </div>
+                </li>
+                <li class="j-stage" data-stage="5" id="stage-5">
+                    <div class="j-num">5</div>
+                    <div class="j-body">
+                        <p class="j-title">Delphi Round 2</p>
+                        <p class="j-date">Opens after Meeting 2 · closes Tue May 5</p>
+                        <div class="j-do">
+<button onclick="switchTab('round2')">Open Round 2 Survey</button>
+                        </div>
+                        <p class="j-desc">Round 2 opens with the revised wording. Re-rate every item — this is the ballot we bring to Atlanta. Any items still in the yellow band after R2 are resolved by lead adjudication at Meeting 3.</p>
+                    </div>
+                </li>
+                <li class="j-stage" data-stage="6" id="stage-6">
+                    <div class="j-num">6</div>
+                    <div class="j-body">
+                        <p class="j-title">Meeting 3 — Final Prep for Atlanta</p>
+                        <p class="j-date">Wed May 6 · 3:00–3:45 PM ET</p>
+                        <div class="j-do">
+<button onclick="switchTab('r2results')" >View Round 2 Results</button>
+                            <span class="j-do-note">Zoom link will arrive in your email.</span>
+                        </div>
+                        <p class="j-desc">Lock the final slate, ratify lead adjudication on any remaining yellow items, and assign day-of roles for the May 21 full-audience vote.</p>
+                    </div>
+                </li>
+                <li class="j-stage" data-stage="7" id="stage-7">
+                    <div class="j-num">7</div>
+                    <div class="j-body">
+                        <p class="j-title">Atlanta — Consensus Conference Day</p>
+                        <p class="j-date">Thu May 21 · Atlanta Marriott Marquis</p>
+                        <div class="j-do">
+<span class="j-do-note">Bring your laptop or phone for the live vote. In-person only.</span>
+                        </div>
+                        <p class="j-desc">WG4 breakout, cross-group discussion, and the full-audience consensus vote with ~150 attendees.</p>
+                    </div>
+                </li>
+            </ol>
+
+            <div class="j-thresholds">
+                <h2>Consensus color coding</h2>
+                <div class="chips">
+                    <div class="j-chip green"><strong>Green · ≥80%</strong><span>Confirmed — advances to the final agenda</span></div>
+                    <div class="j-chip yellow"><strong>Yellow · 21–79%</strong><span>Pending — re-voted in Round 2, then adjudicated if needed</span></div>
+                    <div class="j-chip red"><strong>Red · ≤20%</strong><span>Removed — does not advance</span></div>
                 </div>
             </div>
-
-            <!-- Stage 2: Meeting 1 - Kickoff -->
-            <div class="stage-card" data-stage="2" id="stage-2">
-                <div class="stage-header">
-                    <div class="stage-num">2</div>
-                    <div>
-                        <div class="stage-title">Meeting 1 — Kickoff</div>
-                        <div class="stage-meta">Wed Apr 22 · 3:00–3:45 PM ET · 45 min</div>
-                    </div>
-                    <div class="stage-status upcoming">Upcoming</div>
-                </div>
-                <div class="stage-body">
-                    <div class="phase-row">
-                        <div class="phase-card before">
-                            <div class="phase-label">Before (~30 min)</div>
-                            <ul>
-                                <li>Skim the candidate questions</li>
-                                <li>Note any you'd flag as ambiguous or out-of-scope</li>
-                                <li>Have the Zoom link open 2 min early</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card during">
-                            <div class="phase-label">During</div>
-                            <ul>
-                                <li>Grounding + scope of Domain (self, identity, interaction)</li>
-                                <li>How the modified Delphi works &amp; the 80% threshold</li>
-                                <li>Clarifying questions on the 18 items (not voting)</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card after">
-                            <div class="phase-label">After (~45 min)</div>
-                            <ul>
-                                <li>Complete the Round 1 survey when it unlocks</li>
-                                <li>Post rationale for any "Exclude" votes in discussion</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <details class="meeting-details">
-                        <summary>Meeting day details — Zoom &amp; minute-by-minute agenda</summary>
-                        <div class="zoom-row"><strong>Zoom:</strong> you'll be added to a calendar invite with the Zoom link · 3:00–3:45 PM ET</div>
-                        <table class="agenda-mini">
-                            <tbody>
-                                <tr><td>3:00–3:05</td><td>Welcome &amp; round-robin introductions</td></tr>
-                                <tr><td>3:05–3:10</td><td>Conference overview, 10-year horizon, how WG4 connects to WGs 1, 2, 3, 5</td></tr>
-                                <tr><td>3:10–3:15</td><td>Modified Delphi process, timeline, and the ≥80% consensus threshold</td></tr>
-                                <tr><td>3:15–3:25</td><td>Walkthrough of the candidate research questions by domain</td></tr>
-                                <tr><td>3:25–3:38</td><td>Structured brainstorm (round-robin): gaps, reframings, additions</td></tr>
-                                <tr><td>3:38–3:42</td><td>Round 1 logistics: form, comment fields, deadline</td></tr>
-                                <tr><td>3:42–3:45</td><td>Assignments &amp; next steps</td></tr>
-                            </tbody>
-                        </table>
-                    </details>
-                </div>
-            </div>
-
-            <!-- Stage 3: Round 1 -->
-            <div class="stage-card" data-stage="3" id="stage-3">
-                <div class="stage-header">
-                    <div class="stage-num">3</div>
-                    <div>
-                        <div class="stage-title">Delphi Round 1</div>
-                        <div class="stage-meta">Wed Apr 22 – Tue Apr 28 · Rate all candidate questions</div>
-                    </div>
-                    <div class="stage-status upcoming">Upcoming</div>
-                </div>
-                <div class="stage-body">
-                    <div class="phase-row">
-                        <div class="phase-card before">
-                            <div class="phase-label">Before You Vote</div>
-                            <ul>
-                                <li>Re-read the question text carefully</li>
-                                <li>Think about what a 5-year study would actually look like</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card during">
-                            <div class="phase-label">While Voting</div>
-                            <ul>
-                                <li>For each of 18: Include / Modify / Exclude</li>
-                                <li>Leave a rationale on any Modify or Exclude</li>
-                                <li>Propose new questions at the end if relevant</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card after">
-                            <div class="phase-label">After Submission</div>
-                            <ul>
-                                <li>Submissions lock on close; no changes after submit</li>
-                                <li>Aggregated results released before Meeting 2</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="stage-cta">
-                        <button class="cta-primary" onclick="switchTab('round1')">Open Round 1 Survey</button>
-                        <button class="cta-secondary" onclick="switchTab('r1results')">View Live R1 Results</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stage 4: Meeting 2 - Mid-Point -->
-            <div class="stage-card" data-stage="4" id="stage-4">
-                <div class="stage-header">
-                    <div class="stage-num">4</div>
-                    <div>
-                        <div class="stage-title">Meeting 2 — Round 1 Debrief</div>
-                        <div class="stage-meta">Wed Apr 29 · 3:00–3:45 PM ET · 45 min</div>
-                    </div>
-                    <div class="stage-status upcoming">Upcoming</div>
-                </div>
-                <div class="stage-body">
-                    <div class="phase-row">
-                        <div class="phase-card before">
-                            <div class="phase-label">Before (~20 min)</div>
-                            <ul>
-                                <li>Review the R1 results summary on this site</li>
-                                <li>Note which questions you'd want to discuss</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card during">
-                            <div class="phase-label">During</div>
-                            <ul>
-                                <li>Walk through items that landed in the middle band</li>
-                                <li>Steelman both sides of the close calls</li>
-                                <li>Tighten wording for Round 2 re-ratings</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card after">
-                            <div class="phase-label">After (~45 min)</div>
-                            <ul>
-                                <li>Complete Round 2 when it unlocks</li>
-                                <li>Post any remaining concerns on the discussion board</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="stage-cta">
-                        <button class="cta-primary" onclick="switchTab('r1results')">View Live R1 Results</button>
-                    </div>
-                    <details class="meeting-details">
-                        <summary>Meeting day details — Zoom &amp; minute-by-minute agenda</summary>
-                        <div class="zoom-row"><strong>Zoom:</strong> you'll be added to a calendar invite with the Zoom link · 3:00–3:45 PM ET</div>
-                        <table class="agenda-mini">
-                            <tbody>
-                                <tr><td>3:00–3:03</td><td>Welcome back &amp; quick roll call</td></tr>
-                                <tr><td>3:03–3:08</td><td>Round 1 snapshot: CONFIRMED vs PENDING vs EXCLUDED (live data)</td></tr>
-                                <tr><td>3:08–3:10</td><td>Ground rules: we only discuss PENDING items</td></tr>
-                                <tr><td>3:10–3:35</td><td>Contested-items deep dive: arguments for/against, then group decision (keep / reword / split / merge / drop)</td></tr>
-                                <tr><td>3:35–3:40</td><td>Confirm wording changes in the Discussion Doc</td></tr>
-                                <tr><td>3:40–3:45</td><td>Round 2 launch: what's changing, timeline, re-rating instructions</td></tr>
-                            </tbody>
-                        </table>
-                    </details>
-                </div>
-            </div>
-
-            <!-- Stage 5: Round 2 -->
-            <div class="stage-card" data-stage="5" id="stage-5">
-                <div class="stage-header">
-                    <div class="stage-num">5</div>
-                    <div>
-                        <div class="stage-title">Delphi Round 2</div>
-                        <div class="stage-meta">Wed Apr 29 – Tue May 5 · Refine your ratings in light of the group</div>
-                    </div>
-                    <div class="stage-status upcoming">Upcoming</div>
-                </div>
-                <div class="stage-body">
-                    <div class="phase-row">
-                        <div class="phase-card before">
-                            <div class="phase-label">Before You Re-Vote</div>
-                            <ul>
-                                <li>Read the aggregated Round 1 distribution per item</li>
-                                <li>Note the items whose wording was revised</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card during">
-                            <div class="phase-label">While Voting</div>
-                            <ul>
-                                <li>Re-rate each item; you may change or hold your vote</li>
-                                <li>Focus on items still in the pending band (21–79%)</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card after">
-                            <div class="phase-label">After Submission</div>
-                            <ul>
-                                <li>Results released before Meeting 3</li>
-                                <li>Items ≥80% advance to Atlanta; &lt;20% drop</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="stage-cta">
-                        <button class="cta-primary" onclick="switchTab('round2')">Open Round 2 Survey</button>
-                        <button class="cta-secondary" onclick="switchTab('r2results')">View Live R2 Results</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stage 6: Meeting 3 - Final Prep -->
-            <div class="stage-card" data-stage="6" id="stage-6">
-                <div class="stage-header">
-                    <div class="stage-num">6</div>
-                    <div>
-                        <div class="stage-title">Meeting 3 — Final Prep for Atlanta</div>
-                        <div class="stage-meta">Wed May 6 · 3:00–3:45 PM ET · 45 min</div>
-                    </div>
-                    <div class="stage-status upcoming">Upcoming</div>
-                </div>
-                <div class="stage-body">
-                    <div class="phase-row">
-                        <div class="phase-card before">
-                            <div class="phase-label">Before (~20 min)</div>
-                            <ul>
-                                <li>Review the final Round 2 results</li>
-                                <li>Confirm your Atlanta travel &amp; breakout assignment</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card during">
-                            <div class="phase-label">During</div>
-                            <ul>
-                                <li>Align on how to present WG4's consensus items</li>
-                                <li>Assign spokes for cross-WG discussion and audience vote</li>
-                                <li>Last-look on items still contested</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card after">
-                            <div class="phase-label">After</div>
-                            <ul>
-                                <li>Review the one-page brief before boarding</li>
-                                <li>Bring laptop/phone for the audience vote in Atlanta</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="stage-cta">
-                        <button class="cta-primary" onclick="switchTab('r2results')">View Final R2 Results</button>
-                    </div>
-                    <details class="meeting-details">
-                        <summary>Meeting day details — Zoom &amp; minute-by-minute agenda</summary>
-                        <div class="zoom-row"><strong>Zoom:</strong> you'll be added to a calendar invite with the Zoom link · 3:00–3:45 PM ET</div>
-                        <table class="agenda-mini">
-                            <tbody>
-                                <tr><td>3:00–3:03</td><td>Welcome &amp; objectives for the final virtual meeting</td></tr>
-                                <tr><td>3:03–3:10</td><td>Final slate walkthrough: what's CONFIRMED heading into Atlanta</td></tr>
-                                <tr><td>3:10–3:16</td><td>Remaining PENDING items: how we'll frame them in the plenary</td></tr>
-                                <tr><td>3:16–3:25</td><td>Day-of role assignments (presenter, scribe, vote captains, table staff)</td></tr>
-                                <tr><td>3:25–3:32</td><td>Rehearsal: anticipated audience challenges and our agreed responses</td></tr>
-                                <tr><td>3:32–3:40</td><td>May 21 logistics: venue, timing, badges, breakout room</td></tr>
-                                <tr><td>3:40–3:45</td><td>Last-minute concerns &amp; wrap-up</td></tr>
-                            </tbody>
-                        </table>
-                    </details>
-                    <div style="margin-top: 1rem; padding: 0.9rem 1rem; background: #fff7ed; border: 1px dashed #f59e0b; border-radius: 8px; font-size: 0.88rem; color: #78350f;">
-                        <strong>Two-round Delphi.</strong> Per the SAEM 2026 Working Group Leader Guide, the conference uses a two-round modified Delphi (compressed from the traditional three to fit the ten-week pre-conference window). Items that remain in the 21–79% pending band after Round 2 are resolved by co-lead discussion during Meeting 3 (final prep), informed by R1 + R2 comment threads, and locked in the 2-page summary due May 14. No contingent Round 3.
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stage 7: Atlanta -->
-            <div class="stage-card" data-stage="7" id="stage-7">
-                <div class="stage-header">
-                    <div class="stage-num">7</div>
-                    <div>
-                        <div class="stage-title">Atlanta — Consensus Conference Day</div>
-                        <div class="stage-meta">Thu May 21 · Atlanta Marriott Marquis · SAEM Annual Meeting</div>
-                    </div>
-                    <div class="stage-status upcoming">Upcoming</div>
-                </div>
-                <div class="stage-body">
-                    <div class="phase-row">
-                        <div class="phase-card before">
-                            <div class="phase-label">Before You Travel</div>
-                            <ul>
-                                <li>Review the WG4 one-pager (final items + rationale)</li>
-                                <li>Know your breakout room and start time</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card during">
-                            <div class="phase-label">On the Day</div>
-                            <ul>
-                                <li>WG4 breakout → cross-group discussion</li>
-                                <li>Full-audience consensus vote (~150 attendees)</li>
-                                <li>Capture dissents and refinements on the fly</li>
-                            </ul>
-                        </div>
-                        <div class="phase-card after">
-                            <div class="phase-label">After the Conference</div>
-                            <ul>
-                                <li>Final research agenda written up for publication</li>
-                                <li>WG4 contributors listed as co-authors</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reference footer -->
-            <div class="card warning" style="margin-top: 2rem;">
-                <h3>Reference: Consensus Thresholds &amp; Ground Rules</h3>
-                <div class="results-grid" style="margin: 0.75rem 0 1rem;">
-                    <div class="result-card"><div class="result-number">≥80%</div><div class="result-label">CONFIRMED<br>Advances to Final List</div></div>
-                    <div class="result-card"><div class="result-number">21–79%</div><div class="result-label">PENDING<br>Advances to Round 2</div></div>
-                    <div class="result-card"><div class="result-number">≤20%</div><div class="result-label">EXCLUDED<br>Does Not Advance</div></div>
-                </div>
-                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
-                    <li>Your responses are anonymous and confidential</li>
-                    <li>The goal is convergence toward group consensus, not unanimity</li>
-                    <li>Respectful disagreement and diverse perspectives strengthen the process</li>
-                </ul>
-            </div>
-
-            <script>
-                (function initJourney() {
-                    const stages = [
-                        { n: 1, start: '2026-01-01', end: '2026-04-21' },
-                        { n: 2, start: '2026-04-22', end: '2026-04-22' },
-                        { n: 3, start: '2026-04-23', end: '2026-04-28' },
-                        { n: 4, start: '2026-04-29', end: '2026-04-29' },
-                        { n: 5, start: '2026-04-30', end: '2026-05-05' },
-                        { n: 6, start: '2026-05-06', end: '2026-05-20' },
-                        { n: 7, start: '2026-05-21', end: '2026-12-31' }
-                    ];
-                    const today = new Date().toISOString().slice(0,10);
-                    stages.forEach(s => {
-                        const card = document.getElementById('stage-' + s.n);
-                        const pill = document.querySelector('.journey-pill[data-stage="' + s.n + '"]');
-                        if (!card || !pill) return;
-                        const status = card.querySelector('.stage-status');
-                        let cls = 'upcoming', label = 'Upcoming';
-                        if (today > s.end)      { cls = 'done'; label = 'Completed'; }
-                        else if (today >= s.start) { cls = 'current'; label = 'You are here'; }
-                        card.classList.add(cls);
-                        pill.classList.add(cls);
-                        if (status) {
-                            status.className = 'stage-status ' + cls;
-                            status.textContent = label;
-                        }
-                    });
-                    document.querySelectorAll('.journey-pill').forEach(p => {
-                        p.addEventListener('click', () => {
-                            const el = document.getElementById('stage-' + p.dataset.stage);
-                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        });
-                    });
-                })();
-            </script>
 
         </div>
 
@@ -1482,52 +1210,14 @@
             <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('overview'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #006D77; text-decoration: none; font-weight: 600;">← Back to WG4 Journey</a></div>
             <h1>Delphi Round 1: Rate Candidate Research Questions</h1>
 
-            <div class="card info">
-                <p><strong>What is Round 1?</strong> This is the first phase of our modified Delphi consensus process. You will review the candidate research questions across four domains and vote on each for inclusion in WG4's 10-year research agenda using the conference-wide 3-point Delphi scale.</p>
-            </div>
-
-            <!-- PROVENANCE / METHODS CALLOUT -->
-            <div class="card" style="border-left: 4px solid var(--primary); background: rgba(0,109,119,0.04);">
-                <p style="margin: 0 0 0.5rem 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; color: var(--primary); text-transform: uppercase;">How this question set was derived</p>
-                <p style="margin: 0.4rem 0; font-size: 0.92rem; line-height: 1.55;">The candidate questions below were drafted by the WG4 lead in April 2026 from three sources: (a) the WG4 evidence brief (~30 PubMed-indexed papers across 8 themes — see the Evidence Brief tab), (b) the SAEM 2026 Consensus Conference charter for Workgroup 4 (Human-AI Interaction and the Perception of Self), and (c) prior research-priority statements in clinical AI. They are explicitly framed as a <strong>seed list</strong>, not a closed canon. Round 1 includes a free-text field where panelists can propose additional questions; items proposed by ≥2 panelists will be added to the Round 2 slate as new items.</p>
-                <p style="margin: 0.4rem 0 0 0; font-size: 0.85rem; color: var(--neutral);">Reviewers who feel a topic is missing (e.g., ambient AI scribes, longitudinal effects) are specifically encouraged to use the additions field rather than forcing the concern into an "Include with modifications" vote on an unrelated question.</p>
-            </div>
-
-            <!-- RATING SCALE EXPLAINER -->
-            <div class="card" style="border-left: 4px solid var(--warning); background: rgba(244,162,97,0.05);">
-                <p style="margin: 0 0 0.5rem 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; color: #b45309; text-transform: uppercase;">Rating scale &amp; thresholds (conference-wide Delphi methodology)</p>
-                <p style="margin: 0.4rem 0; font-size: 0.92rem; line-height: 1.55;">For each question, select one of three options:</p>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 0.6rem 0;">
-                    <div style="background: #d1fae5; border-radius: 6px; padding: 0.6rem 0.75rem;">
-                        <div style="font-weight: 700; font-size: 0.85rem; color: #065f46;">Include</div>
-                        <div style="font-size: 0.78rem; color: #064e3b;">Keep as written on WG4's agenda</div>
-                    </div>
-                    <div style="background: #fef3c7; border-radius: 6px; padding: 0.6rem 0.75rem;">
-                        <div style="font-weight: 700; font-size: 0.85rem; color: #92400e;">Include w/ modifications</div>
-                        <div style="font-size: 0.78rem; color: #78350f;">Keep in principle, but wording/scope needs revision</div>
-                    </div>
-                    <div style="background: #fde2e2; border-radius: 6px; padding: 0.6rem 0.75rem;">
-                        <div style="font-weight: 700; font-size: 0.85rem; color: #991b1b;">Exclude</div>
-                        <div style="font-size: 0.78rem; color: #7f1d1d;">Not appropriate for the WG4 agenda</div>
-                    </div>
-                </div>
-                <p style="margin: 0.5rem 0 0.3rem 0; font-size: 0.85rem; line-height: 1.5;"><strong>Thresholds</strong> (applied to combined Include + Include-with-modifications percentage): <span style="color: #065f46;"><strong>≥80%</strong> → confirmed, retired from voting</span> · <span style="color: #b45309;"><strong>21–79%</strong> → re-voted in Round 2</span> · <span style="color: #991b1b;"><strong>≤20%</strong> → removed</span>. Two-round Delphi (compressed from the traditional three to fit the conference timeline, per the Working Group Leader Guide).</p>
-                <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--neutral);">Each item also has a per-question comment box. Please use it whenever you vote "Include with modifications" (describe the modification) or "Exclude" (briefly explain why). Comments drive the Meeting 2 deliberation — they are not optional decoration.</p>
-            </div>
-
-            <div class="card">
-                <p><strong>Complete the Survey:</strong> <span id="round1-status-badge" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; color: var(--danger); margin-left: 0.5rem;">LOCKED</span></p>
-                <p style="margin: 1rem 0;">The survey is administered via Google Forms so each participant submits exactly once. Your individual ratings are visible only to the WG4 leads; aggregate results are shared with the panel.</p>
-                <p style="margin: 1rem 0;"><strong>Round 1 opens after the kickoff meeting (Wed Apr 22) and closes Mon April 27, 2026 at 3:00 PM ET.</strong> Until then, please review the candidate questions in the <a href="#" onclick="openGoogleDoc(); return false;" style="color: var(--primary); font-weight: 600;">Shared Working Doc</a> and read the <a href="#" onclick="switchTab('evidence'); return false;" style="color: var(--primary); font-weight: 600;">Evidence Brief</a>, then leave comments on at least three questions.</p>
-                <div style="text-align: center; margin: 1.5rem 0;">
-                    <button class="btn btn-primary" id="round1-btn" onclick="openRound1Survey()" style="padding: 1rem 2rem; font-size: 1.1rem;">Round 1 Survey — Locked Until Kickoff</button>
+            <div class="card" style="max-width: 68ch;">
+                <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round1-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--danger-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(230,57,70,0.1); border-radius: 3px;">LOCKED</span></p>
+                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 1 opens by email after the kickoff call on <strong>Wed Apr 22</strong> and closes <strong>Mon Apr 27, 3:00 PM ET</strong>. Until then, please read the <a href="#" onclick="switchTab('evidence'); return false;" style="color: var(--primary-ink); font-weight: 600;">Evidence Brief</a> and leave comments on at least three questions in the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank" style="color: var(--primary-ink); font-weight: 600;">Shared Working Doc</a>. Every candidate question needs at least one member's voice before we meet.</p>
+                <div style="margin: 1.25rem 0 0.25rem 0;">
+                    <button class="btn btn-primary" id="round1-btn" onclick="openRound1Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Round 1 Survey — Locked Until Kickoff</button>
                 </div>
             </div>
 
-            <h2 style="margin-top: 2.5rem;">Preview: Candidate Research Questions</h2>
-            <p style="color: var(--neutral); margin-bottom: 1.5rem;">Read all questions below before opening the survey. This is a preview only — actual rating happens in Google Forms, and substantive comments should go in the Shared Working Doc.</p>
-
-            <div id="round1-preview"></div>
         </div>
 
         <!-- Tab 3: Delphi Round 2 -->
@@ -1535,34 +1225,14 @@
             <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('overview'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #006D77; text-decoration: none; font-weight: 600;">← Back to WG4 Journey</a></div>
             <h1>Delphi Round 2: Review Results & Refine Ratings</h1>
 
-            <div class="card info">
-                <p><strong>What is Round 2?</strong> In this round, only the items that did <em>not</em> reach ≥80% inclusion in Round 1 (and were not ≤20% excluded) return for re-voting. You will see each re-voted item's Round 1 distribution (Include / Include-with-mods / Exclude percentages) and the representative comment themes from Round 1, then re-vote with that information in front of you. Items whose wording was revised by the WG4 leads after Round 1 will show a diff marker so you can see what changed; major rewrites return as new items.</p>
-            </div>
-
-            <div class="card" style="border-left: 4px solid var(--primary); background: rgba(0,109,119,0.04);">
-                <p style="margin: 0 0 0.5rem 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; color: var(--primary); text-transform: uppercase;">What's different in Round 2</p>
-                <ul style="margin: 0.4rem 0 0 1.1rem; padding: 0; font-size: 0.9rem; line-height: 1.55;">
-                    <li>Same conference-wide 3-point scale (Include / Include with modifications / Exclude).</li>
-                    <li>Confirmed items (≥80% Include in R1) and excluded items (≤20% Include in R1) are retired and not re-presented.</li>
-                    <li>For each re-voted item, you will see: R1 % Include / % Modify / % Exclude bar chart, 3–5 representative comment quotes from Round 1, and a diff if the wording changed.</li>
-                    <li>New items proposed by ≥2 panelists in the Round 1 "missing questions" field will appear at the end as new items for first-time voting.</li>
-                    <li>Items still in the 21–79% pending band after Round 2 are resolved by co-lead adjudication at Meeting 3, informed by R1 + R2 comment threads — per the two-round Delphi specified in the SAEM 2026 Working Group Leader Guide.</li>
-                </ul>
-            </div>
-
-            <div class="card">
-                <p><strong>Complete the Survey:</strong> <span id="round2-status-badge" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; color: var(--danger); margin-left: 0.5rem;">LOCKED</span></p>
-                <p style="margin: 1rem 0;">Review the Round 1 results below, then click through to submit your Round 2 ratings via Google Forms.</p>
-                <p style="margin: 1rem 0;"><strong>Round 2 opens after Round 1 closes and results are released; closes May 5, 2026.</strong></p>
-                <div style="text-align: center; margin: 1.5rem 0;">
-                    <button class="btn btn-primary" id="round2-btn" onclick="openRound2Survey()" style="padding: 1rem 2rem; font-size: 1.1rem;">Round 2 Survey — Locked</button>
+            <div class="card" style="max-width: 68ch;">
+                <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round2-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--danger-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(230,57,70,0.1); border-radius: 3px;">LOCKED</span></p>
+                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 2 opens by email after Meeting 2 with the revised wording (confirmed items retired, removed items dropped). Closes <strong>Tue May 5</strong>. Re-rate every item — this ballot is what we bring to Atlanta. Items still in the yellow band after R2 are resolved by lead adjudication at Meeting 3.</p>
+                <div style="margin: 1.25rem 0 0.25rem 0;">
+                    <button class="btn btn-primary" id="round2-btn" onclick="openRound2Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Round 2 Survey — Locked</button>
                 </div>
             </div>
 
-            <h2 style="margin-top: 2.5rem;">Questions with Round 1 Results</h2>
-            <p style="color: var(--neutral); margin-bottom: 1.5rem;">Review how the group voted in Round 1 and consider the consensus patterns as you provide your Round 2 ratings. Live results will populate here once Round 1 closes.</p>
-
-            <div id="round2-preview"></div>
         </div>
 
         <!-- Tab 5: Evidence Brief -->
@@ -1570,41 +1240,122 @@
             <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('overview'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #006D77; text-decoration: none; font-weight: 600;">← Back to WG4 Journey</a></div>
             <h1>Evidence Brief: State of the Science</h1>
 
-            <div class="card" style="background: #fffbeb; border: 1px solid #fcd34d; border-left: 4px solid #d97706; padding: 1.25rem 1.5rem; margin: 1rem 0 2rem;">
-                <h3 style="margin: 0 0 0.75rem 0; color: #92400e; font-size: 1.05rem;">What the evidence says (and doesn't) — 60-second read</h3>
-                <p style="margin: 0 0 0.5rem 0; font-size: 0.92rem; color: #4b3a1a;">If you only have a minute before Meeting 1, read this. It's the shape of the landscape the Q-slate is trying to cover.</p>
+            <style>
+                .eb-how { background: rgba(0,109,119,0.06); border-left: 4px solid var(--primary); padding: 1rem 1.25rem; border-radius: 6px; margin: 1rem 0 1.5rem; max-width: 72ch; }
+                .eb-how p { margin: 0; color: #1f2937; font-size: 0.92rem; line-height: 1.55; }
+                .eb-how strong { color: var(--primary-ink); }
+                .eb-band { padding: 1.1rem 1.35rem; border-radius: 8px; border-left: 5px solid; margin: 0 0 1rem 0; max-width: 72ch; }
+                .eb-band h3 { margin: 0 0 0.35rem 0; font-family: 'Lora', serif; font-size: 1.1rem; }
+                .eb-band .eb-band-sub { margin: 0 0 0.65rem 0; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+                .eb-band ul { margin: 0.25rem 0 0 1.1rem; padding: 0; }
+                .eb-band li { margin-bottom: 0.4rem; font-size: 0.92rem; line-height: 1.55; }
+                .eb-band li:last-child { margin-bottom: 0; }
+                .eb-band.shown { background: rgba(34,197,94,0.07); border-left-color: #16a34a; color: #14532d; }
+                .eb-band.shown h3, .eb-band.shown .eb-band-sub { color: #14532d; }
+                .eb-band.contested { background: rgba(245,158,11,0.07); border-left-color: #d97706; color: #78350f; }
+                .eb-band.contested h3, .eb-band.contested .eb-band-sub { color: #78350f; }
+                .eb-band.gaps { background: rgba(239,68,68,0.07); border-left-color: #dc2626; color: #7f1d1d; }
+                .eb-band.gaps h3, .eb-band.gaps .eb-band-sub { color: #7f1d1d; }
+                .eb-domains { margin: 1.75rem 0 1rem 0; padding: 1.25rem 1.5rem; background: white; border: 1px solid var(--border); border-radius: 8px; max-width: 72ch; }
+                .eb-domains h2 { font-family: 'Lora', serif; font-size: 1.2rem; margin: 0 0 0.4rem 0; color: var(--dark); }
+                .eb-domains > p { margin: 0 0 0.9rem 0; color: var(--neutral-ink); font-size: 0.88rem; }
+                .eb-domain-list { list-style: none; margin: 0; padding: 0; }
+                .eb-domain-list li { padding: 0.55rem 0; border-top: 1px solid var(--border); }
+                .eb-domain-list li:first-child { border-top: none; padding-top: 0.25rem; }
+                .eb-domain-list strong { color: var(--primary-ink); display: block; font-size: 0.95rem; margin-bottom: 0.1rem; }
+                .eb-domain-list span { font-size: 0.85rem; color: #374151; line-height: 1.5; }
+                .eb-deepdive-header { margin: 2.25rem 0 0.5rem 0; padding-top: 1.25rem; border-top: 2px solid var(--border); }
+                .eb-deepdive-header h2 { font-family: 'Lora', serif; font-size: 1.2rem; margin: 0 0 0.35rem 0; color: var(--dark); }
+                .eb-deepdive-header p { margin: 0; color: var(--neutral-ink); font-size: 0.9rem; max-width: 68ch; line-height: 1.5; }
+            </style>
 
-                <p style="margin: 0.75rem 0 0.25rem 0; font-size: 0.9rem; color: #4b3a1a;"><strong>Reasonably well established:</strong></p>
-                <ul style="margin: 0 0 0.5rem 1.25rem; font-size: 0.88rem; color: #4b3a1a; line-height: 1.5;">
-                    <li>LLM-assisted clinicians can outperform solo clinicians on differential-diagnosis accuracy in controlled settings (McDuff 2025, Goh 2024).</li>
-                    <li>Automation bias is real, measurable, and pulls readers toward incorrect calls when AI suggestions are visible (Dratsch 2023).</li>
-                    <li>Ambient AI scribes reduce documentation time and after-hours work in ambulatory settings, with early burnout-score improvements in small pilots (Shah 2025, Ma 2025, Misurac 2024, Duggan 2025).</li>
-                </ul>
-
-                <p style="margin: 0.5rem 0 0.25rem 0; font-size: 0.9rem; color: #4b3a1a;"><strong>Contested or thin:</strong></p>
-                <ul style="margin: 0 0 0.5rem 1.25rem; font-size: 0.88rem; color: #4b3a1a; line-height: 1.5;">
-                    <li>Whether current explainability/XAI methods actually improve clinical decisions, or mostly signal trustworthiness without delivering interpretability (Ghassemi 2021 vs. Chanda 2024).</li>
-                    <li>Long-term effects on clinician skill — early deskilling signal from endoscopy after sustained AI exposure (Budzyń 2025), but no ED data.</li>
-                    <li>The direction and mechanism of AI's effect on burnout — varies by implementation, specialty, and whether the clinician controls the tool.</li>
-                </ul>
-
-                <p style="margin: 0.5rem 0 0.25rem 0; font-size: 0.9rem; color: #4b3a1a;"><strong>Barely studied in the ED specifically:</strong></p>
-                <ul style="margin: 0 0 0.5rem 1.25rem; font-size: 0.88rem; color: #4b3a1a; line-height: 1.5;">
-                    <li>Ambient AI scribes in the ED (Hassan 2025 and Duggan 2025 both explicitly flag this gap).</li>
-                    <li>Cognitive load and automation bias under ED time pressure.</li>
-                    <li>Effects on ED clinician professional identity, moral distress, and meaning.</li>
-                    <li>Patient perception of AI involvement in emergency care and what disclosure should look like.</li>
-                </ul>
-
-                <p style="margin: 0.5rem 0 0.25rem 0; font-size: 0.9rem; color: #4b3a1a;"><strong>New in this refresh:</strong> Omar et al. 2025 (<em>Nature Medicine</em>) is the first large-scale study to document sociodemographic bias in LLM clinical decision making using 1,000 ED cases — cases labeled Black, unhoused, or LGBTQIA+ were disproportionately routed to invasive workups or mental-health evaluations. This is the strongest ED-specific evidence for the ethics/equity research agenda.</p>
-
-                <p style="margin: 0.5rem 0 0.25rem 0; font-size: 0.9rem; color: #4b3a1a;"><strong>How this maps to the Q-slate:</strong> Sections 1–4 of this brief ground Domain A (Clinician-AI Interaction). Sections 5–6 ground Domain B (Professional Identity &amp; Wellbeing). Section 7 grounds Domain C (Patient Experience). Section 8 now has the Omar 2025 anchor, but the moral-distress and clinician-accountability angles remain thin and are good targets for the brainstorm block.</p>
-
-                <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem; color: #92400e; font-style: italic;">Coming to Meeting 1: pick 2–3 gaps from above and bring candidate research questions tied to them.</p>
+            <div class="eb-how" role="note" aria-label="How to use this brief">
+                <p><strong>How to use this brief.</strong> Read the three-part summary below, then read the papers in whichever domain group matches your research interest. Every workgroup member is expected to comment on at least three questions in the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank" style="color: var(--primary-ink); font-weight: 600;">Shared Working Doc</a>, prioritizing questions within your domains. Come to the kickoff meeting prepared to summarize the key points from your domain's papers if needed, to support why a question should remain, be modified, or be removed.</p>
             </div>
 
+            <section aria-label="Three-part evidence summary">
+                <div class="eb-band shown">
+                    <h3>What the literature has shown</h3>
+                    <p class="eb-band-sub">Reasonably well-established findings</p>
+                    <ul>
+                        <li>LLM-assisted clinicians can outperform solo clinicians on differential-diagnosis accuracy in controlled settings (McDuff 2025; Goh 2024).</li>
+                        <li>Automation bias is real, measurable, and pulls readers toward incorrect calls when AI suggestions are visible (Dratsch 2023).</li>
+                        <li>Ambient AI scribes reduce documentation time and after-hours work in ambulatory settings, with early burnout-score improvements in small pilots (Shah 2025; Ma 2025; Misurac 2024; Duggan 2025).</li>
+                        <li>Sociodemographic bias in LLM clinical decision-making has been directly demonstrated in 1,000 ED cases — cases labeled Black, unhoused, or LGBTQIA+ were disproportionately routed to invasive or mental-health workups (Omar 2025).</li>
+                    </ul>
+                </div>
+
+                <div class="eb-band contested">
+                    <h3>What is contested or thin</h3>
+                    <p class="eb-band-sub">Mixed evidence or small sample sizes</p>
+                    <ul>
+                        <li>Whether current explainability/XAI methods actually improve clinical decisions, or mostly signal trustworthiness without delivering true interpretability (Ghassemi 2021 vs. Chanda 2024).</li>
+                        <li>Long-term effects on clinician skill — an early deskilling signal from endoscopy after sustained AI exposure (Budzyń 2025), but no ED data yet.</li>
+                        <li>The direction and mechanism of AI's effect on burnout — it varies by implementation, specialty, and whether the clinician controls the tool.</li>
+                        <li>Whether trust in AI is well-calibrated to tool accuracy or driven by surface features like confidence scores and UI polish.</li>
+                    </ul>
+                </div>
+
+                <div class="eb-band gaps">
+                    <h3>Clear gaps for the Emergency Department</h3>
+                    <p class="eb-band-sub">High-priority targets for the WG4 research agenda</p>
+                    <ul>
+                        <li>Ambient AI scribes in the ED specifically — Hassan 2025 and Duggan 2025 both explicitly flag this as an open question.</li>
+                        <li>Cognitive load and automation bias under ED time pressure, interruptions, and high cognitive ambient demand.</li>
+                        <li>Effects on ED clinician professional identity, moral distress, and meaning-making when decision authority shifts.</li>
+                        <li>Patient perception of AI involvement in emergency care and what disclosure should look like in the ED context.</li>
+                        <li>Longitudinal effects on diagnostic reasoning skills among ED residents and early-career attendings.</li>
+                        <li>Governance and accountability frameworks for adaptive learning systems deployed in the ED.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="eb-domains" role="region" aria-label="Domains identified">
+                <h2>Domains identified for the candidate questions</h2>
+                <p>The four domains below organize the Round 1 candidate question slate. Find the domains that match your research interest and read the corresponding papers in the grouped deep-dive below.</p>
+                <ul class="eb-domain-list">
+                    <li>
+                        <strong>Domain A — Clinician-AI Interaction &amp; Clinical Reasoning</strong>
+                        <span>Trust calibration, automation bias, explainability, and how AI reshapes diagnostic reasoning.</span>
+                    </li>
+                    <li>
+                        <strong>Domain B — Professional Identity, Wellbeing &amp; Autonomy</strong>
+                        <span>Deskilling, meaning, burnout, moral distress, and the clinician's sense of authorship over decisions.</span>
+                    </li>
+                    <li>
+                        <strong>Domain C — Patient Experience &amp; Shared Decision-Making</strong>
+                        <span>Patient perception of AI involvement, disclosure practices, and the doctor–patient relationship when AI is in the loop.</span>
+                    </li>
+                    <li>
+                        <strong>Domain D — System Design &amp; Implementation</strong>
+                        <span>Governance, accountability, sociodemographic bias, and the ethics of deployment in the ED.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <style>
+                .eb-domain-group { margin: 2.25rem 0 0 0; padding: 1rem 0 0 0; border-top: 1px solid var(--border); }
+                .eb-domain-group > h2 { font-family: 'Lora', serif; font-size: 1.15rem; margin: 0 0 0.2rem 0; color: var(--primary-ink); display: inline-block; padding: 0.2rem 0.7rem; background: rgba(0,109,119,0.08); border-radius: 4px; }
+                .eb-domain-group > .eb-group-desc { margin: 0.5rem 0 0.25rem 0; color: var(--neutral-ink); font-size: 0.88rem; max-width: 68ch; line-height: 1.5; }
+                /* Flatten nested cards inside a domain group */
+                .eb-domain-group .evidence-section { background: transparent; border: none; border-left: none; padding: 0.5rem 0 0.25rem 0; margin-bottom: 0.5rem; border-radius: 0; }
+                .eb-domain-group .evidence-section h3 { font-size: 1rem; margin: 0.75rem 0 0.25rem 0; }
+                .eb-domain-group .key-references { background: transparent; border: none; border-left: none; padding: 0; margin-top: 0.35rem; }
+                .eb-domain-group .ref-toggle { background: none; border: none; color: var(--primary-ink); font-weight: 600; font-size: 0.9rem; padding: 0.25rem 0; cursor: pointer; text-decoration: underline; font-family: 'Inter', sans-serif; }
+                .eb-domain-group .ref-toggle:hover { color: var(--primary); }
+            </style>
+
+            <div class="eb-deepdive-header">
+                <h2>Deep-dive by domain</h2>
+                <p>Primary sources grouped by the four domains above. Expand any topic block to read the full reference list and come to kickoff ready to speak to the papers in your domain.</p>
+            </div>
+
+            <div class="eb-domain-group" aria-labelledby="ebg-a-title">
+                <h2 id="ebg-a-title">Domain A — Clinician-AI Interaction &amp; Clinical Reasoning</h2>
+                <p class="eb-group-desc">Trust calibration, automation bias, explainability, and how AI reshapes diagnostic reasoning in the clinical environment.</p>
+
             <div class="evidence-section">
-                <h3>1. Anchor Reviews & Framing <span class="evidence-count">4 articles</span></h3>
+                <h3>Anchor Reviews & Framing <span class="evidence-count">4 articles</span></h3>
                 <div class="key-references">
                     <button class="ref-toggle" onclick="toggleReferences(this)">Show 4 References</button>
                     <div class="reference-list" style="display:none; margin-top:1rem;">
@@ -1633,7 +1384,7 @@
             </div>
 
             <div class="evidence-section">
-                <h3>2. Clinician Trust & Calibration <span class="evidence-count">4 articles</span></h3>
+                <h3>Clinician Trust & Calibration <span class="evidence-count">4 articles</span></h3>
                 <div class="key-references">
                     <button class="ref-toggle" onclick="toggleReferences(this)">Show 4 References</button>
                     <div class="reference-list" style="display:none; margin-top:1rem;">
@@ -1662,7 +1413,7 @@
             </div>
 
             <div class="evidence-section">
-                <h3>3. Automation Bias & Appropriate Reliance <span class="evidence-count">5 articles</span></h3>
+                <h3>Automation Bias & Appropriate Reliance <span class="evidence-count">5 articles</span></h3>
                 <div class="key-references">
                     <button class="ref-toggle" onclick="toggleReferences(this)">Show 5 References</button>
                     <div class="reference-list" style="display:none; margin-top:1rem;">
@@ -1696,7 +1447,7 @@
             </div>
 
             <div class="evidence-section">
-                <h3>4. Explainability / XAI — Critical Perspectives <span class="evidence-count">3 articles</span></h3>
+                <h3>Explainability / XAI — Critical Perspectives <span class="evidence-count">3 articles</span></h3>
                 <div class="key-references">
                     <button class="ref-toggle" onclick="toggleReferences(this)">Show 3 References</button>
                     <div class="reference-list" style="display:none; margin-top:1rem;">
@@ -1718,9 +1469,14 @@
                     </div>
                 </div>
             </div>
+            </div><!-- /eb-domain-group A -->
+
+            <div class="eb-domain-group" aria-labelledby="ebg-b-title">
+                <h2 id="ebg-b-title">Domain B — Professional Identity, Wellbeing &amp; Autonomy</h2>
+                <p class="eb-group-desc">Deskilling, meaning, burnout, moral distress, and the clinician's sense of authorship over decisions.</p>
 
             <div class="evidence-section">
-                <h3>5. Clinical Reasoning, Professional Identity & Deskilling <span class="evidence-count">4 articles</span></h3>
+                <h3>Clinical Reasoning, Professional Identity & Deskilling <span class="evidence-count">4 articles</span></h3>
                 <div class="key-references">
                     <button class="ref-toggle" onclick="toggleReferences(this)">Show 4 References</button>
                     <div class="reference-list" style="display:none; margin-top:1rem;">
@@ -1749,7 +1505,7 @@
             </div>
 
             <div class="evidence-section">
-                <h3>6. Burnout, Wellbeing & Ambient AI Scribes <span class="evidence-count">9 articles</span></h3>
+                <h3>Burnout, Wellbeing & Ambient AI Scribes <span class="evidence-count">9 articles</span></h3>
                 <div class="key-references">
                     <button class="ref-toggle" onclick="toggleReferences(this)">Show 9 References</button>
                     <div class="reference-list" style="display:none; margin-top:1rem;">
@@ -1801,9 +1557,14 @@
                     </div>
                 </div>
             </div>
+            </div><!-- /eb-domain-group B -->
+
+            <div class="eb-domain-group" aria-labelledby="ebg-c-title">
+                <h2 id="ebg-c-title">Domain C — Patient Experience &amp; Shared Decision-Making</h2>
+                <p class="eb-group-desc">Patient perception of AI involvement, disclosure practices, and the doctor–patient relationship when AI is in the loop.</p>
 
             <div class="evidence-section">
-                <h3>7. Patient Perception & the Doctor–Patient Relationship <span class="evidence-count">4 articles</span></h3>
+                <h3>Patient Perception & the Doctor–Patient Relationship <span class="evidence-count">4 articles</span></h3>
                 <div class="key-references">
                     <button class="ref-toggle" onclick="toggleReferences(this)">Show 4 References</button>
                     <div class="reference-list" style="display:none; margin-top:1rem;">
@@ -1831,8 +1592,14 @@
                 </div>
             </div>
 
+            </div><!-- /eb-domain-group C -->
+
+            <div class="eb-domain-group" aria-labelledby="ebg-d-title">
+                <h2 id="ebg-d-title">Domain D — System Design &amp; Implementation</h2>
+                <p class="eb-group-desc">Governance, accountability, sociodemographic bias, and the ethics of deployment in the ED.</p>
+
             <div class="evidence-section">
-                <h3>8. Ethics, Accountability & Moral Distress <span class="evidence-count">2 articles</span></h3>
+                <h3>Ethics, Accountability & Moral Distress <span class="evidence-count">2 articles</span></h3>
                 <div class="key-references">
                     <button class="ref-toggle" onclick="toggleReferences(this)">Show 2 References</button>
                     <div class="reference-list" style="display:none; margin-top:1rem;">
@@ -1849,20 +1616,9 @@
                     </div>
                 </div>
             </div>
+            </div><!-- /eb-domain-group D -->
 
-            <div class="card" style="margin-top: 2rem;">
-                <h3 style="color: var(--accent); margin-top: 0;">Identified Research Gaps</h3>
-                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
-                    <li>Limited empirical work on clinician cognitive processes when using AI in real ED environments</li>
-                    <li>Few rigorous interventions to mitigate automation bias in high-pressure clinical settings</li>
-                    <li>Sparse literature on effects of AI on professional identity and meaning in emergency medicine specifically</li>
-                    <li>Inadequate methods for evaluating human dimensions of AI (reasoning, wellbeing, patient communication)</li>
-                    <li>Few longitudinal studies on trust dynamics and skill atrophy with sustained AI assistance</li>
-                    <li>Limited guidance on governance and oversight of adaptive learning systems in clinical practice</li>
-                    <li>Sparse research on patient perspectives and disclosure practices around AI in emergency care</li>
-                    <li>Almost no ED-specific work on ambient AI scribes despite rapid deployment in ambulatory care</li>
-                </ul>
-            </div>
+
         </div>
 
         <!-- Tab 6: Round 1 Results -->
@@ -1947,14 +1703,14 @@
                     <p style="margin:0 0 0.5rem 0; font-size: 0.85rem; font-weight: 600; color: var(--primary);">Consensus color key</p>
                     <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.82rem;">
                         <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#22c55e; display:inline-block;"></span><strong>Green</strong> — Confirmed (≥80% combined Include)</span>
-                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f59e0b; display:inline-block;"></span><strong>Yellow</strong> — Pending (21–79% — co-lead adjudication after R2)</span>
+                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f59e0b; display:inline-block;"></span><strong>Yellow</strong> — Pending (21–79% — lead adjudication after R2)</span>
                         <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#ef4444; display:inline-block;"></span><strong>Red</strong> — Removed (≤20%)</span>
                     </div>
                 </div>
                 <h2>Overall Consensus Progress</h2>
                 <div class="results-grid">
                     <div class="result-card"><div class="result-number" id="r2-count-confirmed">—</div><div class="result-label">Confirmed<br>(≥80% include)</div></div>
-                    <div class="result-card"><div class="result-number" id="r2-count-pending">—</div><div class="result-label">Pending<br>(21–79% — co-lead adjudication)</div></div>
+                    <div class="result-card"><div class="result-number" id="r2-count-pending">—</div><div class="result-label">Pending<br>(21–79% — lead adjudication)</div></div>
                     <div class="result-card"><div class="result-number" id="r2-count-excluded">—</div><div class="result-label">Removed<br>(≤20% include)</div></div>
                 </div>
                 <div class="card" style="margin: 1.5rem 0; padding: 1rem 1.5rem; background: rgba(0,109,119,0.03);">
@@ -1974,13 +1730,13 @@
 
         <!-- Tab: Roster & Demographics (lock-gated) -->
         <div id="roster" class="tab-content">
-            <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('overview'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #006D77; text-decoration: none; font-weight: 600;">← Back to WG4 Journey</a></div>
+            <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('admin'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #004E54; text-decoration: none; font-weight: 600;">← Back to Admin Panel</a></div>
             <h1>WG4 Roster & Demographics</h1>
             <p style="color: var(--neutral); max-width: 780px;">Approved Workgroup 4 members and an aggregate demographic overview of the panel. Individual demographic fields are never shown next to names — the roster and demographic charts are rendered from the same registration data but displayed separately, and any demographic bucket with fewer than 3 members is collapsed into "Other" to protect member privacy.</p>
 
             <div id="roster-locked-notice" class="card" style="background: #fee2e2; border: 1px solid #fca5a5; border-left: 4px solid #dc2626; padding: 1.25rem 1.5rem; margin: 1.5rem 0; display: none;">
                 <h3 style="margin: 0 0 0.5rem 0; color: #991b1b; font-size: 1.05rem;">🔒 Roster currently locked</h3>
-                <p style="margin: 0; color: #7f1d1d; font-size: 0.92rem;">The co-lead has not yet released the roster. It will become visible here once the working group is finalized and the admin unlocks this tab.</p>
+                <p style="margin: 0; color: #7f1d1d; font-size: 0.92rem;">The lead has not yet released the roster. It will become visible here once the working group is finalized and the admin unlocks this tab.</p>
             </div>
 
             <div id="roster-content" style="display: none;">
@@ -2034,6 +1790,12 @@
             <div id="admin-panel" style="display:none;">
                 <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; background: rgba(42,157,143,0.05); border: 1px solid rgba(42,157,143,0.2);">
                     <p style="margin:0; color: var(--success); font-weight: 600;">Logged in as Working Group Lead</p>
+                </div>
+
+                <div class="card" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+                    <h2 style="margin: 0 0 0.4rem 0; font-size: 1.1rem;">Roster & Demographics (admin only)</h2>
+                    <p style="margin: 0 0 0.85rem 0; color: var(--neutral-ink); font-size: 0.9rem;">Approved WG4 members and aggregate demographic overview. Members do not see this view.</p>
+                    <button class="btn btn-primary" onclick="switchTab('roster')" style="padding: 0.55rem 1.1rem; font-size: 0.9rem;">Open Roster</button>
                 </div>
 
                 <h2>Survey Access Controls</h2>
@@ -2190,6 +1952,49 @@
                                 <li>Post the session recording (with consent) for anyone who missed</li>
                                 <li>Unlock Round 1 survey in the admin panel</li>
                             </ul>
+
+                            <h4 style="color: var(--primary); margin: 1.25rem 0 0.4rem;">45-minute run sheet</h4>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem;">
+                                <thead><tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                                    <th style="padding: 0.4rem 0.6rem; width: 90px;">Time</th><th style="padding: 0.4rem 0.6rem;">Block</th><th style="padding: 0.4rem 0.6rem;">Notes</th>
+                                </tr></thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:00–3:03</td><td style="padding: 0.4rem 0.6rem;">Welcome &amp; roll call</td><td style="padding: 0.4rem 0.6rem;">Quick name + institution round; confirm everyone can see the member site</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:08</td><td style="padding: 0.4rem 0.6rem;">Why we're here</td><td style="padding: 0.4rem 0.6rem;">SAEM 2026 consensus conference, WG4 scope, how WG4 feeds into the May 21 plenary</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:08–3:15</td><td style="padding: 0.4rem 0.6rem;">Delphi methodology</td><td style="padding: 0.4rem 0.6rem;">3-point scale, ≥80% / 21–79% / ≤20% thresholds, two-round process, R1 opens tonight</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:15–3:25</td><td style="padding: 0.4rem 0.6rem;">18-question walkthrough</td><td style="padding: 0.4rem 0.6rem;">Domain-by-domain pointer tour — don't read aloud. A ≈ 3:30, B ≈ 2:30, C ≈ 2:00, D ≈ 2:00</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:25–3:38</td><td style="padding: 0.4rem 0.6rem;">Brainstorm</td><td style="padding: 0.4rem 0.6rem;">Round-robin by domain. Prompts: "What's missing? What's mis-worded?" No filtering.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:38–3:42</td><td style="padding: 0.4rem 0.6rem;">R1 launch mechanics</td><td style="padding: 0.4rem 0.6rem;">Show the R1 form link on the platform, confirm Google account, confirm Apr 27 close</td></tr>
+                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:42–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap</td><td style="padding: 0.4rem 0.6rem;">R1 opens immediately; Meeting 2 is Apr 29; comments are as valuable as ratings</td></tr>
+                                </tbody>
+                            </table>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Data to capture during Meeting 1</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li><strong>Attendance log</strong> — name, institution, present/absent</li>
+                                <li><strong>Evidence brief feedback</strong> — validated points, missing topics, corrections needed, thinnest evidence areas</li>
+                                <li><strong>Raw question list</strong> — all brainstormed additions/edits, attributed to whoever raised them</li>
+                                <li><strong>Role assignments</strong> — conference-day presenter, summary drafter, shared-doc monitor</li>
+                                <li><strong>Communication preferences</strong> — email thread, shared doc comments, etc.</li>
+                            </ul>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Pre-meeting checklist</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li>Review WG4 description and evidence brief on the platform</li>
+                                <li>Review the literature review document</li>
+                                <li>Confirm attendance with all members (aim for 100% at kickoff)</li>
+                                <li>Distribute pre-meeting materials ≥1 week before (by Apr 15): WG4 description, evidence brief, literature review, agenda, shared working doc link</li>
+                                <li>End-to-end test of registration form → approval → roster flow</li>
+                            </ul>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">After-meeting checklist</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li>Finalize meeting notes and push to GitHub</li>
+                                <li>All members: add 2–3 additional questions to shared doc by Apr 25</li>
+                                <li>Organize and deduplicate questions by Apr 25</li>
+                                <li>Build Round 1 survey (run <code>WG4_Round1_Form_Builder.gs</code>)</li>
+                                <li>R1 opens Apr 22, closes Mon Apr 27 at 3:00 PM ET</li>
+                            </ul>
                         </div>
                     </details>
                 </div>
@@ -2230,6 +2035,63 @@
                                 <li>Recap with decisions per contested item, updated question wording, and Round 2 open/close dates</li>
                                 <li>Launch Round 2 form with revised wording; unlock Round 2 survey in the admin panel</li>
                             </ul>
+
+                            <h4 style="color: var(--primary); margin: 1.25rem 0 0.4rem;">45-minute run sheet</h4>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem;">
+                                <thead><tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                                    <th style="padding: 0.4rem 0.6rem; width: 90px;">Time</th><th style="padding: 0.4rem 0.6rem;">Block</th><th style="padding: 0.4rem 0.6rem;">Notes</th>
+                                </tr></thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:00–3:03</td><td style="padding: 0.4rem 0.6rem;">Welcome &amp; recap</td><td style="padding: 0.4rem 0.6rem;">Where we are in the process. Note R1 response rate.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:10</td><td style="padding: 0.4rem 0.6rem;">Round 1 overview</td><td style="padding: 0.4rem 0.6rem;">Total questions, response rate, how many confirmed / excluded / gray zone</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:10–3:13</td><td style="padding: 0.4rem 0.6rem;">Celebrate consensus</td><td style="padding: 0.4rem 0.6rem;">Quick walk-through of confirmed questions (≥80%). Any concerns? If not, locked.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:13–3:33</td><td style="padding: 0.4rem 0.6rem;"><strong>Gray zone discussion</strong></td><td style="padding: 0.4rem 0.6rem;">Per item: read stem → state R1% → summarize top comments → "wording or substance?" → call disposition. 3 min max per item.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:33–3:37</td><td style="padding: 0.4rem 0.6rem;">New question review</td><td style="padding: 0.4rem 0.6rem;">Any new questions suggested in R1's open-ended field? Worth adding to R2?</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:37–3:40</td><td style="padding: 0.4rem 0.6rem;">Round 2 survey prep</td><td style="padding: 0.4rem 0.6rem;">Confirm final question list for R2. Survey built and distributed within 24 hours.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:40–3:43</td><td style="padding: 0.4rem 0.6rem;">Async work plan</td><td style="padding: 0.4rem 0.6rem;">R2 window: Apr 29 – Tue May 5. Confirm Meeting 3 (Wed May 6, same time).</td></tr>
+                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:43–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap-up</td><td style="padding: 0.4rem 0.6rem;">R2 opens tonight/tomorrow, closes Tue May 5. Meeting 3 is the final prep before Atlanta.</td></tr>
+                                </tbody>
+                            </table>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Gray zone — per-question flow</h4>
+                            <ol style="padding-left: 1.25rem;">
+                                <li>Read the question stem aloud (5 sec)</li>
+                                <li>State the R1 result: "X% include, Y% modify, Z% exclude" (5 sec)</li>
+                                <li>Summarize the top 2–3 comments — paraphrase themes (15–20 sec)</li>
+                                <li>Ask the group: "Is this a wording problem or a substance problem?" (1–2 min)</li>
+                                <li>Call the disposition: REVISE / MERGE / DROP</li>
+                                <li>Record in the disposition tracker</li>
+                            </ol>
+                            <p style="font-size: 0.88rem; color: var(--neutral); margin-top: 0.5rem;"><strong>If discussion stalls:</strong> "Let's put this into R2 as-is and let the numbers decide."</p>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Data to capture during Meeting 2</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li><strong>Attendance log</strong></li>
+                                <li><strong>Round 1 results summary</strong> — attach or reference compiled data</li>
+                                <li><strong>Disposition of each question</strong> — CONFIRMED / REVISED / MERGED / DROPPED</li>
+                                <li><strong>New questions added</strong> — with rationale</li>
+                                <li><strong>Decision log</strong> — for each gray-zone question, record the group's reasoning</li>
+                            </ul>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Pre-meeting checklist</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li>Compile R1 results from Google Form response CSV</li>
+                                <li>Calculate % include / % modify / % exclude and mean importance per question</li>
+                                <li>Identify confirmed (≥80%), excluded (≤20%), and gray-zone (21–79%)</li>
+                                <li>Extract and anonymize written comments per question</li>
+                                <li>Extract new questions from R1 open-ended field</li>
+                                <li>Distribute pre-meeting materials by Apr 26–27</li>
+                            </ul>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">After-meeting checklist</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li>Finalize meeting notes and push to GitHub</li>
+                                <li>Build Round 2 survey within 24 hours (run <code>WG4_Round2_Form_Builder.gs</code>)</li>
+                                <li>Wire R2 form URL into the platform and push to GitHub Pages</li>
+                                <li>Notify members that R2 is open</li>
+                                <li>R2 window: Apr 29 – Tue May 5</li>
+                                <li>Update disposition tracker and push to GitHub</li>
+                            </ul>
                         </div>
                     </details>
                 </div>
@@ -2267,6 +2129,68 @@
                                 <li>Send final role sheet, day-of logistics, and a one-page "WG4 slate" PDF each member can reference on May 21</li>
                                 <li>Confirm the cross-group liaison handoff with WG3 and WG5 leads</li>
                             </ul>
+
+                            <h4 style="color: var(--primary); margin: 1.25rem 0 0.4rem;">45-minute run sheet</h4>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem;">
+                                <thead><tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                                    <th style="padding: 0.4rem 0.6rem; width: 90px;">Time</th><th style="padding: 0.4rem 0.6rem;">Block</th><th style="padding: 0.4rem 0.6rem;">Notes</th>
+                                </tr></thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:00–3:03</td><td style="padding: 0.4rem 0.6rem;">Welcome</td><td style="padding: 0.4rem 0.6rem;">Last working session before conference day. Thank the group for the journey.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:12</td><td style="padding: 0.4rem 0.6rem;">R2 results &amp; lead adjudication</td><td style="padding: 0.4rem 0.6rem;">Final disposition of all questions. For remaining yellow-band items, present adjudication rationale and ask the group to ratify. Quick up/down voice vote.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:12–3:18</td><td style="padding: 0.4rem 0.6rem;">Final consensus list</td><td style="padding: 0.4rem 0.6rem;">Read through confirmed list. Is it complete? Rank-order top 5 via round-robin (each member names top 3 → tally).</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:18–3:30</td><td style="padding: 0.4rem 0.6rem;">2-page summary review</td><td style="padding: 0.4rem 0.6rem;">Walk through the draft. Edits in real time or assign a clean-up pass. Due to planning committee by May 12.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:30–3:38</td><td style="padding: 0.4rem 0.6rem;">Conference day prep</td><td style="padding: 0.4rem 0.6rem;">Outline the 10-min presentation. Assign roles explicitly — don't ask for volunteers.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:38–3:43</td><td style="padding: 0.4rem 0.6rem;">Breakout facilitation plan</td><td style="padding: 0.4rem 0.6rem;">2–3 discussion questions for the audience. Decide feedback capture method. Rehearse hard questions.</td></tr>
+                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:43–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap-up &amp; thanks</td><td style="padding: 0.4rem 0.6rem;">Review final summary when distributed. See everyone May 21 in Atlanta.</td></tr>
+                                </tbody>
+                            </table>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Data to capture during Meeting 3</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li><strong>Attendance log</strong></li>
+                                <li><strong>Final consensus question list</strong> — with R1 and R2 percentages</li>
+                                <li><strong>Lead adjudication rationale</strong> — for any yellow-band items resolved by lead decision</li>
+                                <li><strong>Priority ranking</strong> — if the group rank-orders</li>
+                                <li><strong>Summary edits/decisions</strong> — what changed in the 2-page draft</li>
+                                <li><strong>Conference day plan</strong> — presenter(s), outline, breakout questions, feedback method</li>
+                            </ul>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Pre-meeting checklist</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li>Compile R2 results from Google Form response CSV</li>
+                                <li>Calculate final % include / % exclude and importance ratings per question</li>
+                                <li>Apply lead adjudication to remaining yellow-band items; document rationale</li>
+                                <li>Update disposition tracker with R2 data and adjudication decisions</li>
+                                <li>Draft the 2-page summary</li>
+                                <li>Outline the 10-min conference presentation</li>
+                                <li>Draft 2–3 breakout discussion questions</li>
+                                <li>Distribute pre-meeting materials by May 3–4</li>
+                            </ul>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">After-meeting checklist</h4>
+                            <ul style="padding-left: 1.25rem;">
+                                <li>Finalize meeting notes and push to GitHub</li>
+                                <li>Clean up 2-page summary and submit to planning committee by <strong>May 12</strong></li>
+                                <li>Finalize presentation slides by <strong>May 16</strong></li>
+                                <li>Update platform with final consensus list; push to GitHub</li>
+                                <li>Attend dry run with planning committee (<strong>May 16</strong>, 30 min Zoom)</li>
+                                <li>Send final role sheet, day-of logistics, and one-page WG4 slate to all members</li>
+                                <li>Confirm cross-group liaison handoff with WG3 and WG5 leads</li>
+                            </ul>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Post-conference assignments (decide at this meeting)</h4>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                                <thead><tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                                    <th style="padding: 0.4rem 0.6rem;">Assignment</th><th style="padding: 0.4rem 0.6rem;">Deadline</th>
+                                </tr></thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem;">Manuscript lead</td><td style="padding: 0.4rem 0.6rem;">—</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem;">Manuscript draft</td><td style="padding: 0.4rem 0.6rem;">July 31</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem;">Manuscript submission</td><td style="padding: 0.4rem 0.6rem;">August 31</td></tr>
+                                    <tr><td style="padding: 0.4rem 0.6rem;">Conference day feedback compilation</td><td style="padding: 0.4rem 0.6rem;">May 28</td></tr>
+                                </tbody>
+                            </table>
 
                             <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Cross-cutting principles (all three meetings)</h4>
                             <ul style="padding-left: 1.25rem;">
@@ -2739,7 +2663,7 @@
         // Published CSV of the Registrations sheet (File → Share → Publish to web → Registrations tab → CSV).
         // Must include Name, Institution, Academic Rank, Status columns. Only rows where Status == 'approved'
         // are rendered. Demographic buckets with fewer than 3 members are collapsed into "Other" (k<3 rule).
-        const REGISTRATIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKQK_WEpxmHu08eBL2NgaQVS8SEW_rmTv53V3z9VUVoBP6PiajVoH7ZrSMZyZFBZWjKvxt94f4B90N/pub?output=csv';
+        const REGISTRATIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKQK_WEpxmHu08eBL2NgaQVS8SEW_rmTv53V3z9VUVoBP6PiajVoH7ZrSMZyZFBZWjKvxt94f4B90N/pub?gid=796289874&output=csv';
 
         function applyRosterLock() {
             const locks = getLockState();
@@ -3080,13 +3004,7 @@
             }
 
             // Initialize tab content if needed
-            if (tabName === 'round1') {
-                const r1prev = document.getElementById('round1-preview');
-                if (r1prev && !r1prev.innerHTML.trim()) renderRound1Preview();
-            } else if (tabName === 'round2') {
-                const r2prev = document.getElementById('round2-preview');
-                if (r2prev && !r2prev.innerHTML.trim()) renderRound2Preview();
-            } else if (tabName === 'discussion') {
+            if (tabName === 'discussion') {
                 // Discussion tab now uses an embedded Google Doc; nothing to render here
             } else if (tabName === 'r1results') {
                 applyRoundLock('r1');
