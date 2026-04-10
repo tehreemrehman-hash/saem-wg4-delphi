@@ -1874,6 +1874,17 @@
                     <div id="csv-test-result" style="margin-top: 0.9rem; display: none; padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.9rem;"></div>
                 </div>
 
+                <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <strong style="font-size: 1.05rem;">Registration Form</strong>
+                    <p style="margin: 0.25rem 0 0.75rem; color: var(--neutral); font-size: 0.85rem;">Direct links to the Google Form that feeds the registration pipeline. Use the edit link to change questions or validation; the live link is what registrants see.</p>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <a href="https://docs.google.com/forms/d/16RHJxbTTQg0Hzori2PcgEZZgyDtLKsRo27YbBQ8oik8/edit" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: white; border: none; padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; text-decoration: none;">Edit Form</a>
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSckTcH3afUtUWThKjQUDKJNzc8vF0SV7_Lhgere-JLQHM8U0w/viewform" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.4rem; background: #6b7280; color: white; border: none; padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; text-decoration: none;">View Live Form</a>
+                        <a href="https://docs.google.com/spreadsheets/d/1-iiCKU59G3cdDRX6LE5WmzftQGDnHZ2l3p08XchdmVg/edit?gid=796289874#gid=796289874" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.4rem; background: #16a34a; color: white; border: none; padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; text-decoration: none;">Registrations Sheet</a>
+                        <a href="https://script.google.com/d/1HGIclgkjyL5A5x6WVLBcf_pUkK3jQJaOMxm8CWn-cesck0rPHSYrGmMV/edit" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.4rem; background: #7c3aed; color: white; border: none; padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; text-decoration: none;">Apps Script</a>
+                    </div>
+                </div>
+
                 <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid #f59e0b;">
                     <strong style="font-size: 1.05rem;">🧪 Preview override (local only)</strong>
                     <p style="margin: 0.25rem 0 0.75rem; color: var(--neutral); font-size: 0.85rem;">Paste a different CSV URL to preview the roster in <em>your browser only</em>. Useful when testing a new published sheet or column format. This does NOT affect other panelists — they continue to see the deployed URL above. To make an override permanent for everyone, paste it into <code>REGISTRATIONS_CSV_URL</code> in <code>index.html</code> and redeploy.</p>
