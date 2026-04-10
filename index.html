@@ -1729,18 +1729,13 @@
             </div>
         </div>
 
-        <!-- Tab: Roster & Demographics (lock-gated) -->
+        <!-- Tab: Roster & Demographics (admin only — visible in nav after admin login) -->
         <div id="roster" class="tab-content">
             <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('admin'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #004E54; text-decoration: none; font-weight: 600;">← Back to Admin Panel</a></div>
             <h1>WG4 Roster & Demographics</h1>
             <p style="color: var(--neutral); max-width: 780px;">Approved Workgroup 4 members and an aggregate demographic overview of the panel. Individual demographic fields are never shown next to names — the roster and demographic charts are rendered from the same registration data but displayed separately, and any demographic bucket with fewer than 3 members is collapsed into "Other" to protect member privacy.</p>
 
-            <div id="roster-locked-notice" class="card" style="background: #fee2e2; border: 1px solid #fca5a5; border-left: 4px solid #dc2626; padding: 1.25rem 1.5rem; margin: 1.5rem 0; display: none;">
-                <h3 style="margin: 0 0 0.5rem 0; color: #991b1b; font-size: 1.05rem;">🔒 Roster currently locked</h3>
-                <p style="margin: 0; color: #7f1d1d; font-size: 0.92rem;">The lead has not yet released the roster. It will become visible here once the working group is finalized and the admin unlocks this tab.</p>
-            </div>
-
-            <div id="roster-content" style="display: none;">
+            <div id="roster-content">
                 <div class="card" style="padding: 1.5rem; margin: 1.5rem 0;">
                     <h2 style="margin-top: 0;">Approved members <span id="roster-count" style="color: var(--neutral); font-weight: 400; font-size: 1rem;"></span></h2>
                     <div id="roster-table-wrap" style="overflow-x: auto;">
@@ -1791,12 +1786,6 @@
             <div id="admin-panel" style="display:none;">
                 <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; background: rgba(42,157,143,0.05); border: 1px solid rgba(42,157,143,0.2);">
                     <p style="margin:0; color: var(--success); font-weight: 600;">Logged in as Working Group Lead</p>
-                </div>
-
-                <div class="card" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
-                    <h2 style="margin: 0 0 0.4rem 0; font-size: 1.1rem;">Roster & Demographics (admin only)</h2>
-                    <p style="margin: 0 0 0.85rem 0; color: var(--neutral-ink); font-size: 0.9rem;">Approved WG4 members and aggregate demographic overview. Members do not see this view.</p>
-                    <button class="btn btn-primary" onclick="switchTab('roster')" style="padding: 0.55rem 1.1rem; font-size: 0.9rem;">Open Roster</button>
                 </div>
 
                 <h2>Survey Access Controls</h2>
@@ -1868,26 +1857,6 @@
                                 <input type="checkbox" id="r2-lock-toggle" onchange="toggleLock('r2')" style="opacity: 0; width: 0; height: 0;">
                                 <span style="position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s;" id="r2-toggle-track"></span>
                                 <span style="position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" id="r2-toggle-knob"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <h2 style="margin-top: 2rem;">Roster & Demographics Visibility</h2>
-                <p style="color: var(--neutral); margin-bottom: 1.5rem;">Show the approved-members roster and aggregate demographic overview to all participants. Defaults to LOCKED — unlock once membership is finalized.</p>
-
-                <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                        <div>
-                            <strong style="font-size: 1.05rem;">Roster & Demographics Tab</strong>
-                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Show the member list and aggregate demographic charts on the Roster tab.</p>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <span id="roster-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
-                            <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
-                                <input type="checkbox" id="roster-lock-toggle" onchange="toggleLock('roster')" style="opacity: 0; width: 0; height: 0;">
-                                <span style="position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s;" id="roster-toggle-track"></span>
-                                <span style="position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" id="roster-toggle-knob"></span>
                             </label>
                         </div>
                     </div>
@@ -2212,7 +2181,7 @@
                     <p style="margin: 0.25rem 0 0.25rem 1rem; font-size: 0.88rem; color: var(--neutral);">3. After all Round 1 responses are in, lock Round 1 Survey and unlock <strong>Round 1 Results</strong></p>
                     <p style="margin: 0.25rem 0 0.25rem 1rem; font-size: 0.88rem; color: var(--neutral);">4. Unlock <strong>Round 2 Survey</strong>; notify participants to complete it</p>
                     <p style="margin: 0.25rem 0 0.25rem 1rem; font-size: 0.88rem; color: var(--neutral);">5. After Round 2 closes, lock Round 2 Survey and unlock <strong>Round 2 Results</strong></p>
-                    <p style="margin: 0.75rem 0 0.5rem; font-size: 0.85rem; color: var(--neutral);"><strong>How lock state persists:</strong> toggling rewrites your browser URL to include query params like <code>?r1survey=open&amp;roster=open</code>. <strong>That URL is the access link</strong> — whatever you email to WG4 members is what determines their view. The base URL (no params) always defaults to locked.</p>
+                    <p style="margin: 0.75rem 0 0.5rem; font-size: 0.85rem; color: var(--neutral);"><strong>How lock state persists:</strong> toggling rewrites your browser URL to include query params like <code>?r1survey=open</code>. <strong>That URL is the access link</strong> — whatever you email to WG4 members is what determines their view. The base URL (no params) always defaults to locked.</p>
                     <p style="margin: 0.25rem 0 0.75rem; font-size: 0.85rem; color: var(--neutral);">Want the base URL itself to default to unlocked? That requires a code edit to <code>getLockState()</code> in <code>index.html</code> and a GitHub commit. For normal Delphi cadence, sharing a new link at each stage is fine.</p>
                     <button onclick="copyCanonicalShareLink()" style="background: var(--accent); color: white; border: none; padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">📋 Copy current state as share link</button>
                     <div id="share-link-status" style="margin-top: 0.6rem; font-size: 0.85rem; color: #059669; display: none;"></div>
@@ -2502,8 +2471,6 @@
                 m1Locked: params.get('m1') === 'closed',
                 m2Locked: params.get('m2') !== 'open',
                 m3Locked: params.get('m3') !== 'open',
-                // Roster & demographics — defaults to locked, admin unlocks once panel is finalized
-                rosterLocked: params.get('roster') !== 'open'
             };
         }
 
@@ -2552,12 +2519,6 @@
                 t.checked = unlocked;
                 updateToggleUI(m, unlocked);
             });
-            // Roster toggle
-            const rosterToggle = document.getElementById('roster-lock-toggle');
-            if (rosterToggle) {
-                rosterToggle.checked = !locks.rosterLocked;
-                updateToggleUI('roster', !locks.rosterLocked);
-            }
             updateMeetingLinks();
             refreshCsvAdminPanel();
             refreshShareLinkButtonState();
@@ -2596,9 +2557,8 @@
             if (!label || !track || !knob) return;
             // Survey toggles use OPEN / LOCKED phrasing instead of VISIBLE
             const isSurvey = (round === 'r1survey' || round === 'r2survey');
-            const isRoster = (round === 'roster');
             if (isUnlocked) {
-                label.textContent = isSurvey ? 'OPEN' : (isRoster ? 'VISIBLE' : 'VISIBLE');
+                label.textContent = isSurvey ? 'OPEN' : 'VISIBLE';
                 label.style.color = 'var(--success)';
                 track.style.background = '#2A9D8F';
                 knob.style.transform = 'translateX(24px)';
@@ -2667,20 +2627,8 @@
         const REGISTRATIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKQK_WEpxmHu08eBL2NgaQVS8SEW_rmTv53V3z9VUVoBP6PiajVoH7ZrSMZyZFBZWjKvxt94f4B90N/pub?gid=796289874&output=csv';
 
         function applyRosterLock() {
-            const locks = getLockState();
-            const isLocked = locks.rosterLocked;
-            const isAdmin = adminLoggedIn;
-            const notice = document.getElementById('roster-locked-notice');
-            const content = document.getElementById('roster-content');
-            if (!notice || !content) return;
-            if (isLocked && !isAdmin) {
-                notice.style.display = 'block';
-                content.style.display = 'none';
-            } else {
-                notice.style.display = 'none';
-                content.style.display = 'block';
-                renderRoster();
-            }
+            // Roster tab is admin-only (nav button hidden until login) — just render.
+            renderRoster();
         }
 
         function _parseCsv(text) {
