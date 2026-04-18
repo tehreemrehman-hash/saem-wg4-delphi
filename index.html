@@ -54,7 +54,7 @@
             round1StartColumn: 2,
             round2StartColumn: 2,
             columnStride: 2,        // rating + comment per question
-            totalQuestions: 18,
+            totalQuestions: 19,
 
             // Rating scale: 'include3' = canonical conference-wide 3-point
             // Delphi scale (Include / Include with modifications / Exclude).
@@ -1167,7 +1167,7 @@
                         <div class="j-do">
 <button onclick="switchTab('round2')">Open Round 2 Survey</button>
                         </div>
-                        <p class="j-desc">Round 2 opens with the revised wording. Re-rate every item — this is the ballot we bring to Atlanta. Any items still in the yellow band after R2 are resolved by lead adjudication at Meeting 3.</p>
+                        <p class="j-desc">Round 2 opens with the revised wording. Re-rate every item — this is the ballot we bring to Atlanta. Any items still in the yellow band after R2 are resolved by co-lead adjudication at Meeting 3.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="6" id="stage-6">
@@ -1179,7 +1179,7 @@
 <button onclick="switchTab('r2results')" >View Round 2 Results</button>
                             <span class="j-do-note">Zoom link will arrive in your email.</span>
                         </div>
-                        <p class="j-desc">Lock the final slate, ratify lead adjudication on any remaining yellow items, and assign day-of roles for the May 21 full-audience vote.</p>
+                        <p class="j-desc">Lock the final slate, ratify co-lead adjudication on any remaining yellow items, and assign day-of roles for the May 21 full-audience vote.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="7" id="stage-7">
@@ -1228,7 +1228,7 @@
 
             <div class="card" style="max-width: 68ch;">
                 <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round2-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--danger-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(230,57,70,0.1); border-radius: 3px;">LOCKED</span></p>
-                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 2 opens by email after Meeting 2 with the revised wording (confirmed items retired, removed items dropped). Closes <strong>Tue May 5</strong>. Re-rate every item — this ballot is what we bring to Atlanta. Items still in the yellow band after R2 are resolved by lead adjudication at Meeting 3.</p>
+                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 2 opens by email after Meeting 2 with the revised wording (confirmed items retired, removed items dropped). Closes <strong>Tue May 5</strong>. Re-rate every item — this ballot is what we bring to Atlanta. Items still in the yellow band after R2 are resolved by co-lead adjudication at Meeting 3.</p>
                 <div style="margin: 1.25rem 0 0.25rem 0;">
                     <button class="btn btn-primary" id="round2-btn" onclick="openRound2Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Round 2 Survey — Locked</button>
                 </div>
@@ -1563,6 +1563,9 @@
             <div class="eb-domain-group" aria-labelledby="ebg-c-title">
                 <h2 id="ebg-c-title">Domain C — Patient Experience &amp; Shared Decision-Making</h2>
                 <p class="eb-group-desc">Patient perception of AI involvement, disclosure practices, and the doctor–patient relationship when AI is in the loop.</p>
+                <div style="background: rgba(245,158,11,0.08); border: 1px dashed #d97706; border-radius: 6px; padding: 0.85rem 1.1rem; margin: 0.5rem 0 1rem 0; max-width: 68ch;">
+                    <p style="margin: 0; font-size: 0.88rem; line-height: 1.55; color: #78350f;"><strong style="color: #92400e;">Note on evidence density.</strong> The near-absence of ED-specific patient perception evidence is itself a finding. The literature anchoring Domain C is thinner than Domains A or B because this is the least-studied area in the field. Questions in this domain are deliberately aspirational &mdash; they define what we need to study, not what we already know. Rate them on importance to the research agenda, not on whether existing evidence supports them.</p>
+                </div>
 
             <div class="evidence-section">
                 <h3>Patient Perception & the Doctor–Patient Relationship <span class="evidence-count">4 articles</span></h3>
@@ -1704,14 +1707,14 @@
                     <p style="margin:0 0 0.5rem 0; font-size: 0.85rem; font-weight: 600; color: var(--primary);">Consensus color key</p>
                     <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.82rem;">
                         <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#22c55e; display:inline-block;"></span><strong>Green</strong> — Confirmed (≥80% combined Include)</span>
-                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f59e0b; display:inline-block;"></span><strong>Yellow</strong> — Pending (21–79% — lead adjudication after R2)</span>
+                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f59e0b; display:inline-block;"></span><strong>Yellow</strong> — Pending (21–79% — co-lead adjudication after R2)</span>
                         <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#ef4444; display:inline-block;"></span><strong>Red</strong> — Removed (≤20%)</span>
                     </div>
                 </div>
                 <h2>Overall Consensus Progress</h2>
                 <div class="results-grid">
                     <div class="result-card"><div class="result-number" id="r2-count-confirmed">—</div><div class="result-label">Confirmed<br>(≥80% include)</div></div>
-                    <div class="result-card"><div class="result-number" id="r2-count-pending">—</div><div class="result-label">Pending<br>(21–79% — lead adjudication)</div></div>
+                    <div class="result-card"><div class="result-number" id="r2-count-pending">—</div><div class="result-label">Pending<br>(21–79% — co-lead adjudication)</div></div>
                     <div class="result-card"><div class="result-number" id="r2-count-excluded">—</div><div class="result-label">Removed<br>(≤20% include)</div></div>
                 </div>
                 <div class="card" style="margin: 1.5rem 0; padding: 1rem 1.5rem; background: rgba(0,109,119,0.03);">
@@ -1915,9 +1918,9 @@
 
                             <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Watch-outs</h4>
                             <ul style="padding-left: 1.25rem;">
-                                <li>Don't let the 18-question walkthrough become a debate. This meeting is orientation, not deliberation.</li>
+                                <li>Don't let the 19-question walkthrough become a debate. This meeting is orientation, not deliberation.</li>
                                 <li>If a senior voice starts anchoring ("I think we should obviously drop Q14…"), gently redirect: "Hold that — let's capture it as a comment in Round 1 so the group can weigh it anonymously."</li>
-                                <li>Solo-facilitator tip: since you're running WG4 alone, use the chat as your second channel. Pin a running notes doc on your second monitor and glance at chat between agenda blocks rather than trying to watch it continuously while speaking.</li>
+                                <li>Facilitation tip: use the chat as your second channel. Pin a running notes doc on your second monitor and glance at chat between agenda blocks rather than trying to watch it continuously while speaking.</li>
                             </ul>
 
                             <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Pre-reads to send ≥48 hours before</h4>
@@ -1943,7 +1946,7 @@
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:00–3:03</td><td style="padding: 0.4rem 0.6rem;">Welcome &amp; roll call</td><td style="padding: 0.4rem 0.6rem;">Quick name + institution round; confirm everyone can see the member site</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:08</td><td style="padding: 0.4rem 0.6rem;">Why we're here</td><td style="padding: 0.4rem 0.6rem;">SAEM 2026 consensus conference, WG4 scope, how WG4 feeds into the May 21 plenary</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:08–3:15</td><td style="padding: 0.4rem 0.6rem;">Delphi methodology</td><td style="padding: 0.4rem 0.6rem;">3-point scale, ≥80% / 21–79% / ≤20% thresholds, two-round process, R1 opens tonight</td></tr>
-                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:15–3:25</td><td style="padding: 0.4rem 0.6rem;">18-question walkthrough</td><td style="padding: 0.4rem 0.6rem;">Domain-by-domain pointer tour — don't read aloud. A ≈ 3:30, B ≈ 2:30, C ≈ 2:00, D ≈ 2:00</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:15–3:25</td><td style="padding: 0.4rem 0.6rem;">19-question walkthrough</td><td style="padding: 0.4rem 0.6rem;">Domain-by-domain pointer tour — don't read aloud. A ≈ 3:30, B ≈ 2:30, C ≈ 2:00, D ≈ 2:00</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:25–3:38</td><td style="padding: 0.4rem 0.6rem;">Brainstorm</td><td style="padding: 0.4rem 0.6rem;">Round-robin by domain. Prompts: "What's missing? What's mis-worded?" No filtering.</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:38–3:42</td><td style="padding: 0.4rem 0.6rem;">R1 launch mechanics</td><td style="padding: 0.4rem 0.6rem;">Show the R1 form link on the platform, confirm Google account, confirm Apr 27 close</td></tr>
                                     <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:42–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap</td><td style="padding: 0.4rem 0.6rem;">R1 opens immediately; Meeting 2 is Apr 29; comments are as valuable as ratings</td></tr>
@@ -2118,7 +2121,7 @@
                                 </tr></thead>
                                 <tbody>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:00–3:03</td><td style="padding: 0.4rem 0.6rem;">Welcome</td><td style="padding: 0.4rem 0.6rem;">Last working session before conference day. Thank the group for the journey.</td></tr>
-                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:12</td><td style="padding: 0.4rem 0.6rem;">R2 results &amp; lead adjudication</td><td style="padding: 0.4rem 0.6rem;">Final disposition of all questions. For remaining yellow-band items, present adjudication rationale and ask the group to ratify. Quick up/down voice vote.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:12</td><td style="padding: 0.4rem 0.6rem;">R2 results &amp; co-lead adjudication</td><td style="padding: 0.4rem 0.6rem;">Final disposition of all questions. For remaining yellow-band items, present adjudication rationale and ask the group to ratify. Quick up/down voice vote.</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:12–3:18</td><td style="padding: 0.4rem 0.6rem;">Final consensus list</td><td style="padding: 0.4rem 0.6rem;">Read through confirmed list. Is it complete? Rank-order top 5 via round-robin (each member names top 3 → tally).</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:18–3:30</td><td style="padding: 0.4rem 0.6rem;">2-page summary review</td><td style="padding: 0.4rem 0.6rem;">Walk through the draft. Edits in real time or assign a clean-up pass. Due to planning committee by May 12.</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:30–3:38</td><td style="padding: 0.4rem 0.6rem;">Conference day prep</td><td style="padding: 0.4rem 0.6rem;">Outline the 10-min presentation. Assign roles explicitly — don't ask for volunteers.</td></tr>
@@ -2131,7 +2134,7 @@
                             <ul style="padding-left: 1.25rem;">
                                 <li><strong>Attendance log</strong></li>
                                 <li><strong>Final consensus question list</strong> — with R1 and R2 percentages</li>
-                                <li><strong>Lead adjudication rationale</strong> — for any yellow-band items resolved by lead decision</li>
+                                <li><strong>Lead adjudication rationale</strong> — for any yellow-band items resolved by co-lead decision</li>
                                 <li><strong>Priority ranking</strong> — if the group rank-orders</li>
                                 <li><strong>Summary edits/decisions</strong> — what changed in the 2-page draft</li>
                                 <li><strong>Conference day plan</strong> — presenter(s), outline, breakout questions, feedback method</li>
@@ -2141,7 +2144,7 @@
                             <ul style="padding-left: 1.25rem;">
                                 <li>Compile R2 results from Google Form response CSV</li>
                                 <li>Calculate final % include / % exclude and importance ratings per question</li>
-                                <li>Apply lead adjudication to remaining yellow-band items; document rationale</li>
+                                <li>Apply co-lead adjudication to remaining yellow-band items; document rationale</li>
                                 <li>Update disposition tracker with R2 data and adjudication decisions</li>
                                 <li>Draft the 2-page summary</li>
                                 <li>Outline the 10-min conference presentation</li>
@@ -2333,8 +2336,8 @@
                 id: 3,
                 domain: 'A',
                 domainLabel: 'Domain A: Clinician-AI Interaction & Clinical Reasoning',
-                text: 'How does AI explainability influence clinician trust calibration in time-critical ED settings?',
-                subDimensions: 'Explainability types (feature importance, counterfactuals, confidence intervals); effects on decision accuracy; calibration over time.'
+                text: 'Do specific AI explainability methods improve the accuracy of clinical decisions in time-critical ED settings?',
+                subDimensions: 'Explainability types as interventions (feature importance, counterfactuals, confidence intervals); conditions under which explainability helps vs. hinders; interaction with clinician experience level and case complexity.'
             },
             {
                 id: 4,
@@ -2389,53 +2392,60 @@
                 id: 11,
                 domain: 'B',
                 domainLabel: 'Domain B: Professional Identity, Wellbeing & Autonomy',
-                text: 'How should human oversight frameworks be designed for increasingly autonomous AI in emergency medicine?',
-                subDimensions: 'Safety-efficiency trade-offs; oversight depth by autonomy level; clinician cognitive burden of oversight itself.'
+                text: 'How does the cognitive burden of maintaining human oversight of increasingly autonomous AI systems affect clinician performance and well-being in the ED?',
+                subDimensions: 'Safety-efficiency trade-offs; oversight depth by autonomy level; effects on diagnostic accuracy and decision fatigue; differential burden across career stage and ED setting type.'
             },
             {
                 id: 12,
+                domain: 'B',
+                domainLabel: 'Domain B: Professional Identity, Wellbeing & Autonomy',
+                text: 'How does the implementation of ambient AI scribes in the emergency department affect clinician experience and patient encounter quality?',
+                subDimensions: 'Documentation burden; workflow integration; clinician well-being and burnout; quality of the face-to-face patient encounter; generalizability from ambulatory settings to the ED environment.'
+            },
+            {
+                id: 13,
                 domain: 'C',
                 domainLabel: 'Domain C: Patient Experience & Shared Decision-Making',
                 text: 'How do patients from historically marginalized groups perceive and respond to AI involvement in their emergency care?',
                 subDimensions: 'Trust and satisfaction; comparisons with majority-population patients; effects of limited English proficiency, low digital literacy, and prior medical mistrust; factors that shape response (disclosure, explanation, choice).'
             },
             {
-                id: 13,
+                id: 14,
                 domain: 'C',
                 domainLabel: 'Domain C: Patient Experience & Shared Decision-Making',
                 text: 'Do AI-mediated shared decision-making tools in the ED narrow or widen existing disparities in patient understanding and autonomy?',
                 subDimensions: 'Effects on health outcomes; performance across language, literacy, and demographic groups; conditions under which tools help vs. harm.'
             },
             {
-                id: 14,
+                id: 15,
                 domain: 'C',
                 domainLabel: 'Domain C: Patient Experience & Shared Decision-Making',
                 text: 'How does anthropomorphism of AI systems affect clinician reliance and patient trust in AI-involved ED care?',
                 subDimensions: 'Over-reliance risk; trust calibration; design features that induce or mitigate anthropomorphism.'
             },
             {
-                id: 15,
+                id: 16,
                 domain: 'C',
                 domainLabel: 'Domain C: Patient Experience & Shared Decision-Making',
                 text: 'What transparency and disclosure practices best support informed patient consent when AI contributes to emergency care decisions?',
                 subDimensions: 'Practical constraints of acute-care consent; needs of patients with limited English proficiency, low health literacy, cognitive impairment, or altered mental status; timing and format of disclosure.'
             },
             {
-                id: 16,
+                id: 17,
                 domain: 'D',
                 domainLabel: 'Domain D: System Design & Implementation',
                 text: 'How do different AI implementation strategies differentially affect clinician cognitive load and the quality of the clinician-patient interaction in the ED?',
                 subDimensions: 'Workflow disruption as experienced by clinicians; time at bedside; implementation features that mitigate cognitive burden; differential effects across ED setting types.'
             },
             {
-                id: 17,
+                id: 18,
                 domain: 'D',
                 domainLabel: 'Domain D: System Design & Implementation',
                 text: 'How do emergency clinicians experience and trust adaptive AI systems that learn from their feedback over time?',
                 subDimensions: 'Trust recalibration as systems change; preservation of clinician agency; deskilling risk; feedback-loop and governance structures that protect these human dimensions.'
             },
             {
-                id: 18,
+                id: 19,
                 domain: 'D',
                 domainLabel: 'Domain D: System Design & Implementation',
                 text: 'What validated outcome measures and instruments are needed to evaluate the human dimensions of AI in emergency medicine?',
@@ -2456,13 +2466,14 @@
             9: { include: 71, modify: 22, exclude: 7 },
             10: { include: 58, modify: 35, exclude: 7 },
             11: { include: 62, modify: 30, exclude: 8 },
-            12: { include: 77, modify: 18, exclude: 5 },
-            13: { include: 81, modify: 15, exclude: 4 },
-            14: { include: 69, modify: 25, exclude: 6 },
-            15: { include: 74, modify: 20, exclude: 6 },
-            16: { include: 83, modify: 12, exclude: 5 },
-            17: { include: 59, modify: 33, exclude: 8 },
-            18: { include: 76, modify: 18, exclude: 6 }
+            12: { include: 70, modify: 22, exclude: 8 },
+            13: { include: 77, modify: 18, exclude: 5 },
+            14: { include: 81, modify: 15, exclude: 4 },
+            15: { include: 69, modify: 25, exclude: 6 },
+            16: { include: 74, modify: 20, exclude: 6 },
+            17: { include: 83, modify: 12, exclude: 5 },
+            18: { include: 59, modify: 33, exclude: 8 },
+            19: { include: 76, modify: 18, exclude: 6 }
         };
 
         // ==================== ADMIN & RESULTS ACCESS CONTROL ====================
