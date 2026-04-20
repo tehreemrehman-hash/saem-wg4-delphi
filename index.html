@@ -1133,7 +1133,7 @@
 <a href="https://mountsinai.zoom.us/j/7184369785?omn=99113147360&from=addon" target="_blank" rel="noopener">Join Kickoff on Zoom</a>
 <span class="j-do-note">No calendar invite will be sent — bookmark this link or check your welcome email.</span>
                         </div>
-                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded.</p>
+                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded. <strong>Async follow-up Apr 22–25:</strong> add any new candidate questions you think we missed directly to the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Shared Working Doc</a> by Fri Apr 25 — co-leads will deduplicate and fold endorsed additions into the Round 2 ballot.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="3" id="stage-3">
@@ -1144,7 +1144,7 @@
                         <div class="j-do">
 <button onclick="switchTab('round1')">Open Round 1 Survey</button>
                         </div>
-                        <p class="j-desc">After Meeting 1, the survey opens and you'll get an email with the Google Form link. Rate each question Include / Include with modifications / Exclude, and leave a rationale on anything you want revised.</p>
+                        <p class="j-desc">After Meeting 1, the survey opens and you'll get an email with the Google Form link. For each question, cast a 3-way vote (Include / Include with modifications / Exclude), rate importance on a 9-point scale, and leave a rationale on anything you want revised.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="4" id="stage-4">
@@ -1167,7 +1167,7 @@
                         <div class="j-do">
 <button onclick="switchTab('round2')">Open Round 2 Survey</button>
                         </div>
-                        <p class="j-desc">Round 2 opens with the revised wording. Re-rate every item — this is the ballot we bring to Atlanta. Any items still in the yellow band after R2 are resolved by co-lead adjudication at Meeting 3.</p>
+                        <p class="j-desc">Round 2 opens with the revised wording. Vote binary Include / Exclude (the "modify" option is retired — any wording revisions have already been applied), re-rate importance on the same 9-point scale, and submit. Items reaching ≥80% Include are confirmed; items at 60–79% land in the <strong>approaching-consensus</strong> band and are resolved by co-lead adjudication at Meeting 3; items below 60% do not advance.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="6" id="stage-6">
@@ -1199,9 +1199,10 @@
                 <h2>Consensus color coding</h2>
                 <div class="chips">
                     <div class="j-chip green"><strong>Green · ≥80%</strong><span>Confirmed — advances to the final agenda</span></div>
-                    <div class="j-chip yellow"><strong>Yellow · 21–79%</strong><span>Pending — re-voted in Round 2, then adjudicated if needed</span></div>
-                    <div class="j-chip red"><strong>Red · ≤20%</strong><span>Removed — does not advance</span></div>
+                    <div class="j-chip yellow"><strong>Yellow · 21–79% (R1) / 60–79% (R2)</strong><span>Pending in R1 (re-voted in R2); in R2 the yellow band is relabeled "approaching consensus" and resolved by co-lead adjudication</span></div>
+                    <div class="j-chip red"><strong>Red · ≤20% (R1) / &lt;60% (R2)</strong><span>Removed — does not advance</span></div>
                 </div>
+                <p style="margin: 0.9rem 0 0 0; font-size: 0.85rem; color: var(--neutral-ink); line-height: 1.5;">Thresholds and labels match the upstream conference-wide methodology so WG4 results pool cleanly with the other four workgroups.</p>
             </div>
 
         </div>
@@ -1228,7 +1229,7 @@
 
             <div class="card" style="max-width: 68ch;">
                 <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round2-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--danger-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(230,57,70,0.1); border-radius: 3px;">LOCKED</span></p>
-                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 2 opens by email after Meeting 2 with the revised wording (confirmed items retired, removed items dropped). Closes <strong>Tue May 5</strong>. Re-rate every item — this ballot is what we bring to Atlanta. Items still in the yellow band after R2 are resolved by co-lead adjudication at Meeting 3.</p>
+                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 2 opens by email after Meeting 2 with the revised wording (confirmed items retired, removed items dropped). Closes <strong>Tue May 5</strong>. Vote <strong>binary Include / Exclude</strong> (no "modify" option — wording fixes have already been applied) and re-rate importance on the 9-point scale. R2 thresholds: ≥80% Include confirms; <strong>60–79% is the "approaching consensus" band</strong> resolved by co-lead adjudication at Meeting 3; &lt;60% does not advance. This ballot is what we bring to Atlanta.</p>
                 <div style="margin: 1.25rem 0 0.25rem 0;">
                     <button class="btn btn-primary" id="round2-btn" onclick="openRound2Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Round 2 Survey — Locked</button>
                 </div>
@@ -2052,10 +2053,34 @@
                             <ul style="padding-left: 1.25rem;">
                                 <li><strong>Attendance log</strong></li>
                                 <li><strong>Round 1 results summary</strong> — attach or reference compiled data</li>
-                                <li><strong>Disposition of each question</strong> — CONFIRMED / REVISED / MERGED / DROPPED</li>
-                                <li><strong>New questions added</strong> — with rationale</li>
-                                <li><strong>Decision log</strong> — for each gray-zone question, record the group's reasoning</li>
+                                <li><strong>Question Disposition Tracker</strong> (upstream-compatible format — see table below)</li>
+                                <li><strong>New questions added</strong> — with rationale and proposer</li>
+                                <li><strong>Decision log</strong> — for each gray-zone question, record the group's reasoning (one-liner)</li>
                             </ul>
+
+                            <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Question Disposition Tracker (upstream format)</h4>
+                            <p style="font-size: 0.88rem; color: var(--neutral-ink); margin: 0 0 0.5rem 0; line-height: 1.5;">Mirrors the Meeting 2 tracker format from the conference-level <code>WG_Meeting_Plans.md</code> so WG4 artifacts pool cleanly with the other workgroups. Fill in one row per question reviewed during Meeting 2 — confirmed items get a single row stating their status, gray-zone items get full treatment, excluded items are logged but need no further action.</p>
+                            <div style="overflow-x: auto; margin-bottom: 0.5rem;">
+                                <table style="width: 100%; min-width: 760px; border-collapse: collapse; font-size: 0.85rem; background: white;">
+                                    <thead>
+                                        <tr style="background: var(--primary); color: white;">
+                                            <th style="padding: 0.45rem 0.6rem; text-align: left; font-weight: 600;">Q#</th>
+                                            <th style="padding: 0.45rem 0.6rem; text-align: left; font-weight: 600;">Domain</th>
+                                            <th style="padding: 0.45rem 0.6rem; text-align: center; font-weight: 600;">% Include</th>
+                                            <th style="padding: 0.45rem 0.6rem; text-align: center; font-weight: 600;">% Modify</th>
+                                            <th style="padding: 0.45rem 0.6rem; text-align: center; font-weight: 600;">% Exclude</th>
+                                            <th style="padding: 0.45rem 0.6rem; text-align: center; font-weight: 600;">Importance (mean)</th>
+                                            <th style="padding: 0.45rem 0.6rem; text-align: left; font-weight: 600;">Disposition</th>
+                                            <th style="padding: 0.45rem 0.6rem; text-align: left; font-weight: 600;">Revised text (if modified)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; color: #9ca3af;">Q1</td><td style="padding: 0.4rem 0.6rem; color: #9ca3af;">A</td><td style="padding: 0.4rem 0.6rem; text-align: center; color: #9ca3af;">—</td><td style="padding: 0.4rem 0.6rem; text-align: center; color: #9ca3af;">—</td><td style="padding: 0.4rem 0.6rem; text-align: center; color: #9ca3af;">—</td><td style="padding: 0.4rem 0.6rem; text-align: center; color: #9ca3af;">—</td><td style="padding: 0.4rem 0.6rem; color: #9ca3af;">CONFIRMED / REVISED / MERGED / DROPPED / APPROACHING</td><td style="padding: 0.4rem 0.6rem; color: #9ca3af;">(if REVISED)</td></tr>
+                                        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; color: #9ca3af;">Q2</td><td style="padding: 0.4rem 0.6rem; color: #9ca3af;">A</td><td colspan="6" style="padding: 0.4rem 0.6rem; color: #9ca3af; font-style: italic;">… one row per reviewed question …</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p style="font-size: 0.82rem; color: var(--neutral-ink); margin: 0 0 0.75rem 0;"><strong>Disposition values:</strong> <code>CONFIRMED</code> (≥80% R1, no R2 needed) · <code>REVISED</code> (gray-zone, new wording for R2) · <code>MERGED</code> (combined with another Q, note target Q#) · <code>DROPPED</code> (≤20% R1 or group decision) · <code>APPROACHING</code> (used post-R2 for 60–79% items pending co-lead adjudication).</p>
 
                             <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">Pre-meeting checklist</h4>
                             <ul style="padding-left: 1.25rem;">
