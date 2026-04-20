@@ -1133,18 +1133,18 @@
 <a href="https://mountsinai.zoom.us/j/7184369785?omn=99113147360&from=addon" target="_blank" rel="noopener">Join Kickoff on Zoom</a>
 <span class="j-do-note">No calendar invite will be sent — bookmark this link or check your welcome email.</span>
                         </div>
-                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded. <strong>Async follow-up Apr 22–25:</strong> add any new candidate questions you think we missed directly to the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Shared Working Doc</a> by Fri Apr 25 — co-leads will deduplicate and fold endorsed additions into the Round 2 ballot.</p>
+                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded. <strong>Async follow-up Apr 22–24 EOB:</strong> add any new candidate questions you think we missed directly to the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Shared Working Doc</a> by Fri Apr 24 EOB ET — co-leads will deduplicate over the weekend and fold endorsed additions into the Round 1 ballot that opens Mon Apr 27.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="3" id="stage-3">
                     <div class="j-num">3</div>
                     <div class="j-body">
                         <p class="j-title">Delphi Round 1</p>
-                        <p class="j-date">Opens after kickoff · closes Mon Apr 27, 3:00 PM ET</p>
+                        <p class="j-date">Opens Mon Apr 27 · closes Tue Apr 28, 11:59 PM ET</p>
                         <div class="j-do">
 <button onclick="switchTab('round1')">Open Round 1 Survey</button>
                         </div>
-                        <p class="j-desc">After Meeting 1, the survey opens and you'll get an email with the Google Form link. For each question, cast a 3-way vote (Include / Include with modifications / Exclude), rate importance on a 9-point scale, and leave a rationale on anything you want revised.</p>
+                        <p class="j-desc">Round 1 opens Mon Apr 27 after the async window closes — you'll get an email with the Google Form link. For each question, cast a 3-way vote (Include / Include with modifications / Exclude), rate importance on a 9-point scale, and leave a rationale on anything you want revised. Closes Tue Apr 28 at 11:59 PM ET so we can tally before Meeting 2.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="4" id="stage-4">
@@ -1214,9 +1214,9 @@
 
             <div class="card" style="max-width: 68ch;">
                 <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round1-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--danger-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(230,57,70,0.1); border-radius: 3px;">LOCKED</span></p>
-                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 1 opens by email after the kickoff call on <strong>Wed Apr 22</strong> and closes <strong>Mon Apr 27, 3:00 PM ET</strong>. Until then, please read the <a href="#" onclick="switchTab('evidence'); return false;" style="color: var(--primary-ink); font-weight: 600;">Evidence Brief</a> and leave comments on at least three questions in the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank" style="color: var(--primary-ink); font-weight: 600;">Shared Working Doc</a>. Every candidate question needs at least one member's voice before we meet.</p>
+                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 1 opens by email on <strong>Mon Apr 27</strong> and closes <strong>Tue Apr 28, 11:59 PM ET</strong>. Before then — the async window runs <strong>Apr 22–24 EOB ET</strong>: read the <a href="#" onclick="switchTab('evidence'); return false;" style="color: var(--primary-ink); font-weight: 600;">Evidence Brief</a> and drop any candidate questions you think we missed into the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank" style="color: var(--primary-ink); font-weight: 600;">Shared Working Doc</a> by Fri Apr 24 EOB. Co-leads dedupe over the weekend and the merged slate goes out in the R1 form Mon Apr 27.</p>
                 <div style="margin: 1.25rem 0 0.25rem 0;">
-                    <button class="btn btn-primary" id="round1-btn" onclick="openRound1Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Round 1 Survey — Locked Until Kickoff</button>
+                    <button class="btn btn-primary" id="round1-btn" onclick="openRound1Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Round 1 Survey — Locked Until Mon Apr 27</button>
                 </div>
             </div>
 
@@ -3146,7 +3146,7 @@
                 btn.style.background = '#9ca3af';
                 btn.style.cursor = 'not-allowed';
                 btn.textContent = round === 'r1'
-                    ? 'Round 1 Survey — Locked Until Kickoff'
+                    ? 'Round 1 Survey — Locked Until Mon Apr 27'
                     : 'Round 2 Survey — Locked';
             } else {
                 btn.style.background = '';
