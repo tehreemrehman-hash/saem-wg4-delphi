@@ -103,6 +103,18 @@ header.page .meta { font-size:0.85rem; opacity:0.75; margin-top:0.6rem; }
 .card ul, .card ol { padding-left:1.5rem; margin-bottom:0.75rem; }
 .card li { margin-bottom:0.4rem; }
 
+/* Slides card */
+.slides-wrap {
+  position:relative; padding-top:75%; margin-top:1rem;
+  background:#f8fafc; border:1px solid var(--border); border-radius:8px; overflow:hidden;
+}
+.slides-wrap iframe {
+  position:absolute; top:0; left:0; width:100%; height:100%; border:none;
+}
+.slides-meta { display:flex; gap:1rem; flex-wrap:wrap; font-size:0.85rem; color:var(--neutral); margin-top:0.75rem; }
+.slides-meta a { color:var(--primary); text-decoration:none; font-weight:600; }
+.slides-meta a:hover { text-decoration:underline; }
+
 /* Agenda table */
 .agenda { width:100%; border-collapse:collapse; margin:0.5rem 0 1rem; }
 .agenda th {
@@ -187,6 +199,7 @@ footer.page a { color:var(--primary); text-decoration:none; }
 @media (max-width:640px) {
   header.page h1 { font-size:1.5rem; }
   .card { padding:1.25rem; }
+  .slides-wrap { padding-top:100%; }
 }
 </style>
 </head>
@@ -238,6 +251,17 @@ footer.page a { color:var(--primary); text-decoration:none; }
       </table>
     </div>
 
+    <div class="card">
+      <h2>Slides</h2>
+      <p>Review the deck from the April 22 Kickoff meeting below, or open the PDF in a new tab.</p>
+      <div class="slides-wrap">
+        <iframe src="WG4_Meeting1_Kickoff.pdf#view=FitH" title="WG4 Meeting 1 Kickoff Slides"></iframe>
+      </div>
+      <div class="slides-meta">
+        <a href="WG4_Meeting1_Kickoff.pdf" target="_blank" rel="noopener">Open in new tab ↗</a>
+        <a href="WG4_Meeting1_Kickoff.pdf" download>Download PDF</a>
+      </div>
+    </div>
 
     <div class="card">
       <h2>Welcome to Workgroup 4</h2>
@@ -294,6 +318,7 @@ footer.page a { color:var(--primary); text-decoration:none; }
       <h2>Quick Links</h2>
       <div class="btn-row">
         <a class="btn" href="index.html">Open Delphi Platform</a>
+        <a class="btn secondary" href="WG4_Meeting1_Kickoff.pdf" target="_blank" rel="noopener">Kickoff Slides (PDF)</a>
         <a class="btn secondary" href="https://docs.google.com/forms/d/e/1FAIpQLSfItKfqtcVlgyn5q92gILku8Ab-RW7S_PppPsdzyop1scNY4A/viewform" target="_blank">Round 1 Form</a>
         <a class="btn secondary" href="https://docs.google.com/forms/d/e/1FAIpQLSeU6NSiCgR7DdLr9mQiq1I7oCDtKZKXT6jlugc0eG4j63AqEQ/viewform" target="_blank">Round 2 Form</a>
         <a class="btn secondary" href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Discussion Doc</a>
