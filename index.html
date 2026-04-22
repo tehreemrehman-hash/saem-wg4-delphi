@@ -1039,14 +1039,6 @@
             <div class="login-wg">Human-AI Interaction & the Perception of Self</div>
 
             <div class="login-field">
-                <label for="login-name">Your Full Name</label>
-                <input type="text" id="login-name" placeholder="e.g., Jane Smith, MD" autocomplete="name">
-            </div>
-            <div class="login-field">
-                <label for="login-email">Email Address</label>
-                <input type="email" id="login-email" placeholder="e.g., jsmith@institution.edu" autocomplete="email">
-            </div>
-            <div class="login-field">
                 <label for="login-code">Access Code</label>
                 <input type="password" id="login-code" placeholder="Enter the code shared by your WG lead">
             </div>
@@ -2245,39 +2237,18 @@
     <script>
         // ==================== LOGIN ====================
         function attemptLogin() {
-            const name = document.getElementById('login-name').value.trim();
-            const email = document.getElementById('login-email').value.trim();
             const code = document.getElementById('login-code').value.trim();
             const errorEl = document.getElementById('login-error');
 
-            if (!name) { errorEl.textContent = 'Please enter your name.'; return; }
-            if (!email) { errorEl.textContent = 'Please enter your email address.'; return; }
             if (code !== ACCESS_CODE) {
                 errorEl.textContent = 'Invalid access code. Please check with your WG lead.';
                 return;
             }
 
-            // Store identity in state (used for discussion posts and form submissions)
-            state.participantName = name;
-            state.participantEmail = email;
-
-            // Pre-fill the discussion board name field
-            const nameField = document.getElementById('participant-name');
-            if (nameField) {
-                nameField.value = name;
-                nameField.readOnly = true;
-            }
-
-            // Show app, hide gate
+            // Show app, hide gate. Name/email are collected at the point of submission
+            // (on the Round 1/Round 2 surveys and the discussion board) rather than at login.
             document.getElementById('login-gate').classList.add('hidden');
             document.getElementById('app-wrapper').classList.add('visible');
-
-            // Show logged-in badge in header
-            const header = document.querySelector('.header-content');
-            const badge = document.createElement('div');
-            badge.style.cssText = 'font-size: 0.8rem; opacity: 0.85; margin-top: 0.35rem;';
-            badge.textContent = 'Logged in as: ' + name + ' (' + email + ')';
-            header.appendChild(badge);
         }
 
         // Allow Enter key to submit login

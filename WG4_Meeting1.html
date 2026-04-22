@@ -263,6 +263,62 @@ footer.page a { color:var(--primary); text-decoration:none; }
       </div>
     </div>
 
+    <div class="card" id="kickoff-recap">
+      <h2>Kickoff Discussion Recap (Apr 22)</h2>
+
+      <h3 style="font-size:1.05rem; color:var(--primary-dark); margin-top:1.25rem; margin-bottom:0.5rem;">Who was in the room</h3>
+      <p style="font-size:0.92rem;">Tehreem Rehman (co-lead, Mount Sinai), Haeyeon Hong (Brown University Health), Ross Fleischman (Harvard / UCLA), Arwen Declan (Prisma Health; joined late, hopped off for a conflict), Mehrnoosh Samaei (Emory), Sudeep Hegde (Clemson, industrial engineering / human factors), Sayon Dutta (Mass General; joined by phone), Deborah Diercks (UT Southwestern), and Woosuk Seo (Yale, postdoctoral associate in human-computer interaction). Susan Gaeta checked in via chat but was in and out from the ED. Mark Courtney sent apologies — he was getting crushed on shift.</p>
+
+      <h3 style="font-size:1.05rem; color:var(--primary-dark); margin-top:1.25rem; margin-bottom:0.5rem;">Charge for the meeting</h3>
+      <p style="font-size:0.92rem;">Orient the group to the modified Delphi process, walk through the 18 candidate questions, and flag wording or scope issues before Round 1 opens on Monday Apr 27. We focused discussion on Domain A (Clinician–AI Interaction & Clinical Reasoning) because that's where the largest volume of wording concerns surfaced. Domains B, C, and D were not worked through item-by-item in this meeting — they're in scope for Round 1 as written, with modifications welcome in the comment fields.</p>
+
+      <h3 style="font-size:1.05rem; color:var(--primary-dark); margin-top:1.25rem; margin-bottom:0.5rem;">Cross-cutting themes</h3>
+      <ul style="font-size:0.92rem;">
+        <li><strong>Delphi statements should be single-topic.</strong> Deborah emphasized that compound questions (two ideas joined by "and") are difficult to vote on cleanly. Where a current Q1–18 item bundles two questions, expect to see it split into two separate items after Round 1.</li>
+        <li><strong>Audience framing matters.</strong> Haeyeon and Deborah both noted that our voting pool spans informaticists, bedside clinicians, educators, ethicists, and trainees. Terminology that's natural to one subgroup (e.g., "explainability," "trust calibration") may land as jargon for another. Foundational context in the Evidence Brief and in Round 2 phrasing should close that gap.</li>
+        <li><strong>Frontline ED reality vs. informatics ideal.</strong> Sayon pushed the group repeatedly to ground abstractions in what actually happens at the bedside — providers have fractions of a second during a resuscitation; what "explainability" or "trust" looks like in that moment is different from what it looks like at a design review.</li>
+        <li><strong>Watch for overlap with WG1 (Clinical Practice & Operations) and WG3 (Education).</strong> Several Domain A items brush against clinical workflow and training topics owned by other groups. Overlap is fine when the lens is distinctly human-factors / identity / trust, but Haeyeon flagged items where the framing risks duplicating WG1's work.</li>
+      </ul>
+
+      <h3 style="font-size:1.05rem; color:var(--primary-dark); margin-top:1.25rem; margin-bottom:0.5rem;">Question-by-question decisions</h3>
+
+      <div style="background:#f7f5f2; border-left:3px solid var(--primary); padding:0.9rem 1.1rem; border-radius:4px; margin:0.75rem 0;">
+        <p style="margin:0; font-weight:600; font-size:0.95rem;">Q1 — AI-assisted clinical decision support & diagnostic reasoning</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0; color:var(--neutral);"><strong>Current wording:</strong> "How does AI-assisted clinical decision support affect emergency physicians' diagnostic reasoning, and under what conditions does it enhance versus impair clinical judgment?"</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Discussed changes:</strong> Ross (echoed by Mark via chat) suggested replacing <em>clinical decision support</em> with <em>clinical decision making</em> — "CDS" reads as a specific EHR feature category, while the intent is the broader cognitive process. Deborah recommended splitting the item into two single-topic statements: one on the effect on diagnostic reasoning, a second on the conditions that distinguish enhancement from impairment.</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Why it matters:</strong> A cleaner "decision making" framing also makes the item applicable to emerging generative and agentic tools, not just legacy rule-based CDS.</p>
+      </div>
+
+      <div style="background:#f7f5f2; border-left:3px solid var(--primary); padding:0.9rem 1.1rem; border-radius:4px; margin:0.75rem 0;">
+        <p style="margin:0; font-weight:600; font-size:0.95rem;">Q2 — Automation bias</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0; color:var(--neutral);"><strong>Current wording:</strong> "What cognitive and behavioral mechanisms drive automation bias in EM physicians' use of AI, and which interventions effectively mitigate it?"</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Discussed changes:</strong> Haeyeon proposed simplifying the wording. Deborah again recommended splitting: one statement on <em>how automation bias manifests</em> in ED AI use, and a second on <em>what design or training interventions mitigate it</em>. Keeping them together forces voters to agree on both halves at once.</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Why it matters:</strong> The mechanisms question is a descriptive research priority; the mitigation question is an interventional one. They draw on different methods and deserve separate consensus.</p>
+      </div>
+
+      <div style="background:#f7f5f2; border-left:3px solid var(--primary); padding:0.9rem 1.1rem; border-radius:4px; margin:0.75rem 0;">
+        <p style="margin:0; font-weight:600; font-size:0.95rem;">Q3 — Explainability in time-critical ED settings</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0; color:var(--neutral);"><strong>Current wording:</strong> "How do varying levels of AI explainability influence trust calibration and decision accuracy in time-critical ED settings?"</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Discussed changes:</strong> Haeyeon proposed reframing to "What does meaningful AI explainability look like in real-time ED settings?" Mehrnoosh pushed back gently in chat that <em>practical</em> may be a sharper word than <em>meaningful</em>. Sayon argued that informaticists care about explainability as a system property, while frontline clinicians rarely have the time or training to interrogate an explanation mid-resuscitation — so the research question should be grounded in what's actionable at the bedside, not what satisfies a model-review committee.</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Why it matters:</strong> Explainability research that ignores the 3-second decision window produces tools that look transparent on paper and get ignored in practice.</p>
+      </div>
+
+      <div style="background:#f7f5f2; border-left:3px solid var(--primary); padding:0.9rem 1.1rem; border-radius:4px; margin:0.75rem 0;">
+        <p style="margin:0; font-weight:600; font-size:0.95rem;">Q4 — Alert burden, cognitive load, alert fatigue</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0; color:var(--neutral);"><strong>Current wording:</strong> "What is the relationship between AI-generated alert burden, cognitive load, alert fatigue, and patient safety outcomes?"</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Discussed changes:</strong> Haeyeon suggested a more actionable framing — "How can we maximize usability of AI-assisted alert tools for physicians in the ED?" — or "How do we optimize AI-generated alert tools in the ED?" (chat). Sayon invoked the <em>five rights of CDS</em> (right information, right person, right format, right channel, right point in workflow) as the scaffolding this question should sit on. Haeyeon also flagged that alert optimization overlaps with WG1's operations remit and the group should be explicit about which part belongs to WG4.</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Why it matters:</strong> WG4's distinct contribution is the human-factors / cognitive-load / trust lens on alerts — not the operational "how many fires the tool catches." The wording should make that cut clear.</p>
+      </div>
+
+      <div style="background:#f7f5f2; border-left:3px solid var(--primary); padding:0.9rem 1.1rem; border-radius:4px; margin:0.75rem 0;">
+        <p style="margin:0; font-weight:600; font-size:0.95rem;">Q5 — Calibrated trust over time</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0; color:var(--neutral);"><strong>Current wording:</strong> "How do EM physicians develop and maintain calibrated trust in AI systems over time?"</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Discussed changes:</strong> Sayon flagged that "maintain trust" assumes trust is the goal — the prior question is <em>should they trust it at all?</em> and under what conditions. Sudeep raised recalibration: trust has to move up and down as model performance, drift, and context change, so the wording should capture that dynamism rather than implying a one-time calibration event. Ross cautioned against the word <em>cultivate</em> (used in an earlier draft) because it sneaks in a value judgment that more trust is better. Haeyeon proposed a plainer alternative: "What factors influence physician trust in AI?"</p>
+        <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Why it matters:</strong> The consensus item should frame trust as a calibrated, updatable judgment — not a virtue to maximize.</p>
+      </div>
+
+    </div>
+
     <div class="card">
       <h2>Welcome to Workgroup 4</h2>
       <p>Thank you for joining the 2026 SAEM Consensus Conference effort to define a 10-year research agenda for AI in emergency medicine. Workgroup 4 is focused on the most distinctly human dimensions of this work: how AI affects clinical reasoning, professional identity, burnout, trust, and the patient experience.</p>
