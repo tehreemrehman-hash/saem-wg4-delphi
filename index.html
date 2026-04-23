@@ -28,15 +28,25 @@
         // ===== ACCESS CODE (change this!) =====
         const ACCESS_CODE = 'SAEM-WG4-2026';
 
-        // ===== GOOGLE FORMS & EXTERNAL LINKS =====
-        // NOTE 2026-04-07: Round 1 and Round 2 forms are being rebuilt using the
-        // canonical conference-wide Delphi methodology — 3-point scale
-        // (Include / Include with modifications / Exclude), per-item comment
-        // fields, and a 'missing questions' free-text field. Paste the new
-        // /viewform URLs and published-sheet CSV URLs below once deployed.
+        // ===== SURVEY PLATFORM & EXTERNAL LINKS =====
+        // UPDATE 2026-04-23: Rounds 1 and 2, pairwise comparisons, and AI
+        // synthesis now run on the centralized conference-wide Railway
+        // platform (one platform for all five WGs). Members go to /join,
+        // pick WG4, pick "Working Group Member", and everything is tied
+        // to their identity across sessions and devices. The question set
+        // is loaded from the Google Doc in the shared Google Drive folder
+        // (SAEM 2026 AI Consensus Conference → WG4) — co-leads upload the
+        // preliminary question set and the platform picks it up for R1.
+        // The previous Google Form URLs are retained below as an archival
+        // comment only — they are no longer wired into the UI.
         const GOOGLE_FORMS_CONFIG = {
-            round1Url: 'https://docs.google.com/forms/d/e/REPLACE_WITH_NEW_R1_FORM_ID/viewform',
-            round2Url: 'https://docs.google.com/forms/d/e/REPLACE_WITH_NEW_R2_FORM_ID/viewform',
+            // Centralized multi-WG Delphi platform (hub URL — the /join page):
+            railwayUrl: 'https://saem-ai-consensus-conference-production.up.railway.app/',
+            // Direct Round 1 survey URL — Round 1 unlocks Mon Apr 27 at 12:00 AM ET:
+            round1Url: 'https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1',
+            // Direct Round 2 survey URL — same platform, R2 flipped after Meeting 2:
+            round2Url: 'https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2',
+            // Shared Working Doc for async comments / new-question suggestions:
             GOOGLE_DOC_URL: 'https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit',
         };
 
@@ -88,6 +98,17 @@
             round1ResultsLocked: true,
             round2ResultsLocked: true
         };
+
+        // ===== TIME-GATED SURVEY UNLOCK =====
+        // Round 1 unlocks strictly at 12:00 AM ET on Mon Apr 27, 2026. April is EDT
+        // (daylight time, UTC-4), so 00:00 EDT == 04:00 UTC. The check below is the
+        // authoritative one for R1 — the Admin Panel lock toggle cannot override it
+        // for regular members (only a logged-in admin can click through early).
+        // Round 2 does NOT have a fixed clock — it opens after Meeting 2 when co-leads
+        // flip the round on the Railway platform, so R2 stays admin-toggle-gated.
+        const R1_OPEN_TIME_MS = new Date('2026-04-27T00:00:00-04:00').getTime();
+        function isR1OpenNow() { return Date.now() >= R1_OPEN_TIME_MS; }
+        function msUntilR1Open() { return Math.max(0, R1_OPEN_TIME_MS - Date.now()); }
     </script>
 
     <style>
@@ -1126,18 +1147,19 @@
 <a href="WG4_Meeting1.html">View Kickoff Slides &amp; Recap</a>
 <span class="j-do-note">Same Zoom link works for all three meetings — bookmark it. No calendar invite will be sent.</span>
                         </div>
-                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded. <strong>Async follow-up Apr 22–24 EOB:</strong> add any new candidate questions you think we missed directly to the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Shared Working Doc</a> by Fri Apr 24 EOB ET — co-leads will deduplicate over the weekend and fold endorsed additions into the Round 1 ballot that opens Mon Apr 27.</p>
+                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded. <strong>Async follow-up Apr 22–24 EOB:</strong> add any new candidate questions you think we missed directly to the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Shared Working Doc</a> by Fri Apr 24 EOB ET — co-leads will deduplicate over the weekend and fold endorsed additions into the Round 1 ballot, which goes live at <strong>12:00 AM ET on Mon Apr 27</strong> at <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" target="_blank" rel="noopener">/survey/4/round_1</a>.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="3" id="stage-3">
                     <div class="j-num">3</div>
                     <div class="j-body">
                         <p class="j-title">Delphi Round 1</p>
-                        <p class="j-date">Opens Mon Apr 27 · closes Tue Apr 28, 11:59 PM ET</p>
+                        <p class="j-date">Opens Mon Apr 27, 12:00 AM ET · closes Tue Apr 28, 11:59 PM ET</p>
                         <div class="j-do">
-<button onclick="switchTab('round1')">Open Round 1 Survey</button>
+<a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" onclick="openRound1Survey(); return false;" target="_blank" rel="noopener">Open Round 1 Survey (saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1)</a>
+<span class="j-do-note">Voting runs on the conference-wide Delphi platform — not on this site. The survey link is blocked until <strong>Mon Apr 27, 12:00 AM ET</strong>; clicking before then shows a countdown to open time. First-time users: the direct link routes you through <code>/join</code> (enter name → select WG4 → "Working Group Member") before the ballot loads. Your identity is remembered across sessions and devices after that.</span>
                         </div>
-                        <p class="j-desc">Round 1 opens Mon Apr 27 after the async window closes — you'll get an email with the Google Form link. For each question, cast a 3-way vote (Include / Include with modifications / Exclude), rate importance on a 9-point scale, and leave a rationale on anything you want revised. Closes Tue Apr 28 at 11:59 PM ET so we can tally before Meeting 2.</p>
+                        <p class="j-desc">Round 1 becomes available at <strong>12:00 AM ET on Monday, April 27</strong> and closes Tue Apr 28 at 11:59 PM ET. Co-leads will upload the preliminary question set to the shared Google Drive (SAEM 2026 AI Consensus Conference → WG4 folder) on Friday; the central Delphi platform reads the question set from there and renders the Round 1 ballot. You'll get an email with the direct survey link when it opens. For each question, cast a 3-way vote (Include / Include with modifications / Exclude), rate importance on a 9-point scale, and leave a rationale on anything you want revised.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="4" id="stage-4">
@@ -1159,7 +1181,8 @@
                         <p class="j-title">Delphi Round 2</p>
                         <p class="j-date">Opens after Meeting 2 · closes Tue May 5</p>
                         <div class="j-do">
-<button onclick="switchTab('round2')">Open Round 2 Survey</button>
+<a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2" target="_blank" rel="noopener">Open Round 2 Survey (saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2)</a>
+<span class="j-do-note">Same central platform as Round 1 — no new login. Once co-leads flip R1 to R2, the binary ballot loads at this URL with Round 1 stats and AI-synthesized themes displayed inline.</span>
                         </div>
                         <p class="j-desc">Round 2 opens with the revised wording. Vote binary Include / Exclude (the "modify" option is retired — any wording revisions have already been applied), re-rate importance on the same 9-point scale, and submit. Items reaching ≥80% Include are confirmed; items at 60–79% land in the <strong>approaching-consensus</strong> band and are resolved by co-lead adjudication at Meeting 3; items below 60% do not advance.</p>
                     </div>
@@ -1207,10 +1230,19 @@
             <h1>Delphi Round 1: Rate Candidate Research Questions</h1>
 
             <div class="card" style="max-width: 68ch;">
-                <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round1-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--danger-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(230,57,70,0.1); border-radius: 3px;">LOCKED</span></p>
-                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 1 opens by email on <strong>Mon Apr 27</strong> and closes <strong>Tue Apr 28, 11:59 PM ET</strong>. Before then — the async window runs <strong>Apr 22–24 EOB ET</strong>: read the <a href="#" onclick="switchTab('evidence'); return false;" style="color: var(--primary-ink); font-weight: 600;">Evidence Brief</a> and drop any candidate questions you think we missed into the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank" style="color: var(--primary-ink); font-weight: 600;">Shared Working Doc</a> by Fri Apr 24 EOB. Co-leads dedupe over the weekend and the merged slate goes out in the R1 form Mon Apr 27.</p>
+                <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round1-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--neutral-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(0,0,0,0.05); border-radius: 3px;">OPENS MON APR 27, 12:00 AM ET</span></p>
+                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 1 opens at <strong>12:00 AM ET on Monday, April 27</strong> and closes <strong>Tue Apr 28, 11:59 PM ET</strong>. Before then — the async window runs <strong>Apr 22–24 EOB ET</strong>: read the <a href="#" onclick="switchTab('evidence'); return false;" style="color: var(--primary-ink); font-weight: 600;">Evidence Brief</a> and drop any candidate questions you think we missed into the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank" style="color: var(--primary-ink); font-weight: 600;">Shared Working Doc</a> by Fri Apr 24 EOB. Co-leads dedupe over the weekend and upload the merged question set to the <strong>shared Google Drive</strong> (SAEM 2026 AI Consensus Conference → WG4 folder), which feeds directly into the central Delphi platform for Round 1.</p>
+
+                <div style="margin: 1rem 0; padding: 1rem 1.15rem; background: rgba(0,109,119,0.06); border-left: 4px solid var(--primary); border-radius: 6px;">
+                    <p style="margin: 0 0 0.4rem 0; font-weight: 700; color: var(--primary-ink); font-size: 0.95rem;">The Round 1 survey lives here:</p>
+                    <p style="margin: 0 0 0.65rem 0; font-size: 0.95rem; word-break: break-all;"><a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" onclick="openRound1Survey(); return false;" target="_blank" rel="noopener" style="color: var(--primary-ink); font-weight: 700;">saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1</a></p>
+                    <p style="margin: 0 0 0.5rem 0; line-height: 1.55; font-size: 0.92rem;">Voting runs on the conference-wide Delphi platform shared across the five SAEM workgroups — rounds, pairwise comparisons, and AI-synthesized themes all live there. Your responses persist across sessions and devices; you do not need to finish in one sitting.</p>
+                    <p style="margin: 0; line-height: 1.55; font-size: 0.92rem;"><strong>First-time users:</strong> before the ballot loads, the platform routes you through <code style="background: rgba(0,0,0,0.05); padding: 0.05rem 0.3rem; border-radius: 3px;">/join</code> — enter your name, select <strong>WG4</strong>, then <strong>"Working Group Member"</strong>. You'll then land on the Round 1 survey automatically.</p>
+                </div>
+
                 <div style="margin: 1.25rem 0 0.25rem 0;">
-                    <button class="btn btn-primary" id="round1-btn" onclick="openRound1Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Round 1 Survey — Locked Until Mon Apr 27</button>
+                    <button class="btn btn-primary" id="round1-btn" onclick="openRound1Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem; background: #9ca3af; cursor: not-allowed;">Round 1 Survey — Locked Until Mon Apr 27, 12:00 AM ET</button>
+                    <p style="margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--neutral-ink); line-height: 1.5;">Links to <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" onclick="openRound1Survey(); return false;" target="_blank" rel="noopener" style="color: var(--primary-ink); font-weight: 600;">/survey/4/round_1</a> on the central platform. <strong>The link is time-locked until Mon Apr 27, 12:00 AM ET</strong> — clicking before then shows a countdown to the open time. The button will auto-unlock the moment the clock rolls past midnight ET without needing to reload the page.</p>
                 </div>
             </div>
 
@@ -1222,10 +1254,18 @@
             <h1>Delphi Round 2: Review Results & Refine Ratings</h1>
 
             <div class="card" style="max-width: 68ch;">
-                <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round2-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--danger-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(230,57,70,0.1); border-radius: 3px;">LOCKED</span></p>
+                <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round2-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--neutral-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(0,0,0,0.05); border-radius: 3px;">OPENS AFTER MEETING 2</span></p>
                 <p style="margin: 0.75rem 0; line-height: 1.6;">Round 2 opens by email after Meeting 2 with the revised wording (confirmed items retired, removed items dropped). Closes <strong>Tue May 5</strong>. Vote <strong>binary Include / Exclude</strong> (no "modify" option — wording fixes have already been applied) and re-rate importance on the 9-point scale. R2 thresholds: ≥80% Include confirms; <strong>60–79% is the "approaching consensus" band</strong> resolved by co-lead adjudication at Meeting 3; &lt;60% does not advance. This ballot is what we bring to Atlanta.</p>
+
+                <div style="margin: 1rem 0; padding: 1rem 1.15rem; background: rgba(0,109,119,0.06); border-left: 4px solid var(--primary); border-radius: 6px;">
+                    <p style="margin: 0 0 0.4rem 0; font-weight: 700; color: var(--primary-ink); font-size: 0.95rem;">The Round 2 survey lives here:</p>
+                    <p style="margin: 0 0 0.65rem 0; font-size: 0.95rem; word-break: break-all;"><a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2" target="_blank" rel="noopener" style="color: var(--primary-ink); font-weight: 700;">saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2</a></p>
+                    <p style="margin: 0; line-height: 1.55; font-size: 0.92rem;">Same central platform as Round 1 — no new login. Once the co-leads flip the round from R1 to R2, the ballot switches to binary Include / Exclude and Round 1 group statistics plus AI-synthesized themes are displayed inline.</p>
+                </div>
+
                 <div style="margin: 1.25rem 0 0.25rem 0;">
-                    <button class="btn btn-primary" id="round2-btn" onclick="openRound2Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Round 2 Survey — Locked</button>
+                    <button class="btn btn-primary" id="round2-btn" onclick="openRound2Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Open Round 2 Survey → /survey/4/round_2</button>
+                    <p style="margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--neutral-ink); line-height: 1.5;">Opens <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2" target="_blank" rel="noopener" style="color: var(--primary-ink); font-weight: 600;">/survey/4/round_2</a> on the central platform in a new tab. <strong>The Railway platform itself enforces the unlock</strong> — R2 is gated until co-leads flip the round server-side after Meeting 2 (Wed Apr 29). Clicking before then opens the survey page but shows a "not yet open" state.</p>
                 </div>
             </div>
 
@@ -1793,7 +1833,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                         <div>
                             <strong style="font-size: 1.05rem;">Round 1 Survey</strong>
-                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Allow participants to open the Round 1 Google Form. Unlock after the kickoff meeting.</p>
+                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Allow participants to open the Round 1 survey on the central Delphi platform (Railway). Unlock after the kickoff meeting.</p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <span id="r1survey-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
@@ -1810,7 +1850,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                         <div>
                             <strong style="font-size: 1.05rem;">Round 2 Survey</strong>
-                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Allow participants to open the Round 2 Google Form. Unlock after Round 1 closes and results are released.</p>
+                            <p style="margin: 0.25rem 0 0; color: var(--neutral); font-size: 0.9rem;">Allow participants to open the Round 2 survey on the central Delphi platform (Railway). Unlock after Round 1 closes and results are released.</p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <span id="r2survey-lock-label" style="font-size: 0.85rem; font-weight: 600; color: var(--danger);">LOCKED</span>
@@ -1940,11 +1980,11 @@
                                 <tbody>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:00–3:03</td><td style="padding: 0.4rem 0.6rem;">Welcome &amp; roll call</td><td style="padding: 0.4rem 0.6rem;">Quick name + institution round; confirm everyone can see the member site</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:08</td><td style="padding: 0.4rem 0.6rem;">Why we're here</td><td style="padding: 0.4rem 0.6rem;">SAEM 2026 consensus conference, WG4 scope, how WG4 feeds into the May 21 plenary</td></tr>
-                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:08–3:15</td><td style="padding: 0.4rem 0.6rem;">Delphi methodology</td><td style="padding: 0.4rem 0.6rem;">3-point scale, ≥80% / 21–79% / ≤20% thresholds, two-round process, R1 opens tonight</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:08–3:15</td><td style="padding: 0.4rem 0.6rem;">Delphi methodology</td><td style="padding: 0.4rem 0.6rem;">3-point scale, ≥80% / 21–79% / ≤20% thresholds, two-round process, R1 opens Mon Apr 27 at 12:00 AM ET on the central platform</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:15–3:25</td><td style="padding: 0.4rem 0.6rem;">19-question walkthrough</td><td style="padding: 0.4rem 0.6rem;">Domain-by-domain pointer tour — don't read aloud. A ≈ 3:30, B ≈ 2:30, C ≈ 2:00, D ≈ 2:00</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:25–3:38</td><td style="padding: 0.4rem 0.6rem;">Brainstorm</td><td style="padding: 0.4rem 0.6rem;">Round-robin by domain. Prompts: "What's missing? What's mis-worded?" No filtering.</td></tr>
-                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:38–3:42</td><td style="padding: 0.4rem 0.6rem;">R1 launch mechanics</td><td style="padding: 0.4rem 0.6rem;">Show the R1 form link on the platform, confirm Google account, confirm Apr 27 close</td></tr>
-                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:42–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap</td><td style="padding: 0.4rem 0.6rem;">R1 opens immediately; Meeting 2 is Apr 29; comments are as valuable as ratings</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:38–3:42</td><td style="padding: 0.4rem 0.6rem;">R1 launch mechanics</td><td style="padding: 0.4rem 0.6rem;">Show the direct R1 link (/survey/4/round_1) on the central Delphi platform, walk through /join → WG4 → "Working Group Member", confirm Apr 27 12:00 AM open / Apr 28 11:59 PM close</td></tr>
+                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:42–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap</td><td style="padding: 0.4rem 0.6rem;">R1 opens Mon Apr 27 at 12:00 AM ET; Meeting 2 is Apr 29; comments are as valuable as ratings</td></tr>
                                 </tbody>
                             </table>
 
@@ -1972,7 +2012,7 @@
                                 <li>All members: add 2–3 additional questions to shared doc by Apr 25</li>
                                 <li>Organize and deduplicate questions by Apr 25</li>
                                 <li>Build Round 1 survey (run <code>WG4_Round1_Form_Builder.gs</code>)</li>
-                                <li>R1 opens Apr 22, closes Mon Apr 27 at 3:00 PM ET</li>
+                                <li>R1 opens Mon Apr 27 at 12:00 AM ET at <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" target="_blank" rel="noopener">/survey/4/round_1</a>, closes Tue Apr 28 at 11:59 PM ET</li>
                             </ul>
                         </div>
                     </details>
@@ -2646,6 +2686,17 @@
         // are rendered. Demographic buckets with fewer than 3 members are collapsed into "Other" (k<3 rule).
         const REGISTRATIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKQK_WEpxmHu08eBL2NgaQVS8SEW_rmTv53V3z9VUVoBP6PiajVoH7ZrSMZyZFBZWjKvxt94f4B90N/pub?gid=796289874&output=csv';
 
+        // Manually-added members — people who joined outside the Google Form flow
+        // (e.g., a direct email ask routed through Hope) and haven't been written
+        // into the Registrations sheet yet. These are merged into the roster at
+        // render time so they appear in the Approved members table and in the
+        // demographic totals. TODO: move to the Registrations sheet when synced,
+        // then remove from this list to avoid double-counting.
+        const SUPPLEMENTAL_ROSTER_ENTRIES = [
+            { name: 'Ross Fleischman', institution: '', rank: '' },
+            { name: 'Susan Gaeta',     institution: 'MD Anderson Cancer Center', rank: '' }
+        ];
+
         function applyRosterLock() {
             // Roster tab is admin-only (nav button hidden until login) — just render.
             renderRoster();
@@ -2732,29 +2783,43 @@
                         return s === 'approved' || s === 'true' || s === 'yes' || s === 'y' || s === '1' || s === 'x';
                     };
                     const approved = rows.slice(1).filter(r => r.length > 1 && (statusI < 0 || isApproved(r[statusI])));
+                    // Project the CSV rows into a simple {name, institution, rank} shape so we can merge
+                    // supplemental (manually-added) members with CSV-derived ones on a single code path.
+                    const approvedPeople = approved.map(r => ({
+                        name:        nameI >= 0 ? (r[nameI] || '') : '',
+                        institution: instI >= 0 ? (r[instI] || '') : '',
+                        rank:        rankI >= 0 ? (r[rankI] || '') : ''
+                    }));
+                    // De-dupe against the CSV on case-insensitive name match so if a supplemental
+                    // member eventually gets added to the Registrations sheet we don't double-count.
+                    const existingNames = new Set(approvedPeople.map(p => (p.name || '').trim().toLowerCase()).filter(Boolean));
+                    (typeof SUPPLEMENTAL_ROSTER_ENTRIES !== 'undefined' ? SUPPLEMENTAL_ROSTER_ENTRIES : []).forEach(s => {
+                        const key = (s.name || '').trim().toLowerCase();
+                        if (!key || existingNames.has(key)) return;
+                        approvedPeople.push({ name: s.name || '', institution: s.institution || '', rank: s.rank || '' });
+                        existingNames.add(key);
+                    });
+
                     // Roster table
                     const countEl = document.getElementById('roster-count');
-                    if (countEl) countEl.textContent = '(' + approved.length + ')';
+                    if (countEl) countEl.textContent = '(' + approvedPeople.length + ')';
                     if (tbody) {
-                        tbody.innerHTML = approved.map(r => {
-                            const n = nameI >= 0 ? (r[nameI] || '') : '';
-                            const i = instI >= 0 ? (r[instI] || '') : '';
-                            const rk = rankI >= 0 ? (r[rankI] || '') : '';
-                            return '<tr><td>' + n + '</td><td>' + i + '</td><td>' + rk + '</td></tr>';
+                        tbody.innerHTML = approvedPeople.map(p => {
+                            return '<tr><td>' + p.name + '</td><td>' + p.institution + '</td><td>' + p.rank + '</td></tr>';
                         }).join('') || '<tr><td colspan="3">No approved members yet.</td></tr>';
                     }
-                    // Demographics — rank
+                    // Demographics — rank + institution type
                     const rankCounts = {};
                     const instTypeCounts = {};
-                    approved.forEach(r => {
-                        const rk = (rankI >= 0 ? (r[rankI] || '') : '').trim() || 'Unspecified';
+                    approvedPeople.forEach(p => {
+                        const rk = (p.rank || '').trim() || 'Unspecified';
                         rankCounts[rk] = (rankCounts[rk] || 0) + 1;
-                        const inst = (instI >= 0 ? (r[instI] || '') : '').trim() || 'Unspecified';
+                        const inst = (p.institution || '').trim() || 'Unspecified';
                         // Crude institution-type bucketing
                         const lower = inst.toLowerCase();
                         let bucket = 'Other';
                         if (lower.includes('university') || lower.includes('school of medicine') || lower.includes('college')) bucket = 'Academic';
-                        else if (lower.includes('hospital') || lower.includes('health') || lower.includes('medical center')) bucket = 'Hospital/Health System';
+                        else if (lower.includes('hospital') || lower.includes('health') || lower.includes('medical center') || lower.includes('cancer center')) bucket = 'Hospital/Health System';
                         else if (lower.includes('children')) bucket = 'Pediatric/Children\u2019s';
                         instTypeCounts[bucket] = (instTypeCounts[bucket] || 0) + 1;
                     });
@@ -3090,47 +3155,106 @@
         }
 
         function openRound1Survey() {
-            const locks = getLockState();
-            if (locks.r1SurveyLocked && !adminLoggedIn) {
-                alert('Round 1 is not yet open. The survey unlocks after the kickoff meeting on Wed Apr 22. You will receive an email from the WG4 leads when it goes live.');
+            // Time-gated: Round 1 is blocked on this site until the R1_OPEN_TIME_MS
+            // clock (Mon Apr 27, 12:00 AM ET) has passed. Admins can click through early
+            // for testing. The Railway platform also gates on its end, but we block
+            // here too so the WG4 site itself reflects the time-dependent unlock.
+            if (!isR1OpenNow() && !adminLoggedIn) {
+                alert(
+                    'Round 1 opens at 12:00 AM ET on Monday, April 27, 2026.\n\n' +
+                    _formatCountdown(msUntilR1Open()) +
+                    'The survey will live at:\nsaem-ai-consensus-conference-production.up.railway.app/survey/4/round_1\n\n' +
+                    'First-time users will be routed through /join (enter name → select WG4 → "Working Group Member") before the ballot loads. You\'ll also receive an email from the WG4 leads with the direct link when it goes live.'
+                );
                 return;
             }
-            window.open(GOOGLE_FORMS_CONFIG.round1Url, '_blank');
+            window.open(GOOGLE_FORMS_CONFIG.round1Url, '_blank', 'noopener');
         }
 
         function openRound2Survey() {
+            // Round 2 is not time-gated on this site — it's gated by the Admin Panel
+            // toggle, because R2's open state depends on Meeting 2 outcome, not a
+            // fixed clock. Co-leads flip the round on Railway and then flip the admin
+            // toggle on this site at the same time.
             const locks = getLockState();
             if (locks.r2SurveyLocked && !adminLoggedIn) {
-                alert('Round 2 is not yet open. It unlocks after Round 1 closes and results are released. You will receive an email from the WG4 leads when it goes live.');
+                alert('Round 2 is not yet open. It unlocks after Round 1 closes and the co-leads flip the round on the Railway platform (after Meeting 2 on Wed Apr 29). You will receive an email from the WG4 leads when it goes live — the survey will be at saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2.');
                 return;
             }
-            window.open(GOOGLE_FORMS_CONFIG.round2Url, '_blank');
+            window.open(GOOGLE_FORMS_CONFIG.round2Url, '_blank', 'noopener');
+        }
+
+        // Human-readable "X days, Y hours, Z minutes remaining" — used in the
+        // pre-open alert so members know exactly how long until R1 unlocks.
+        function _formatCountdown(ms) {
+            if (ms <= 0) return '';
+            const totalMinutes = Math.floor(ms / 60000);
+            const days = Math.floor(totalMinutes / (60 * 24));
+            const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+            const minutes = totalMinutes % 60;
+            const parts = [];
+            if (days)    parts.push(days    + ' day'    + (days    === 1 ? '' : 's'));
+            if (hours)   parts.push(hours   + ' hour'   + (hours   === 1 ? '' : 's'));
+            if (minutes && !days) parts.push(minutes + ' minute' + (minutes === 1 ? '' : 's'));
+            return parts.length ? ('That\'s ' + parts.join(', ') + ' from now.\n\n') : '';
         }
 
         // Update the Round 1 / Round 2 survey buttons + status badges based on lock state
         function applySurveyLock(round) {
-            const locks = getLockState();
-            const isLocked = round === 'r1' ? locks.r1SurveyLocked : locks.r2SurveyLocked;
             const btn = document.getElementById(round === 'r1' ? 'round1-btn' : 'round2-btn');
             const badge = document.getElementById(round === 'r1' ? 'round1-status-badge' : 'round2-status-badge');
             if (!btn) return;
 
+            // R1 is time-gated (Mon Apr 27, 12:00 AM ET). R2 is admin-toggle-gated
+            // (opens after Meeting 2 when co-leads flip the round).
+            let isLocked;
+            if (round === 'r1') {
+                isLocked = !isR1OpenNow();
+            } else {
+                const locks = getLockState();
+                isLocked = locks.r2SurveyLocked;
+            }
+
+            // Style the button to *look* blocked when locked — but the onclick
+            // still fires so members see an alert explaining the unlock time.
             if (isLocked) {
                 btn.style.background = '#9ca3af';
                 btn.style.cursor = 'not-allowed';
                 btn.textContent = round === 'r1'
-                    ? 'Round 1 Survey — Locked Until Mon Apr 27'
-                    : 'Round 2 Survey — Locked';
+                    ? 'Round 1 Survey — Locked Until Mon Apr 27, 12:00 AM ET'
+                    : 'Round 2 Survey — Locked (Opens After Meeting 2)';
             } else {
                 btn.style.background = '';
                 btn.style.cursor = '';
                 btn.textContent = round === 'r1'
-                    ? 'Complete Round 1 Survey on Google Forms'
-                    : 'Complete Round 2 Survey on Google Forms';
+                    ? 'Open Round 1 Survey → /survey/4/round_1'
+                    : 'Open Round 2 Survey → /survey/4/round_2';
             }
+
             if (badge) {
-                badge.textContent = isLocked ? 'LOCKED' : 'OPEN';
-                badge.style.color = isLocked ? 'var(--danger)' : 'var(--success)';
+                if (isLocked) {
+                    badge.textContent = round === 'r1' ? 'OPENS MON APR 27, 12:00 AM ET' : 'OPENS AFTER MEETING 2';
+                    badge.style.color = 'var(--neutral-ink)';
+                    badge.style.background = 'rgba(0,0,0,0.05)';
+                } else {
+                    badge.textContent = 'OPEN';
+                    badge.style.color = 'var(--success)';
+                    badge.style.background = 'rgba(34,197,94,0.1)';
+                }
+            }
+
+            // If R1 is still locked and the unlock time is reachable in a setTimeout
+            // window (<24 days, the max safe setTimeout is ~24 days), schedule a one-shot
+            // refresh so the button auto-unlocks the moment the clock rolls past
+            // R1_OPEN_TIME_MS — no page reload required.
+            if (round === 'r1' && isLocked) {
+                const ms = msUntilR1Open();
+                if (ms > 0 && ms < 2147483647 && !window._r1UnlockTimer) {
+                    window._r1UnlockTimer = setTimeout(function () {
+                        window._r1UnlockTimer = null;
+                        applySurveyLock('r1');
+                    }, ms + 250);
+                }
             }
         }
 
