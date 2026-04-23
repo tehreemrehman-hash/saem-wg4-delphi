@@ -227,6 +227,9 @@ footer.page a { color:var(--primary); text-decoration:none; }
 
 <!-- ===== MEETING PAGE (shown when ?open=1) ===== -->
 <div id="page" style="display:none;">
+  <div class="container" style="padding-top:1rem; padding-bottom:0;">
+    <a href="index.html" style="display:inline-block; font-size:0.9rem; color:#006D77; text-decoration:none; font-weight:600;">← Back to WG4 Journey</a>
+  </div>
   <header class="page">
     <span class="meeting-tag">Workgroup 4 · Meeting 1 of 3</span>
     <h1>Kickoff & Orientation</h1>
@@ -237,6 +240,16 @@ footer.page a { color:var(--primary); text-decoration:none; }
   <div class="container">
 
     <div class="card">
+      <h2>On this page</h2>
+      <div class="btn-row">
+        <a class="btn secondary" href="#agenda">Agenda</a>
+        <a class="btn secondary" href="#slides">Slides</a>
+        <a class="btn secondary" href="#kickoff-recap">Discussion Recap</a>
+        <a class="btn secondary" href="WG4_Meeting1_Kickoff.pdf" download>Download Slides PDF</a>
+      </div>
+    </div>
+
+    <div class="card" id="agenda">
       <h2>Agenda</h2>
       <table class="agenda">
         <thead><tr><th>Time</th><th>Topic</th></tr></thead>
@@ -251,7 +264,7 @@ footer.page a { color:var(--primary); text-decoration:none; }
       </table>
     </div>
 
-    <div class="card">
+    <div class="card" id="slides">
       <h2>Slides</h2>
       <p>Review the deck from the April 22 Kickoff meeting below, or open the PDF in a new tab.</p>
       <div class="slides-wrap">
@@ -267,7 +280,7 @@ footer.page a { color:var(--primary); text-decoration:none; }
       <h2>Kickoff Discussion Recap (Apr 22)</h2>
 
       <h3 style="font-size:1.05rem; color:var(--primary-dark); margin-top:1.25rem; margin-bottom:0.5rem;">Who was in the room</h3>
-      <p style="font-size:0.92rem;">Tehreem Rehman (co-lead, Mount Sinai), Haeyeon Hong (Brown University Health), Ross Fleischman (Harvard / UCLA), Arwen Declan (Prisma Health; joined late, hopped off for a conflict), Mehrnoosh Samaei (Emory), Sudeep Hegde (Clemson, industrial engineering / human factors), Sayon Dutta (Mass General; joined by phone), Deborah Diercks (UT Southwestern), and Woosuk Seo (Yale, postdoctoral associate in human-computer interaction). Susan Gaeta checked in via chat but was in and out from the ED. Mark Courtney sent apologies — he was getting crushed on shift.</p>
+      <p style="font-size:0.92rem;">Tehreem Rehman (Mount Sinai), Haeyeon Hong (Brown University Health), Ross Fleischman (Harvard / UCLA), Arwen Declan (Prisma Health), Mehrnoosh Samaei (Emory), Sudeep Hegde (Clemson), Sayon Dutta (Mass General), Deborah Diercks (UT Southwestern), Woosuk Seo (Yale), Susan Gaeta, Mark Courtney.</p>
 
       <h3 style="font-size:1.05rem; color:var(--primary-dark); margin-top:1.25rem; margin-bottom:0.5rem;">Charge for the meeting</h3>
       <p style="font-size:0.92rem;">Orient the group to the modified Delphi process, walk through the 18 candidate questions, and flag wording or scope issues before Round 1 opens on Monday Apr 27. We focused discussion on Domain A (Clinician–AI Interaction & Clinical Reasoning) because that's where the largest volume of wording concerns surfaced. Domains B, C, and D were not worked through item-by-item in this meeting — they're in scope for Round 1 as written, with modifications welcome in the comment fields.</p>
@@ -317,68 +330,6 @@ footer.page a { color:var(--primary); text-decoration:none; }
         <p style="font-size:0.88rem; margin:0.4rem 0 0;"><strong>Why it matters:</strong> The consensus item should frame trust as a calibrated, updatable judgment — not a virtue to maximize.</p>
       </div>
 
-    </div>
-
-    <div class="card">
-      <h2>Welcome to Workgroup 4</h2>
-      <p>Thank you for joining the 2026 SAEM Consensus Conference effort to define a 10-year research agenda for AI in emergency medicine. Workgroup 4 is focused on the most distinctly human dimensions of this work: how AI affects clinical reasoning, professional identity, burnout, trust, and the patient experience.</p>
-      <p>This kickoff meeting orients the group to the modified Delphi process, the 18 candidate research questions, and the timeline leading up to our in-person consensus session on May 21, 2026 in Atlanta.</p>
-    </div>
-
-    <div class="card">
-      <h2>WG4 Scope & Domains</h2>
-      <p>Our 18 candidate questions are organized across four domains:</p>
-      <ul>
-        <li><strong>Domain A — Clinician–AI Interaction & Clinical Reasoning</strong> (Q1–Q6): automation bias, explainability, trust calibration, alert burden, human factors</li>
-        <li><strong>Domain B — Professional Identity, Wellbeing & Autonomy</strong> (Q7–Q11): identity, burnout, agency, clinician–patient relationship, oversight</li>
-        <li><strong>Domain C — Patient Experience & Shared Decision-Making</strong> (Q12–Q15): patient perception, SDM tools, anthropomorphism, disclosure</li>
-        <li><strong>Domain D — System Design & Implementation</strong> (Q16–Q18): workflow integration, adaptive systems, outcome measures</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>The Modified Delphi Process</h2>
-      <ol>
-        <li><strong>Round 1 (this meeting → mid-point):</strong> Each member rates all 18 questions Include / Include with Modifications / Exclude, with optional comments.</li>
-        <li><strong>Mid-point review:</strong> We share aggregated Round 1 results, discuss disagreements, and refine wording.</li>
-        <li><strong>Round 2:</strong> Members re-rate the (possibly revised) set in light of group feedback.</li>
-        <li><strong>May 21, Atlanta:</strong> Final breakouts, cross-group discussion, and full-audience consensus vote.</li>
-      </ol>
-      <p>Consensus threshold: <strong>≥80% Include</strong> for a question to be confirmed.</p>
-    </div>
-
-    <div class="card">
-      <h2>Your Pre-Conference Commitment</h2>
-      <p>Approximately <strong>5–8 hours</strong> over the next several weeks:</p>
-      <ul>
-        <li>Three virtual meetings, 45 minutes each (Wed Apr 22, Apr 29, May 6 · 3:00–3:45 PM ET)</li>
-        <li>Two brief Delphi survey rounds (~30 min each)</li>
-        <li>Asynchronous discussion in our shared Google Doc</li>
-        <li>Breakouts and a full-audience vote on May 21 in Atlanta</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>Action Items</h2>
-      <ul>
-        <li>Complete the Round 1 survey by the deadline shared in chat</li>
-        <li>Skim the Evidence Brief on the Delphi platform before voting</li>
-        <li>Drop questions or comments in the Discussion Doc anytime</li>
-      </ul>
-    </div>
-
-
-
-
-    <div class="card">
-      <h2>Quick Links</h2>
-      <div class="btn-row">
-        <a class="btn" href="index.html">Open Delphi Platform</a>
-        <a class="btn secondary" href="WG4_Meeting1_Kickoff.pdf" target="_blank" rel="noopener">Kickoff Slides (PDF)</a>
-        <a class="btn secondary" href="https://docs.google.com/forms/d/e/1FAIpQLSfItKfqtcVlgyn5q92gILku8Ab-RW7S_PppPsdzyop1scNY4A/viewform" target="_blank">Round 1 Form</a>
-        <a class="btn secondary" href="https://docs.google.com/forms/d/e/1FAIpQLSeU6NSiCgR7DdLr9mQiq1I7oCDtKZKXT6jlugc0eG4j63AqEQ/viewform" target="_blank">Round 2 Form</a>
-        <a class="btn secondary" href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Discussion Doc</a>
-      </div>
     </div>
 
   </div>
