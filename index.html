@@ -42,9 +42,9 @@
         const GOOGLE_FORMS_CONFIG = {
             // Centralized multi-WG Delphi platform (hub URL — the /join page):
             railwayUrl: 'https://saem-ai-consensus-conference-production.up.railway.app/',
-            // Direct Round 1 survey URL — Round 1 unlocks Mon Apr 27 at 12:00 AM ET:
+            // Direct Round 1 survey URL — released by email mid-week (week of Apr 26):
             round1Url: 'https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1',
-            // Direct Round 2 survey URL — same platform, R2 flipped after Meeting 2:
+            // Direct Round 2 survey URL — same platform, R2 flipped after Meeting 2 (May 6):
             round2Url: 'https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2',
             // Shared Working Doc for async comments / new-question suggestions:
             GOOGLE_DOC_URL: 'https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit',
@@ -99,16 +99,14 @@
             round2ResultsLocked: true
         };
 
-        // ===== TIME-GATED SURVEY UNLOCK =====
-        // Round 1 unlocks strictly at 12:00 AM ET on Mon Apr 27, 2026. April is EDT
-        // (daylight time, UTC-4), so 00:00 EDT == 04:00 UTC. The check below is the
-        // authoritative one for R1 — the Admin Panel lock toggle cannot override it
-        // for regular members (only a logged-in admin can click through early).
-        // Round 2 does NOT have a fixed clock — it opens after Meeting 2 when co-leads
-        // flip the round on the Railway platform, so R2 stays admin-toggle-gated.
-        const R1_OPEN_TIME_MS = new Date('2026-04-27T00:00:00-04:00').getTime();
-        function isR1OpenNow() { return Date.now() >= R1_OPEN_TIME_MS; }
-        function msUntilR1Open() { return Math.max(0, R1_OPEN_TIME_MS - Date.now()); }
+        // ===== ROUND 1 TIMING =====
+        // The fixed Apr 27 clock has been retired. Round 1 is now released by email
+        // mid-week the week of the kickoff (Apr 26+) and closes the day before
+        // Meeting 2 on May 6 — i.e. Tue May 5 at 11:59 PM ET. There is no in-page
+        // time-gate now that voting and results are disseminated through the
+        // central Delphi platform; the WG4 leads' email is the canonical signal.
+        function isR1OpenNow() { return true; }
+        function msUntilR1Open() { return 0; }
     </script>
 
     <style>
@@ -1147,42 +1145,39 @@
 <a href="WG4_Meeting1.html">View Kickoff Slides &amp; Recap</a>
 <span class="j-do-note">Same Zoom link works for all three meetings — bookmark it. No calendar invite will be sent.</span>
                         </div>
-                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded. <strong>Async follow-up Apr 22–24 EOB:</strong> add any new candidate questions you think we missed directly to the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Shared Working Doc</a> by Fri Apr 24 EOB ET — co-leads will deduplicate over the weekend and fold endorsed additions into the Round 1 ballot, which goes live at <strong>12:00 AM ET on Mon Apr 27</strong> at <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" target="_blank" rel="noopener">/survey/4/round_1</a>.</p>
+                        <p class="j-desc">Welcome, Delphi methodology, walk-through of the candidate questions, and open brainstorm on what's missing or mis-worded. <strong>Async follow-up:</strong> add any new candidate questions you think we missed directly to the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Shared Working Doc</a> — co-leads will deduplicate and fold endorsed additions into the Round 1 ballot, which is released by email mid-week this week on the conference-wide Delphi platform.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="3" id="stage-3">
                     <div class="j-num">3</div>
                     <div class="j-body">
                         <p class="j-title">Delphi Round 1</p>
-                        <p class="j-date">Opens Mon Apr 27, 12:00 AM ET · closes Tue Apr 28, 11:59 PM ET</p>
+                        <p class="j-date">Released mid-week this week · closes Tue May 5, 11:59 PM ET</p>
                         <div class="j-do">
-<a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" onclick="openRound1Survey(); return false;" target="_blank" rel="noopener">Open Round 1 Survey (saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1)</a>
-<span class="j-do-note">Voting runs on the conference-wide Delphi platform — not on this site. The survey link is blocked until <strong>Mon Apr 27, 12:00 AM ET</strong>; clicking before then shows a countdown to open time. First-time users: the direct link routes you through <code>/join</code> (enter name → select WG4 → "Working Group Member") before the ballot loads. Your identity is remembered across sessions and devices after that.</span>
+<span class="j-do-note">Voting runs on the conference-wide Delphi platform — not on this site. The direct survey link will be emailed by the WG4 leads when Round 1 goes live mid-week. First-time users will be routed through <code>/join</code> (enter name → select WG4 → "Working Group Member") before the ballot loads.</span>
                         </div>
-                        <p class="j-desc">Round 1 becomes available at <strong>12:00 AM ET on Monday, April 27</strong> and closes Tue Apr 28 at 11:59 PM ET. Co-leads will upload the preliminary question set to the shared Google Drive (SAEM 2026 AI Consensus Conference → WG4 folder) on Friday; the central Delphi platform reads the question set from there and renders the Round 1 ballot. You'll get an email with the direct survey link when it opens. For each question, cast a 3-way vote (Include / Include with modifications / Exclude), rate importance on a 9-point scale, and leave a rationale on anything you want revised.</p>
+                        <p class="j-desc">Round 1 will be released by email mid-week this week and closes Tue May 5 at 11:59 PM ET, the day before Meeting 2. Co-leads upload the preliminary question set to the shared Google Drive (SAEM 2026 AI Consensus Conference → WG4 folder); the central Delphi platform reads the question set from there and renders the Round 1 ballot. For each question, cast a 3-way vote (Include / Include with modifications / Exclude), rate importance on a 9-point scale, and leave a rationale on anything you want revised.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="4" id="stage-4">
                     <div class="j-num">4</div>
                     <div class="j-body">
                         <p class="j-title">Meeting 2 — Round 1 Debrief</p>
-                        <p class="j-date">Wed Apr 29 · 3:00–3:45 PM ET</p>
+                        <p class="j-date">Wed May 6 · 3:00–3:45 PM ET</p>
                         <div class="j-do">
 <a href="https://mountsinai.zoom.us/j/7184369785?omn=99113147360&from=addon" target="_blank" rel="noopener">Join on Zoom</a>
-<button onclick="switchTab('r1results')">View Round 1 Results</button>
                             <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank">Refine questions in Shared Working Doc</a>
                         </div>
-                        <p class="j-desc">At least 24 hours before this meeting you'll get an email with the Round 1 results link, color-coded green (≥80% confirmed), yellow (21–79% pending), and red (≤20% removed). We'll refine the questions live — confirming greens, dropping reds, and focusing discussion on the yellow middle band.</p>
+                        <p class="j-desc">At least 24 hours before this meeting you'll get an email with a link to the Round 1 results on the central Delphi platform, color-coded green (≥80% confirmed), yellow (21–79% pending), and red (≤20% removed). We'll refine the questions live — confirming greens, dropping reds, and focusing discussion on the yellow middle band.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="5" id="stage-5">
                     <div class="j-num">5</div>
                     <div class="j-body">
                         <p class="j-title">Delphi Round 2</p>
-                        <p class="j-date">Opens after Meeting 2 · closes Tue May 5</p>
+                        <p class="j-date">Opens after Meeting 2 · closes Tue May 12</p>
                         <div class="j-do">
-<a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2" target="_blank" rel="noopener">Open Round 2 Survey (saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2)</a>
-<span class="j-do-note">Same central platform as Round 1 — no new login. Once co-leads flip R1 to R2, the binary ballot loads at this URL with Round 1 stats and AI-synthesized themes displayed inline.</span>
+<span class="j-do-note">Round 2 voting runs on the conference-wide Delphi platform. The direct link will be emailed by the WG4 leads when co-leads flip R1 to R2 on the central platform — same login as Round 1, no new account needed.</span>
                         </div>
                         <p class="j-desc">Round 2 opens with the revised wording. Vote binary Include / Exclude (the "modify" option is retired — any wording revisions have already been applied), re-rate importance on the same 9-point scale, and submit. Items reaching ≥80% Include are confirmed; items at 60–79% land in the <strong>approaching-consensus</strong> band and are resolved by co-lead adjudication at Meeting 3; items below 60% do not advance.</p>
                     </div>
@@ -1191,12 +1186,11 @@
                     <div class="j-num">6</div>
                     <div class="j-body">
                         <p class="j-title">Meeting 3 — Final Prep for Atlanta</p>
-                        <p class="j-date">Wed May 6 · 3:00–3:45 PM ET</p>
+                        <p class="j-date">Wed May 13 · 3:00–3:45 PM ET</p>
                         <div class="j-do">
 <a href="https://mountsinai.zoom.us/j/7184369785?omn=99113147360&from=addon" target="_blank" rel="noopener">Join on Zoom</a>
-<button onclick="switchTab('r2results')" >View Round 2 Results</button>
                         </div>
-                        <p class="j-desc">Lock the final slate, ratify co-lead adjudication on any remaining yellow items, and assign day-of roles for the May 21 full-audience vote.</p>
+                        <p class="j-desc">Lock the final slate, ratify co-lead adjudication on any remaining yellow items, and assign day-of roles for the May 21 full-audience vote. Round 2 results circulate by email at least 24 hours before this meeting.</p>
                     </div>
                 </li>
                 <li class="j-stage" data-stage="7" id="stage-7">
@@ -1224,52 +1218,7 @@
 
         </div>
 
-        <!-- Tab 2: Delphi Round 1 -->
-        <div id="round1" class="tab-content">
-            <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('overview'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #006D77; text-decoration: none; font-weight: 600;">← Back to WG4 Journey</a></div>
-            <h1>Delphi Round 1: Rate Candidate Research Questions</h1>
-
-            <div class="card" style="max-width: 68ch;">
-                <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round1-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--neutral-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(0,0,0,0.05); border-radius: 3px;">OPENS MON APR 27, 12:00 AM ET</span></p>
-                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 1 opens at <strong>12:00 AM ET on Monday, April 27</strong> and closes <strong>Tue Apr 28, 11:59 PM ET</strong>. Before then — the async window runs <strong>Apr 22–24 EOB ET</strong>: read the <a href="#" onclick="switchTab('evidence'); return false;" style="color: var(--primary-ink); font-weight: 600;">Evidence Brief</a> and drop any candidate questions you think we missed into the <a href="https://docs.google.com/document/d/1eyMKbN_SnETKVMjiZVltzAlBnHLdmZGghUO8VpH0ihQ/edit" target="_blank" style="color: var(--primary-ink); font-weight: 600;">Shared Working Doc</a> by Fri Apr 24 EOB. Co-leads dedupe over the weekend and upload the merged question set to the <strong>shared Google Drive</strong> (SAEM 2026 AI Consensus Conference → WG4 folder), which feeds directly into the central Delphi platform for Round 1.</p>
-
-                <div style="margin: 1rem 0; padding: 1rem 1.15rem; background: rgba(0,109,119,0.06); border-left: 4px solid var(--primary); border-radius: 6px;">
-                    <p style="margin: 0 0 0.4rem 0; font-weight: 700; color: var(--primary-ink); font-size: 0.95rem;">The Round 1 survey lives here:</p>
-                    <p style="margin: 0 0 0.65rem 0; font-size: 0.95rem; word-break: break-all;"><a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" onclick="openRound1Survey(); return false;" target="_blank" rel="noopener" style="color: var(--primary-ink); font-weight: 700;">saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1</a></p>
-                    <p style="margin: 0 0 0.5rem 0; line-height: 1.55; font-size: 0.92rem;">Voting runs on the conference-wide Delphi platform shared across the five SAEM workgroups — rounds, pairwise comparisons, and AI-synthesized themes all live there. Your responses persist across sessions and devices; you do not need to finish in one sitting.</p>
-                    <p style="margin: 0; line-height: 1.55; font-size: 0.92rem;"><strong>First-time users:</strong> before the ballot loads, the platform routes you through <code style="background: rgba(0,0,0,0.05); padding: 0.05rem 0.3rem; border-radius: 3px;">/join</code> — enter your name, select <strong>WG4</strong>, then <strong>"Working Group Member"</strong>. You'll then land on the Round 1 survey automatically.</p>
-                </div>
-
-                <div style="margin: 1.25rem 0 0.25rem 0;">
-                    <button class="btn btn-primary" id="round1-btn" onclick="openRound1Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem; background: #9ca3af; cursor: not-allowed;">Round 1 Survey — Locked Until Mon Apr 27, 12:00 AM ET</button>
-                    <p style="margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--neutral-ink); line-height: 1.5;">Links to <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" onclick="openRound1Survey(); return false;" target="_blank" rel="noopener" style="color: var(--primary-ink); font-weight: 600;">/survey/4/round_1</a> on the central platform. <strong>The link is time-locked until Mon Apr 27, 12:00 AM ET</strong> — clicking before then shows a countdown to the open time. The button will auto-unlock the moment the clock rolls past midnight ET without needing to reload the page.</p>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Tab 3: Delphi Round 2 -->
-        <div id="round2" class="tab-content">
-            <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('overview'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #006D77; text-decoration: none; font-weight: 600;">← Back to WG4 Journey</a></div>
-            <h1>Delphi Round 2: Review Results & Refine Ratings</h1>
-
-            <div class="card" style="max-width: 68ch;">
-                <p style="margin: 0 0 0.75rem 0;"><strong>Complete the Survey</strong> <span id="round2-status-badge" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--neutral-ink); margin-left: 0.4rem; padding: 0.15rem 0.5rem; background: rgba(0,0,0,0.05); border-radius: 3px;">OPENS AFTER MEETING 2</span></p>
-                <p style="margin: 0.75rem 0; line-height: 1.6;">Round 2 opens by email after Meeting 2 with the revised wording (confirmed items retired, removed items dropped). Closes <strong>Tue May 5</strong>. Vote <strong>binary Include / Exclude</strong> (no "modify" option — wording fixes have already been applied) and re-rate importance on the 9-point scale. R2 thresholds: ≥80% Include confirms; <strong>60–79% is the "approaching consensus" band</strong> resolved by co-lead adjudication at Meeting 3; &lt;60% does not advance. This ballot is what we bring to Atlanta.</p>
-
-                <div style="margin: 1rem 0; padding: 1rem 1.15rem; background: rgba(0,109,119,0.06); border-left: 4px solid var(--primary); border-radius: 6px;">
-                    <p style="margin: 0 0 0.4rem 0; font-weight: 700; color: var(--primary-ink); font-size: 0.95rem;">The Round 2 survey lives here:</p>
-                    <p style="margin: 0 0 0.65rem 0; font-size: 0.95rem; word-break: break-all;"><a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2" target="_blank" rel="noopener" style="color: var(--primary-ink); font-weight: 700;">saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2</a></p>
-                    <p style="margin: 0; line-height: 1.55; font-size: 0.92rem;">Same central platform as Round 1 — no new login. Once the co-leads flip the round from R1 to R2, the ballot switches to binary Include / Exclude and Round 1 group statistics plus AI-synthesized themes are displayed inline.</p>
-                </div>
-
-                <div style="margin: 1.25rem 0 0.25rem 0;">
-                    <button class="btn btn-primary" id="round2-btn" onclick="openRound2Survey()" style="padding: 0.85rem 1.5rem; font-size: 1rem;">Open Round 2 Survey → /survey/4/round_2</button>
-                    <p style="margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--neutral-ink); line-height: 1.5;">Opens <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2" target="_blank" rel="noopener" style="color: var(--primary-ink); font-weight: 600;">/survey/4/round_2</a> on the central platform in a new tab. <strong>The Railway platform itself enforces the unlock</strong> — R2 is gated until co-leads flip the round server-side after Meeting 2 (Wed Apr 29). Clicking before then opens the survey page but shows a "not yet open" state.</p>
-                </div>
-            </div>
-
-        </div>
+        <!-- Round 1 and Round 2 tabs removed — voting and results are disseminated via the conference-wide Delphi platform (link in the WG4 leads' email) -->
 
         <!-- Tab 5: Evidence Brief -->
         <div id="evidence" class="tab-content">
@@ -1660,112 +1609,7 @@
 
         </div>
 
-        <!-- Tab 6: Round 1 Results -->
-        <div id="r1results" class="tab-content">
-            <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('overview'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #006D77; text-decoration: none; font-weight: 600;">← Back to WG4 Journey</a></div>
-            <h1>Round 1 Results</h1>
-            <div id="r1-locked-overlay" style="display:none; min-height: calc(100vh - 300px); align-items: center; justify-content: center;">
-                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem auto; max-width: 600px; background: linear-gradient(135deg, rgba(0,48,73,0.05), rgba(0,109,119,0.08)); border: 2px solid var(--border); border-radius: 12px;">
-                    <div style="font-size: 4rem; margin-bottom: 1.5rem;">🔒</div>
-                    <h2 style="margin-bottom: 0.75rem; color: var(--primary); font-size: 1.5rem;">Round 1 Results Not Yet Available</h2>
-                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto; line-height: 1.6;">Results will be shared after all Round 1 responses have been collected. You'll be notified when results are ready for review.</p>
-                </div>
-            </div>
-            <div id="r1-results-content" style="display:none;">
-                <div id="r1-status-banner" class="card info">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div id="r1-live-dot" style="width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex-shrink: 0;"></div>
-                        <div>
-                            <p style="margin:0;"><strong id="r1-status-text">Checking for live data...</strong></p>
-                            <p style="margin:0.25rem 0 0 0; font-size: 0.85rem; color: var(--neutral);" id="r1-meta-text">Results refresh each time you open this tab.</p>
-                        </div>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <button class="btn btn-secondary btn-small" onclick="generateContestedShortlist('r1')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">📋 Generate Meeting 2 contested-item shortlist</button>
-                    <button class="btn btn-secondary btn-small" onclick="refreshRoundResults('r1')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Refresh</button>
-                </div>
-                <div class="card" style="margin-bottom: 1.25rem; padding: 0.85rem 1.25rem; background: #fff; border: 1px solid var(--border);">
-                    <p style="margin:0 0 0.5rem 0; font-size: 0.85rem; font-weight: 600; color: var(--primary);">Consensus color key</p>
-                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.82rem;">
-                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#22c55e; display:inline-block;"></span><strong>Green</strong> — Confirmed (≥80% combined Include)</span>
-                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f59e0b; display:inline-block;"></span><strong>Yellow</strong> — Pending / re-vote in R2 (21–79%)</span>
-                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#ef4444; display:inline-block;"></span><strong>Red</strong> — Removed (≤20%)</span>
-                    </div>
-                </div>
-                <h2>Overall Consensus Progress</h2>
-                <div class="results-grid">
-                    <div class="result-card"><div class="result-number" id="r1-count-confirmed">—</div><div class="result-label">Confirmed<br>(≥80% include)</div></div>
-                    <div class="result-card"><div class="result-number" id="r1-count-pending">—</div><div class="result-label">Re-vote in R2<br>(21–79% include)</div></div>
-                    <div class="result-card"><div class="result-number" id="r1-count-excluded">—</div><div class="result-label">Removed<br>(≤20% include)</div></div>
-                </div>
-                <div class="card" style="margin: 1.5rem 0; padding: 1rem 1.5rem; background: rgba(0,109,119,0.03);">
-                    <p style="margin:0; font-size: 0.9rem;"><strong>Responses:</strong> <span id="r1-response-count">—</span> &nbsp;|&nbsp; <strong>Method:</strong> Conference-wide 3-point Delphi. % include = (Include + Include w/ modifications) ÷ total. Thresholds: ≥80% confirmed · 21–79% re-vote · ≤20% removed.</p>
-                </div>
-                <h2>Per-Question Results</h2>
-                <div id="r1-per-question" style="background: white; border-radius: 8px; padding: 1.5rem; border: 1px solid var(--border);"></div>
-                <h2>Domain Summary</h2>
-                <div class="results-grid">
-                    <div class="result-card"><strong>Domain A</strong><div id="r1-domain-a" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                    <div class="result-card"><strong>Domain B</strong><div id="r1-domain-b" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                    <div class="result-card"><strong>Domain C</strong><div id="r1-domain-c" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                    <div class="result-card"><strong>Domain D</strong><div id="r1-domain-d" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab 7: Round 2 Results -->
-        <div id="r2results" class="tab-content">
-            <div style="margin-bottom: 1rem;"><a href="#" onclick="switchTab('overview'); window.scrollTo({top:0, behavior:'smooth'}); return false;" style="display: inline-block; font-size: 0.85rem; color: #006D77; text-decoration: none; font-weight: 600;">← Back to WG4 Journey</a></div>
-            <h1>Round 2 Results</h1>
-            <div id="r2-locked-overlay" style="display:none; min-height: calc(100vh - 300px); align-items: center; justify-content: center;">
-                <div class="card" style="text-align:center; padding: 3rem 2rem; margin: 2rem auto; max-width: 600px; background: linear-gradient(135deg, rgba(0,48,73,0.05), rgba(0,109,119,0.08)); border: 2px solid var(--border); border-radius: 12px;">
-                    <div style="font-size: 4rem; margin-bottom: 1.5rem;">🔒</div>
-                    <h2 style="margin-bottom: 0.75rem; color: var(--primary); font-size: 1.5rem;">Round 2 Results Not Yet Available</h2>
-                    <p style="color: var(--neutral); max-width: 500px; margin: 0 auto; line-height: 1.6;">Results will be shared after all Round 2 responses have been collected.</p>
-                </div>
-            </div>
-            <div id="r2-results-content" style="display:none;">
-                <div id="r2-status-banner" class="card info">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div id="r2-live-dot" style="width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex-shrink: 0;"></div>
-                        <div>
-                            <p style="margin:0;"><strong id="r2-status-text">Checking for live data...</strong></p>
-                            <p style="margin:0.25rem 0 0 0; font-size: 0.85rem; color: var(--neutral);" id="r2-meta-text">Results refresh each time you open this tab.</p>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-bottom: 1rem;">
-                    <button class="btn btn-secondary btn-small" onclick="refreshRoundResults('r2')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Refresh</button>
-                </div>
-                <div class="card" style="margin-bottom: 1.25rem; padding: 0.85rem 1.25rem; background: #fff; border: 1px solid var(--border);">
-                    <p style="margin:0 0 0.5rem 0; font-size: 0.85rem; font-weight: 600; color: var(--primary);">Consensus color key</p>
-                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.82rem;">
-                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#22c55e; display:inline-block;"></span><strong>Green</strong> — Confirmed (≥80% combined Include)</span>
-                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#f59e0b; display:inline-block;"></span><strong>Yellow</strong> — Pending (21–79% — co-lead adjudication after R2)</span>
-                        <span style="display:inline-flex; align-items:center; gap:0.4rem;"><span style="width:14px; height:14px; border-radius:3px; background:#ef4444; display:inline-block;"></span><strong>Red</strong> — Removed (≤20%)</span>
-                    </div>
-                </div>
-                <h2>Overall Consensus Progress</h2>
-                <div class="results-grid">
-                    <div class="result-card"><div class="result-number" id="r2-count-confirmed">—</div><div class="result-label">Confirmed<br>(≥80% include)</div></div>
-                    <div class="result-card"><div class="result-number" id="r2-count-pending">—</div><div class="result-label">Pending<br>(21–79% — co-lead adjudication)</div></div>
-                    <div class="result-card"><div class="result-number" id="r2-count-excluded">—</div><div class="result-label">Removed<br>(≤20% include)</div></div>
-                </div>
-                <div class="card" style="margin: 1.5rem 0; padding: 1rem 1.5rem; background: rgba(0,109,119,0.03);">
-                    <p style="margin:0; font-size: 0.9rem;"><strong>Responses:</strong> <span id="r2-response-count">—</span> &nbsp;|&nbsp; <strong>Method:</strong> Conference-wide 3-point Delphi. % include = (Include + Include w/ modifications) ÷ total. Thresholds: ≥80% confirmed · 21–79% re-vote · ≤20% removed.</p>
-                </div>
-                <h2>Per-Question Results</h2>
-                <div id="r2-per-question" style="background: white; border-radius: 8px; padding: 1.5rem; border: 1px solid var(--border);"></div>
-                <h2>Domain Summary</h2>
-                <div class="results-grid">
-                    <div class="result-card"><strong>Domain A</strong><div id="r2-domain-a" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                    <div class="result-card"><strong>Domain B</strong><div id="r2-domain-b" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                    <div class="result-card"><strong>Domain C</strong><div id="r2-domain-c" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                    <div class="result-card"><strong>Domain D</strong><div id="r2-domain-d" style="margin-top:1rem; text-align:left; font-size:0.9rem;">Loading...</div></div>
-                </div>
-            </div>
-        </div>
+        <!-- Round 1 Results and Round 2 Results tabs removed — results are published by the conference-wide Delphi platform and circulated by email from the WG4 leads -->
 
         <!-- Tab: Roster & Demographics (admin only — visible in nav after admin login) -->
         <div id="roster" class="tab-content">
@@ -1980,11 +1824,11 @@
                                 <tbody>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:00–3:03</td><td style="padding: 0.4rem 0.6rem;">Welcome &amp; roll call</td><td style="padding: 0.4rem 0.6rem;">Quick name + institution round; confirm everyone can see the member site</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:08</td><td style="padding: 0.4rem 0.6rem;">Why we're here</td><td style="padding: 0.4rem 0.6rem;">SAEM 2026 consensus conference, WG4 scope, how WG4 feeds into the May 21 plenary</td></tr>
-                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:08–3:15</td><td style="padding: 0.4rem 0.6rem;">Delphi methodology</td><td style="padding: 0.4rem 0.6rem;">3-point scale, ≥80% / 21–79% / ≤20% thresholds, two-round process, R1 opens Mon Apr 27 at 12:00 AM ET on the central platform</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:08–3:15</td><td style="padding: 0.4rem 0.6rem;">Delphi methodology</td><td style="padding: 0.4rem 0.6rem;">3-point scale, ≥80% / 21–79% / ≤20% thresholds, two-round process, R1 released by email mid-week this week on the central platform</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:15–3:25</td><td style="padding: 0.4rem 0.6rem;">19-question walkthrough</td><td style="padding: 0.4rem 0.6rem;">Domain-by-domain pointer tour — don't read aloud. A ≈ 3:30, B ≈ 2:30, C ≈ 2:00, D ≈ 2:00</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:25–3:38</td><td style="padding: 0.4rem 0.6rem;">Brainstorm</td><td style="padding: 0.4rem 0.6rem;">Round-robin by domain. Prompts: "What's missing? What's mis-worded?" No filtering.</td></tr>
-                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:38–3:42</td><td style="padding: 0.4rem 0.6rem;">R1 launch mechanics</td><td style="padding: 0.4rem 0.6rem;">Show the direct R1 link (/survey/4/round_1) on the central Delphi platform, walk through /join → WG4 → "Working Group Member", confirm Apr 27 12:00 AM open / Apr 28 11:59 PM close</td></tr>
-                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:42–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap</td><td style="padding: 0.4rem 0.6rem;">R1 opens Mon Apr 27 at 12:00 AM ET; Meeting 2 is Apr 29; comments are as valuable as ratings</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:38–3:42</td><td style="padding: 0.4rem 0.6rem;">R1 launch mechanics</td><td style="padding: 0.4rem 0.6rem;">Show the direct R1 link (/survey/4/round_1) on the central Delphi platform, walk through /join → WG4 → "Working Group Member", confirm R1 releases mid-week and closes Tue May 5 at 11:59 PM ET</td></tr>
+                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:42–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap</td><td style="padding: 0.4rem 0.6rem;">R1 releases by email mid-week; Meeting 2 is Wed May 6; comments are as valuable as ratings</td></tr>
                                 </tbody>
                             </table>
 
@@ -2012,7 +1856,7 @@
                                 <li>All members: add 2–3 additional questions to shared doc by Apr 25</li>
                                 <li>Organize and deduplicate questions by Apr 25</li>
                                 <li>Build Round 1 survey (run <code>WG4_Round1_Form_Builder.gs</code>)</li>
-                                <li>R1 opens Mon Apr 27 at 12:00 AM ET at <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" target="_blank" rel="noopener">/survey/4/round_1</a>, closes Tue Apr 28 at 11:59 PM ET</li>
+                                <li>R1 released by email mid-week (week of Apr 26+) at <a href="https://saem-ai-consensus-conference-production.up.railway.app/survey/4/round_1" target="_blank" rel="noopener">/survey/4/round_1</a>, closes Tue May 5 at 11:59 PM ET</li>
                             </ul>
                         </div>
                     </details>
@@ -2021,7 +1865,7 @@
                 <!-- Meeting 2 Facilitation Guide -->
                 <div class="card" style="padding: 1.5rem; margin-bottom: 1rem; border-left: 4px solid var(--accent);">
                     <details>
-                        <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem; color: var(--primary-dark);">Meeting 2 — Round 1 Debrief & Refinement (Apr 29)</summary>
+                        <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem; color: var(--primary-dark);">Meeting 2 — Round 1 Debrief & Refinement (May 6)</summary>
                         <div style="margin-top: 1rem; font-size: 0.92rem;">
                             <p style="margin-bottom: 0.75rem;"><strong>Meeting goal:</strong> Surface the reasoning behind divergent Round 1 ratings and refine wording before Round 2. Not re-litigating items that already hit consensus.</p>
 
@@ -2067,8 +1911,8 @@
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:13–3:33</td><td style="padding: 0.4rem 0.6rem;"><strong>Gray zone discussion</strong></td><td style="padding: 0.4rem 0.6rem;">Per item: read stem → state R1% → summarize top comments → "wording or substance?" → call disposition. 3 min max per item.</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:33–3:37</td><td style="padding: 0.4rem 0.6rem;">New question review</td><td style="padding: 0.4rem 0.6rem;">Any new questions suggested in R1's open-ended field? Worth adding to R2?</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:37–3:40</td><td style="padding: 0.4rem 0.6rem;">Round 2 survey prep</td><td style="padding: 0.4rem 0.6rem;">Confirm final question list for R2. Survey built and distributed within 24 hours.</td></tr>
-                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:40–3:43</td><td style="padding: 0.4rem 0.6rem;">Async work plan</td><td style="padding: 0.4rem 0.6rem;">R2 window: Apr 29 – Tue May 5. Confirm Meeting 3 (Wed May 6, same time).</td></tr>
-                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:43–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap-up</td><td style="padding: 0.4rem 0.6rem;">R2 opens tonight/tomorrow, closes Tue May 5. Meeting 3 is the final prep before Atlanta.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:40–3:43</td><td style="padding: 0.4rem 0.6rem;">Async work plan</td><td style="padding: 0.4rem 0.6rem;">R2 window: May 6 – Tue May 12. Confirm Meeting 3 (Wed May 13, same time).</td></tr>
+                                    <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:43–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap-up</td><td style="padding: 0.4rem 0.6rem;">R2 opens tonight/tomorrow, closes Tue May 12. Meeting 3 is the final prep before Atlanta.</td></tr>
                                 </tbody>
                             </table>
 
@@ -2123,7 +1967,7 @@
                                 <li>Identify confirmed (≥80%), excluded (≤20%), and gray-zone (21–79%)</li>
                                 <li>Extract and anonymize written comments per question</li>
                                 <li>Extract new questions from R1 open-ended field</li>
-                                <li>Distribute pre-meeting materials by Apr 26–27</li>
+                                <li>Distribute pre-meeting materials by May 3–4</li>
                             </ul>
 
                             <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">After-meeting checklist</h4>
@@ -2132,7 +1976,7 @@
                                 <li>Build Round 2 survey within 24 hours (run <code>WG4_Round2_Form_Builder.gs</code>)</li>
                                 <li>Wire R2 form URL into the platform and push to GitHub Pages</li>
                                 <li>Notify members that R2 is open</li>
-                                <li>R2 window: Apr 29 – Tue May 5</li>
+                                <li>R2 window: May 6 – Tue May 12</li>
                                 <li>Update disposition tracker and push to GitHub</li>
                             </ul>
                         </div>
@@ -2142,7 +1986,7 @@
                 <!-- Meeting 3 Facilitation Guide -->
                 <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--accent);">
                     <details>
-                        <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem; color: var(--primary-dark);">Meeting 3 — Pre-Conference Alignment (May 6)</summary>
+                        <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem; color: var(--primary-dark);">Meeting 3 — Pre-Conference Alignment (May 13)</summary>
                         <div style="margin-top: 1rem; font-size: 0.92rem;">
                             <p style="margin-bottom: 0.75rem;"><strong>Meeting goal:</strong> Logistical and strategic, not deliberative. The group is fatigued — they need clarity on the day-of plan, not another deliberation. Keep it tight; end early if you can.</p>
 
@@ -2182,7 +2026,7 @@
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:00–3:03</td><td style="padding: 0.4rem 0.6rem;">Welcome</td><td style="padding: 0.4rem 0.6rem;">Last working session before conference day. Thank the group for the journey.</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:03–3:12</td><td style="padding: 0.4rem 0.6rem;">R2 results &amp; co-lead adjudication</td><td style="padding: 0.4rem 0.6rem;">Final disposition of all questions. For remaining yellow-band items, present adjudication rationale and ask the group to ratify. Quick up/down voice vote.</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:12–3:18</td><td style="padding: 0.4rem 0.6rem;">Final consensus list</td><td style="padding: 0.4rem 0.6rem;">Read through confirmed list. Is it complete? Rank-order top 5 via round-robin (each member names top 3 → tally).</td></tr>
-                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:18–3:30</td><td style="padding: 0.4rem 0.6rem;">2-page summary review</td><td style="padding: 0.4rem 0.6rem;">Walk through the draft. Edits in real time or assign a clean-up pass. Due to planning committee by May 12.</td></tr>
+                                    <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:18–3:30</td><td style="padding: 0.4rem 0.6rem;">2-page summary review</td><td style="padding: 0.4rem 0.6rem;">Walk through the draft. Edits in real time or assign a clean-up pass. Due to planning committee by May 18.</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:30–3:38</td><td style="padding: 0.4rem 0.6rem;">Conference day prep</td><td style="padding: 0.4rem 0.6rem;">Outline the 10-min presentation. Assign roles explicitly — don't ask for volunteers.</td></tr>
                                     <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:38–3:43</td><td style="padding: 0.4rem 0.6rem;">Breakout facilitation plan</td><td style="padding: 0.4rem 0.6rem;">2–3 discussion questions for the audience. Decide feedback capture method. Rehearse hard questions.</td></tr>
                                     <tr><td style="padding: 0.4rem 0.6rem; white-space: nowrap; font-weight: 600; color: var(--primary);">3:43–3:45</td><td style="padding: 0.4rem 0.6rem;">Wrap-up &amp; thanks</td><td style="padding: 0.4rem 0.6rem;">Review final summary when distributed. See everyone May 21 in Atlanta.</td></tr>
@@ -2208,16 +2052,16 @@
                                 <li>Draft the 2-page summary</li>
                                 <li>Outline the 10-min conference presentation</li>
                                 <li>Draft 2–3 breakout discussion questions</li>
-                                <li>Distribute pre-meeting materials by May 3–4</li>
+                                <li>Distribute pre-meeting materials by May 10–11</li>
                             </ul>
 
                             <h4 style="color: var(--primary); margin: 1rem 0 0.4rem;">After-meeting checklist</h4>
                             <ul style="padding-left: 1.25rem;">
                                 <li>Finalize meeting notes and push to GitHub</li>
-                                <li>Clean up 2-page summary and submit to planning committee by <strong>May 12</strong></li>
-                                <li>Finalize presentation slides by <strong>May 16</strong></li>
+                                <li>Clean up 2-page summary and submit to planning committee by <strong>May 18</strong></li>
+                                <li>Finalize presentation slides by <strong>May 19</strong></li>
                                 <li>Update platform with final consensus list; push to GitHub</li>
-                                <li>Attend dry run with planning committee (<strong>May 16</strong>, 30 min Zoom)</li>
+                                <li>Attend dry run with planning committee (if scheduled, ~May 19–20, 30 min Zoom)</li>
                                 <li>Send final role sheet, day-of logistics, and one-page WG4 slate to all members</li>
                                 <li>Confirm cross-group liaison handoff with WG3 and WG5 leads</li>
                             </ul>
@@ -3083,7 +2927,7 @@
                 html += '</div>';
                 if (includeRound2Notes) {
                     html += '<div style="margin-top: 0.75rem; padding: 0.6rem 0.85rem; background: #f5f5f0; border-radius: 4px; font-size: 0.82rem; color: var(--neutral);">';
-                    html += '<em>Round 1 results will populate here once Round 1 closes (April 28, 2026). You will see: % Include / Include-with-modifications / Exclude, classification (Confirmed / Re-vote / Removed), and representative comment themes.</em>';
+                    html += '<em>Round 1 results will populate here once Round 1 closes (Tue May 5, 2026). You will see: % Include / Include-with-modifications / Exclude, classification (Confirmed / Re-vote / Removed), and representative comment themes.</em>';
                     html += '</div>';
                 }
                 html += '</div>';
@@ -3155,32 +2999,17 @@
         }
 
         function openRound1Survey() {
-            // Time-gated: Round 1 is blocked on this site until the R1_OPEN_TIME_MS
-            // clock (Mon Apr 27, 12:00 AM ET) has passed. Admins can click through early
-            // for testing. The Railway platform also gates on its end, but we block
-            // here too so the WG4 site itself reflects the time-dependent unlock.
-            if (!isR1OpenNow() && !adminLoggedIn) {
-                alert(
-                    'Round 1 opens at 12:00 AM ET on Monday, April 27, 2026.\n\n' +
-                    _formatCountdown(msUntilR1Open()) +
-                    'The survey will live at:\nsaem-ai-consensus-conference-production.up.railway.app/survey/4/round_1\n\n' +
-                    'First-time users will be routed through /join (enter name → select WG4 → "Working Group Member") before the ballot loads. You\'ll also receive an email from the WG4 leads with the direct link when it goes live.'
-                );
-                return;
-            }
+            // Round 1 is now released by email mid-week (week of Apr 26+) and runs
+            // on the conference-wide Delphi platform. The in-page tab/button has been
+            // retired, but the helper is preserved so any straggler onclick handlers
+            // simply open the central platform in a new tab.
             window.open(GOOGLE_FORMS_CONFIG.round1Url, '_blank', 'noopener');
         }
 
         function openRound2Survey() {
-            // Round 2 is not time-gated on this site — it's gated by the Admin Panel
-            // toggle, because R2's open state depends on Meeting 2 outcome, not a
-            // fixed clock. Co-leads flip the round on Railway and then flip the admin
-            // toggle on this site at the same time.
-            const locks = getLockState();
-            if (locks.r2SurveyLocked && !adminLoggedIn) {
-                alert('Round 2 is not yet open. It unlocks after Round 1 closes and the co-leads flip the round on the Railway platform (after Meeting 2 on Wed Apr 29). You will receive an email from the WG4 leads when it goes live — the survey will be at saem-ai-consensus-conference-production.up.railway.app/survey/4/round_2.');
-                return;
-            }
+            // Round 2 opens on the conference-wide Delphi platform after Meeting 2
+            // on Wed May 6 when co-leads flip R1 → R2. The link is emailed by the
+            // WG4 leads at the same time. The in-page button has been retired.
             window.open(GOOGLE_FORMS_CONFIG.round2Url, '_blank', 'noopener');
         }
 
@@ -3199,63 +3028,12 @@
             return parts.length ? ('That\'s ' + parts.join(', ') + ' from now.\n\n') : '';
         }
 
-        // Update the Round 1 / Round 2 survey buttons + status badges based on lock state
+        // Round 1 / Round 2 survey buttons have been retired from the WG4 site —
+        // voting runs on the conference-wide Delphi platform. This function is kept
+        // as a safe no-op so legacy callers (admin toggles, init code) don't error.
         function applySurveyLock(round) {
             const btn = document.getElementById(round === 'r1' ? 'round1-btn' : 'round2-btn');
-            const badge = document.getElementById(round === 'r1' ? 'round1-status-badge' : 'round2-status-badge');
             if (!btn) return;
-
-            // R1 is time-gated (Mon Apr 27, 12:00 AM ET). R2 is admin-toggle-gated
-            // (opens after Meeting 2 when co-leads flip the round).
-            let isLocked;
-            if (round === 'r1') {
-                isLocked = !isR1OpenNow();
-            } else {
-                const locks = getLockState();
-                isLocked = locks.r2SurveyLocked;
-            }
-
-            // Style the button to *look* blocked when locked — but the onclick
-            // still fires so members see an alert explaining the unlock time.
-            if (isLocked) {
-                btn.style.background = '#9ca3af';
-                btn.style.cursor = 'not-allowed';
-                btn.textContent = round === 'r1'
-                    ? 'Round 1 Survey — Locked Until Mon Apr 27, 12:00 AM ET'
-                    : 'Round 2 Survey — Locked (Opens After Meeting 2)';
-            } else {
-                btn.style.background = '';
-                btn.style.cursor = '';
-                btn.textContent = round === 'r1'
-                    ? 'Open Round 1 Survey → /survey/4/round_1'
-                    : 'Open Round 2 Survey → /survey/4/round_2';
-            }
-
-            if (badge) {
-                if (isLocked) {
-                    badge.textContent = round === 'r1' ? 'OPENS MON APR 27, 12:00 AM ET' : 'OPENS AFTER MEETING 2';
-                    badge.style.color = 'var(--neutral-ink)';
-                    badge.style.background = 'rgba(0,0,0,0.05)';
-                } else {
-                    badge.textContent = 'OPEN';
-                    badge.style.color = 'var(--success)';
-                    badge.style.background = 'rgba(34,197,94,0.1)';
-                }
-            }
-
-            // If R1 is still locked and the unlock time is reachable in a setTimeout
-            // window (<24 days, the max safe setTimeout is ~24 days), schedule a one-shot
-            // refresh so the button auto-unlocks the moment the clock rolls past
-            // R1_OPEN_TIME_MS — no page reload required.
-            if (round === 'r1' && isLocked) {
-                const ms = msUntilR1Open();
-                if (ms > 0 && ms < 2147483647 && !window._r1UnlockTimer) {
-                    window._r1UnlockTimer = setTimeout(function () {
-                        window._r1UnlockTimer = null;
-                        applySurveyLock('r1');
-                    }, ms + 250);
-                }
-            }
         }
 
         function openGoogleDoc() {
@@ -3308,7 +3086,7 @@
                 <div class="submission-status">
                     <strong>✓ Round 1 Responses Submitted Successfully</strong><br>
                     <p>Thank you for completing Round 1, ${state.participantName}. The results will be aggregated and shared in Round 2.</p>
-                    <p>Results will be available at the Mid-Point Meeting on April 29.</p>
+                    <p>Results will be available at the Mid-Point Meeting on Wed May 6.</p>
                     ${gfNote}
                 </div>
             `);
@@ -3414,7 +3192,7 @@
             form.insertAdjacentHTML('beforebegin', `
                 <div class="submission-status">
                     <strong>✓ Round 2 Responses Submitted Successfully</strong><br>
-                    <p>Thank you for your participation in Round 2, ${state.participantName}. Final consensus results will be calculated and shared at the Final Prep Meeting on May 6.</p>
+                    <p>Thank you for your participation in Round 2, ${state.participantName}. Final consensus results will be calculated and shared at the Final Prep Meeting on Wed May 13.</p>
                     <p>The agreed-upon research questions will be featured in our conference presentation on May 21.</p>
                     ${gfNote}
                 </div>
